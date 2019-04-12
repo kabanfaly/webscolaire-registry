@@ -1,4 +1,4 @@
-package com.webscolaire.generator.config;
+package com.webscolaire.register.config;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
