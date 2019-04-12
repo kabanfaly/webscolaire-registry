@@ -13,5 +13,4 @@ public class WebscolaireGeneratorApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebscolaireGeneratorApplication.class, args);
     }
-
 }
