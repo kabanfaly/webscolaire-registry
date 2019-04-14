@@ -8,7 +8,10 @@ import lombok.Getter;
  * @author KABA N'faly
  */
 public enum WsRegisterError {
-  WS_001("WS_001", "");
+  WS_001("WS_001", "Type Webscolaire invalide."),
+  WS_002("WS_002", "Le format de la date de naissance est invalide."),
+  WS_003("WS_003", "Le type WebScolaire ne doit pas être vide ou 'null'."),
+  WS_004("WS_004", "La date de naissance ne doit pas être vide ou 'null'.");
   
   @Getter
   private final String code;

@@ -6,6 +6,11 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 
+/**
+ * 
+ * @since 12 avr. 2019
+ * @author KABA N'faly
+ */
 @Configuration
 public class WsRegisterConfig {
 
