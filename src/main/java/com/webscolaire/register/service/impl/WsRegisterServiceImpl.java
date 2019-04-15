@@ -7,13 +7,17 @@ import static com.webscolaire.register.config.WsRegisterConstants.DATE_FORMAT_DD
 import static com.webscolaire.register.config.WsRegisterConstants.SEPARATOR;
 import com.webscolaire.register.domain.WebscolaireType;
 import com.webscolaire.register.domain.WsRegister;
+import com.webscolaire.register.domain.WsRegisterParam;
 import com.webscolaire.register.exception.WsRegisterError;
 import com.webscolaire.register.exception.WsRegisterException;
 import com.webscolaire.register.repository.WsRegisterRepository;
 import com.webscolaire.register.service.WsRegisterService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import javax.inject.Inject;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -37,40 +41,45 @@ import reactor.core.publisher.Mono;
 @Transactional
 @Slf4j
 public class WsRegisterServiceImpl implements WsRegisterService {
-    
+
     @Inject
     private WsRegisterRepository registerRepository;
 
     /**
-     * Enregistre un entité webScolaire dans le registre
-     * @param type
-     * @param dateOfBirth
+     *
+     * Enregistre un entité webScolaire dans le registre.
+     *
+     * @param registerParam
      * @return
-     * @throws WsRegisterException 
+     * @throws WsRegisterException
      */
     @Override
-    public Mono<WsRegister> register(String type, String dateOfBirth) throws WsRegisterException {
-        log.info("Request to register {}, {}", type, dateOfBirth);
+    public Mono<WsRegister> register(WsRegisterParam registerParam) throws WsRegisterException {
+        log.info("Request to register {}", registerParam);
 
-        try {            
+        try {
+            final String type = registerParam.getType();
+            final String dateOfBirth = registerParam.getDateOfBirth();
+
             Preconditions.checkArgument(!Strings.isNullOrEmpty(type), WsRegisterError.WS_003.getCode());
             Preconditions.checkArgument(!Strings.isNullOrEmpty(dateOfBirth), WsRegisterError.WS_004.getCode());
-           
+
             // Contruction du type
             WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(type);
             Preconditions.checkNotNull(webscolaireType, WsRegisterError.WS_001.getCode());
 
             // Vérification du format de la date de naissance
             Preconditions.checkState(isValidDateOfBirth(dateOfBirth), WsRegisterError.WS_002.getCode());
-            
+
             long serialNumber = getNextSerialNumber(webscolaireType, dateOfBirth);
             String generatedNumber = buildGeneratedNumber(webscolaireType, dateOfBirth, serialNumber);
             WsRegister register = new WsRegister().setWebscolaireType(webscolaireType)
                     .setDateOfBirth(dateOfBirth)
                     .setSerialNumber(serialNumber)
                     .setGeneratedNumber(generatedNumber);
-
-            return registerRepository.save(register);
+            Mono<WsRegister> saved = registerRepository.save(register);
+            saved.subscribe(System.out::println);
+            return saved;
         } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
             throw new WsRegisterException(WsRegisterError.getErrorFromCodeStr(ex.getMessage()));
         }
@@ -78,6 +87,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     /**
      * Vérifie que la date fournie est correcte.
+     *
      * @param dateOfBirh
      * @return boolean
      */
@@ -92,28 +102,31 @@ public class WsRegisterServiceImpl implements WsRegisterService {
             return false;
         }
     }
-    
+
     /**
      * Génère le prochain numéro
+     *
      * @param webscolaireType
      * @param dateOfBirth
      * @return Long
      */
-    private long getNextSerialNumber(WebscolaireType webscolaireType, String dateOfBirth){
-         Flux<WsRegister> registers = registerRepository.findByWebscolaireTypeAndDateOfBirth(webscolaireType, dateOfBirth);
-         int count = registers.collectList().block().size() + 1;
-         return WsRegisterConstants.DEFAULT_NUMBER + count;
+    private long getNextSerialNumber(WebscolaireType webscolaireType, String dateOfBirth) {
+        Long number = WsRegisterConstants.DEFAULT_NUMBER + 1;
+        Flux<WsRegister> registers = registerRepository.findByWebscolaireTypeAndDateOfBirth(webscolaireType, dateOfBirth);
+        number += registers.count().block(Duration.ZERO);
+        return number;
     }
-    
+
     /**
-     * 
+     *
      * Construit le numero webscolaire
+     *
      * @param webscolaireType
      * @param dateOfBirth
      * @param serialNumber
      * @return String
      */
-    private String buildGeneratedNumber(WebscolaireType webscolaireType, String dateOfBirth, long serialNumber){
+    private String buildGeneratedNumber(WebscolaireType webscolaireType, String dateOfBirth, long serialNumber) {
         return webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + serialNumber;
     }
 }

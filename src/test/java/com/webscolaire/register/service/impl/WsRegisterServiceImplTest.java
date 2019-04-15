@@ -1,16 +1,12 @@
 package com.webscolaire.register.service.impl;
 
-import com.webscolaire.register.WsRegisterApplication;
 import com.webscolaire.register.config.WsRegisterConstants;
 import com.webscolaire.register.domain.WsRegister;
+import com.webscolaire.register.domain.WsRegisterParam;
 import com.webscolaire.register.exception.WsRegisterError;
 import com.webscolaire.register.exception.WsRegisterException;
 import com.webscolaire.register.service.WsRegisterService;
 import javax.inject.Inject;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.runner.RunWith;
@@ -25,7 +21,7 @@ import reactor.test.StepVerifier;
  * @author N'faly KABA
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = WsRegisterApplication.class)
+@SpringBootTest
 public class WsRegisterServiceImplTest {
     
     public static final String DOB = "20121999";
@@ -41,46 +37,46 @@ public class WsRegisterServiceImplTest {
     @Test
     public void shouldThrowException_withWS_003_when_emptyOrNull_type() {
         try {
-            registerService.register(null, "DOB");
+            registerService.register(new WsRegisterParam(null, "DOB"));
             fail("WsRegisterException(WS_003) expected");
         } catch (WsRegisterException ex) {
-            assertEquals(WsRegisterError.WS_003, ex.getError());
+            assertEquals(WsRegisterError.WS_003, ex.getWsError());
         }
     }
 
     @Test
     public void shouldThrowException_withWS_001_when_invalid_type() {
         try {
-            registerService.register("INVALID_TYPE", DOB);
+            registerService.register(new WsRegisterParam("INVALID_TYPE", DOB));
             fail("WsRegisterException(WS_001) expected");
         } catch (WsRegisterException ex) {
-            assertEquals(WsRegisterError.WS_001, ex.getError());
+            assertEquals(WsRegisterError.WS_001, ex.getWsError());
         }
     }
 
     @Test
     public void shouldThrowException_withWS_004_when_emptyOrNull_dateOfBirth() {
         try {
-            registerService.register("TYPE", "");
+            registerService.register(new WsRegisterParam("TYPE", ""));
             fail("WsRegisterException(WS_004) expected");
         } catch (WsRegisterException ex) {
-            assertEquals(WsRegisterError.WS_004, ex.getError());
+            assertEquals(WsRegisterError.WS_004, ex.getWsError());
         }
     }
 
     @Test
     public void shouldThrowException_withWS_002_when_invalid_dateOfBirth() {
         try {
-            registerService.register("ETUDIANT_ELEVE", "40802222");
+            registerService.register(new WsRegisterParam("ELEVE_ETUDIANT", "40802222"));
             fail("WsRegisterException(WS_002) expected");
         } catch (WsRegisterException ex) {
-            assertEquals(WsRegisterError.WS_002, ex.getError());
+            assertEquals(WsRegisterError.WS_002, ex.getWsError());
         }
     }
     @Test
     public void registerTestOK() {
         try {
-            Mono<WsRegister> registerMono = registerService.register("ETUDIANT_ELEVE", DOB);
+            Mono<WsRegister> registerMono = registerService.register(new WsRegisterParam("ELEVE_ETUDIANT", DOB));
             StepVerifier.create(registerMono).expectComplete();
             WsRegister register = registerMono.block();
             

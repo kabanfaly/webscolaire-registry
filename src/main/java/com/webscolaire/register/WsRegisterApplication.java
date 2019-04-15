@@ -23,25 +23,21 @@ public class WsRegisterApplication {
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
-//    @Bean
-//    public CommandLineRunner run(WsRegisterRepository registerRepository) {
-//        return args -> {
-//
-//            registerRepository.deleteAll()
-//                    .thenMany(
-//                            Flux.just("20121984", "20121985")
-//                                    .map(d -> new WsRegister()
-//                                    .setDateOfBirth(d).setWebscolaireType(WebscolaireType.ETUDIANT_ELEVE)
-//                                    .setSerialNumber(1000L).setGeneratedNumber(d + "-1000"))
+    @Bean
+    public CommandLineRunner run(WsRegisterRepository registerRepository) {
+        return args -> {
+
+            registerRepository.deleteAll()
+                    .thenMany(
+                            Flux.just("20121984", "20121985")
+                                    .map(d -> new WsRegister()
+                                    .setDateOfBirth(d).setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)
+                                    .setSerialNumber(1000L).setGeneratedNumber(d + "-1000"))
 //                                    .flatMap(registerRepository::save)
-//                                    .thenMany(registerRepository.findAll()))
-//                    .subscribe(System.out::println);
-//            String d = "2222";
-//            System.out.println(new WsRegister()
-//                    .setDateOfBirth(d).setWebscolaireType(WebscolaireType.ETUDIANT_ELEVE)
-//                    .setSerialNumber(1000L).setGeneratedNumber(d + "-1000"));
-//        };
-//    }
+                                    .thenMany(registerRepository.findAll()))
+                    .subscribe(System.out::println);
+        };
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(WsRegisterApplication.class, args);

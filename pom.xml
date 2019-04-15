@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.webscolaire.generator</groupId>
-    <artifactId>webscolaire-generator</artifactId>
+    <artifactId>webscolaire-register</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>webscolaire-generator</name>
-    <description>Unique register</description>
+    <name>webscolaire-register</name>
+    <description>Registre Webscolaire</description>
     
     <properties>
         <java.version>1.8</java.version>

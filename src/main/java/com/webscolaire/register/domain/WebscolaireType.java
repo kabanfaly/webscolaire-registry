@@ -8,7 +8,7 @@ import lombok.Getter;
  * @author KABA N'faly
  */
 public enum WebscolaireType {
-    ETUDIANT_ELEVE("EE"),
+    ELEVE_ETUDIANT("EE"),
     ENSEIGNANT_PROF("EP"),
     ECOLE_UNIVERSITE("EU"),
     PARENT_ELEVE("PE");

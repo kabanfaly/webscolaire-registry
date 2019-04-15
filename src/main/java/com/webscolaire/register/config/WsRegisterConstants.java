@@ -2,6 +2,7 @@ package com.webscolaire.register.config;
 
 /**
  *
+ * @since 13 avr. 2019
  * @author KABA N'faly
  */
 public class WsRegisterConstants {
