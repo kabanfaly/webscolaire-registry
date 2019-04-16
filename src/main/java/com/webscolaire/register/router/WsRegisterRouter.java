@@ -1,6 +1,7 @@
 package com.webscolaire.register.router;
 
 import com.webscolaire.register.config.WsRegisterProperties;
+import com.webscolaire.register.domain.WsRegister;
 import com.webscolaire.register.domain.WsRegisterParam;
 import com.webscolaire.register.service.WsRegisterService;
 import org.springframework.context.annotation.Bean;
@@ -16,7 +17,9 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import org.springframework.web.reactive.function.server.RouterFunction;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 /**
  *
@@ -31,9 +34,12 @@ public class WsRegisterRouter {
         return route(GET("/"),
                 req -> ok().body(Flux.just("Registre WebScolaire"), String.class))
                 .andRoute(POST("/register").and(accept(APPLICATION_JSON)),
-                        req -> req
-                                .body(toMono(WsRegisterParam.class))
-                                .doOnNext(rs::register)
-                                .then(ok().contentType(APPLICATION_JSON).build()));
+                        req -> {
+                            Mono<WsRegisterParam> param = req.bodyToMono(WsRegisterParam.class);
+                            return ok()
+                                    .contentType(APPLICATION_JSON)
+                                    .body(fromPublisher(param.flatMap(rs::register), WsRegister.class));
+                        }
+                );
     }
 }

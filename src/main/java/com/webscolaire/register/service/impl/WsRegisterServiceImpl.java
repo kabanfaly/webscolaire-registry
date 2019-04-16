@@ -77,9 +77,9 @@ public class WsRegisterServiceImpl implements WsRegisterService {
                     .setDateOfBirth(dateOfBirth)
                     .setSerialNumber(serialNumber)
                     .setGeneratedNumber(generatedNumber);
-            Mono<WsRegister> saved = registerRepository.save(register);
-            saved.subscribe(System.out::println);
-            return saved;
+            registerRepository.save(register).subscribe();
+            return Mono.just(register);
+
         } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
             throw new WsRegisterException(WsRegisterError.getErrorFromCodeStr(ex.getMessage()));
         }
@@ -111,10 +111,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return Long
      */
     private long getNextSerialNumber(WebscolaireType webscolaireType, String dateOfBirth) {
-        Long number = WsRegisterConstants.DEFAULT_NUMBER + 1;
-        Flux<WsRegister> registers = registerRepository.findByWebscolaireTypeAndDateOfBirth(webscolaireType, dateOfBirth);
-        number += registers.count().block(Duration.ZERO);
-        return number;
+        List<WsRegister> registers = registerRepository.findByWebscolaireTypeAndDateOfBirth(webscolaireType, dateOfBirth);
+        return registers.size() + WsRegisterConstants.DEFAULT_NUMBER + 1;
     }
 
     /**
