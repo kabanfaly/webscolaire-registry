@@ -4,7 +4,6 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import javax.validation.constraints.Pattern;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;

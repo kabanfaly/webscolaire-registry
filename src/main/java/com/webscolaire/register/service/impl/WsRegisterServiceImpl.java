@@ -23,6 +23,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
@@ -44,6 +48,9 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     @Inject
     private WsRegisterRepository registerRepository;
+
+    @Inject
+    private MongoTemplate mongoTemplate;
 
     /**
      *
@@ -111,7 +118,11 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return Long
      */
     private long getNextSerialNumber(WebscolaireType webscolaireType, String dateOfBirth) {
-        List<WsRegister> registers = registerRepository.findByWebscolaireTypeAndDateOfBirth(webscolaireType, dateOfBirth);
+
+        Query query = new Query();
+        query.addCriteria(where("webscolaire_type").is(webscolaireType.name()).and("date_birth").is(dateOfBirth));
+        List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
+
         return registers.size() + WsRegisterConstants.DEFAULT_NUMBER + 1;
     }
 
