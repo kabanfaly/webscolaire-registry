@@ -14,7 +14,7 @@ jobs:
       # documented at https://circleci.com/docs/2.0/circleci-images/
       # - image: circleci/postgres:9.4
 
-    working_directory: ~/repo
+    working_directory: ~/webscolaire-register
 
     environment:
       # Customize the JVM maximum heap limit
@@ -36,6 +36,10 @@ jobs:
           paths:
             - ~/.m2
           key: v1-dependencies-{{ checksum "pom.xml" }}
-
-      # run tests!
-      - run: mvn integration-test
+          
+      # package into a jar
+      - run: mvn clean package
+      - store_artifacts:
+          path: target/classes
+          destination: webscolaire-register
+      
