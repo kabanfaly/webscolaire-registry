@@ -3,28 +3,24 @@ package com.webscolaire.register.service.impl;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.webscolaire.register.config.WsRegisterConstants;
-import static com.webscolaire.register.config.WsRegisterConstants.DATE_FORMAT_DD_MM_YYYY;
-import static com.webscolaire.register.config.WsRegisterConstants.SEPARATOR;
+import static com.webscolaire.register.config.WsRegisterConstants.*;
+import com.webscolaire.register.domain.SexeType;
 import com.webscolaire.register.domain.WebscolaireType;
 import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.domain.WsRegisterParam;
+import com.webscolaire.register.domain.dto.WsRegisterParam;
 import com.webscolaire.register.exception.WsRegisterError;
 import com.webscolaire.register.exception.WsRegisterException;
 import com.webscolaire.register.repository.WsRegisterRepository;
 import com.webscolaire.register.service.WsRegisterService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Duration;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import javax.inject.Inject;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -54,42 +50,72 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     /**
      *
-     * Enregistre un entité webScolaire dans le registre.
+     * Enregistre une entité webScolaire {@link WebscolaireType} dans le
+     * registre.
      *
      * @param registerParam
      * @return
      * @throws WsRegisterException
      */
     @Override
-    public Mono<WsRegister> register(WsRegisterParam registerParam) throws WsRegisterException {
+    public Mono<WsRegister> registerOne(WsRegisterParam registerParam) throws WsRegisterException {
         log.info("Request to register {}", registerParam);
 
         try {
-            final String type = registerParam.getType();
-            final String dateOfBirth = registerParam.getDateOfBirth();
+            final String type = registerParam.getWebscolaireType();
+            final String dateNaissance = registerParam.getDateNaissance();
+            final String sexe = registerParam.getSexe();
 
             Preconditions.checkArgument(!Strings.isNullOrEmpty(type), WsRegisterError.WS_003.getCode());
-            Preconditions.checkArgument(!Strings.isNullOrEmpty(dateOfBirth), WsRegisterError.WS_004.getCode());
-
+            Preconditions.checkArgument(!Strings.isNullOrEmpty(dateNaissance), WsRegisterError.WS_004.getCode());
             // Contruction du type
             WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(type);
             Preconditions.checkNotNull(webscolaireType, WsRegisterError.WS_001.getCode());
 
             // Vérification du format de la date de naissance
-            Preconditions.checkState(isValidDateOfBirth(dateOfBirth), WsRegisterError.WS_002.getCode());
+            Preconditions.checkState(isValidDateOfBirth(dateNaissance), WsRegisterError.WS_002.getCode());
+            WsRegister register = findRegister(registerParam.getSourceId(), registerParam.getNom(), registerParam.getPrenom(),
+                    registerParam.getDateNaissance(), webscolaireType, SexeType.valueOf(registerParam.getSexe()));
 
-            long serialNumber = getNextSerialNumber(webscolaireType, dateOfBirth);
-            String generatedNumber = buildGeneratedNumber(webscolaireType, dateOfBirth, serialNumber);
-            WsRegister register = new WsRegister().setWebscolaireType(webscolaireType)
-                    .setDateOfBirth(dateOfBirth)
-                    .setSerialNumber(serialNumber)
-                    .setGeneratedNumber(generatedNumber);
-            registerRepository.save(register).subscribe();
+            if (null == findRegister(registerParam.getSourceId(), registerParam.getNom(), registerParam.getPrenom(),
+                    registerParam.getDateNaissance(), webscolaireType, SexeType.valueOf(registerParam.getSexe()))) {
+                long serialNumber = getNextSerialNumber(webscolaireType, dateNaissance);
+                String numeroGenere = buildGeneratedNumber(webscolaireType, dateNaissance, serialNumber);
+                register = new WsRegister()
+                        .setWebscolaireType(webscolaireType)
+                        .setDateNaissance(dateNaissance)
+                        .setNom(registerParam.getNom().toUpperCase())
+                        .setSexe(SexeType.valueOf(registerParam.getSexe()))
+                        .setPrenom(registerParam.getPrenom().toUpperCase())
+                        .setNumeroGenere(numeroGenere)
+                        .setSourceId(registerParam.getSourceId());
+
+                registerRepository.save(register).subscribe();
+            } else {
+                log.info("Retrieving existing data : {} ", register);
+            }
             return Mono.just(register);
 
         } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
             throw new WsRegisterException(WsRegisterError.getErrorFromCodeStr(ex.getMessage()));
         }
+    }
+
+    /**
+     * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le
+     * registre.
+     *
+     * @param registerParams
+     * @return
+     */
+    @Override
+    public Flux<WsRegister> registerMany(List<WsRegisterParam> registerParams) {
+        log.info("Request to register {}", registerParams);
+        Flux<WsRegister> registers = Flux.fromIterable(registerParams)
+                .flatMap(r -> registerOne(r))
+                .onErrorReturn(WsRegisterException.class, new WsRegister());
+        registers.subscribe();
+        return registers;
     }
 
     /**
@@ -114,16 +140,37 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * Génère le prochain numéro
      *
      * @param webscolaireType
-     * @param dateOfBirth
+     * @param dateNaissance
+     * @param sourceId
      * @return Long
      */
-    private long getNextSerialNumber(WebscolaireType webscolaireType, String dateOfBirth) {
+    private long getNextSerialNumber(WebscolaireType webscolaireType, String dateNaissance) {
 
         Query query = new Query();
-        query.addCriteria(where("webscolaire_type").is(webscolaireType.name()).and("date_birth").is(dateOfBirth));
+        query.addCriteria(
+                where(WEBSCOLAIRE_TYPE).is(webscolaireType)
+                        .and(DATE_NAISSANCE).is(dateNaissance)
+        );
         List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
 
-        return registers.size() + WsRegisterConstants.DEFAULT_NUMBER + 1;
+        return WsRegisterConstants.DEFAULT_NUMBER * (registers.size() + 1);
+    }
+
+    private WsRegister findRegister(String sourceId, String nom, String prenom, String dateNaissance,
+            WebscolaireType webscolaireType, SexeType sexe) {
+
+        Query query = new Query();
+        query.addCriteria(
+                where(WEBSCOLAIRE_TYPE).is(webscolaireType)
+                        .and(SOURCE_ID).is(sourceId)
+                        .and(NOM).is(nom.toUpperCase())
+                        .and(PRENOM).is(prenom.toUpperCase())
+                        .and(DATE_NAISSANCE).is(dateNaissance)
+                        .and(SEXE).is(sexe)
+        );
+        List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
+
+        return registers.stream().findFirst().orElse(null);
     }
 
     /**

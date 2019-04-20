@@ -1,10 +1,9 @@
 package com.webscolaire.register;
 
-import com.webscolaire.register.domain.WebscolaireType;
-import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.repository.WsRegisterRepository;
+import com.webscolaire.register.config.WsRegisterProperties;
 import java.util.TimeZone;
 import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -15,9 +14,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class WsRegisterApplication {
 
+    @Inject
+    private WsRegisterProperties properties;
     @PostConstruct
     void started() {
-        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+        TimeZone.setDefault(TimeZone.getTimeZone(properties.getTimeZone()));
     }
 
     public static void main(String[] args) {
