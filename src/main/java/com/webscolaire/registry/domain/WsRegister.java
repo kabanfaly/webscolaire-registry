@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import static com.webscolaire.register.config.WsRegisterConstants.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
@@ -31,25 +32,37 @@ public class WsRegister implements Serializable {
     private String id;
 
     @Indexed
-    @Field("webscolaire_type")
+    @Field(WEBSCOLAIRE_TYPE)
     private WebscolaireType webscolaireType;
 
     @Indexed
-    @Field("date_birth")
-    private String dateOfBirth;
+    @Field(DATE_NAISSANCE)
+    private String dateNaissance;
+
+    @Field(NOM)
+    private String nom;
+
+    @Field(PRENOM)
+    private String prenom;
+
+    @Field(SEXE)
+    private SexeType sexe;
 
     @Indexed
-    @Field("serial_number")
-    private Long serialNumber;
+    @Field(SOURCE_ID)
+    private String sourceId;
 
-    @Field("generated_number")
-    private String generatedNumber;
+    /**
+     * Identifiant unique généré
+     */
+    @Field(NUMERO_GENERE)
+    private String numeroGenere;
 
-    @Field("created_date")
+    @Field(DATE_CREATION)
     @JsonIgnore
-    private ZonedDateTime createdDate = ZonedDateTime.now();
+    private ZonedDateTime dateCreation = ZonedDateTime.now();
 
-    @Field("last_modified_date")
+    @Field(DATE_MODIFICATION)
     @JsonIgnore
-    private ZonedDateTime lastModifiedDate = ZonedDateTime.now();
+    private ZonedDateTime dateModification = ZonedDateTime.now();
 }
