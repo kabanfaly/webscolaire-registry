@@ -1,4 +1,4 @@
-package com.webscolaire.register.config;
+package com.webscolaire.registry.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

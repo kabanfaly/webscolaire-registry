@@ -1,4 +1,4 @@
-package com.webscolaire.register.config;
+package com.webscolaire.registry.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,7 @@ import java.util.List;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 
 @Configuration
-@EnableMongoRepositories("com.webscolaire.register.repository")
+@EnableMongoRepositories("com.webscolaire.registry.repository")
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration {
 

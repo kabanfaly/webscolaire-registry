@@ -1,10 +1,10 @@
-package com.webscolaire.register.domain;
+package com.webscolaire.registry.domain;
 
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import static com.webscolaire.register.config.WsRegisterConstants.*;
+import static com.webscolaire.registry.config.WsRegisterConstants.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;

@@ -1,4 +1,4 @@
-package com.webscolaire.register.exception;
+package com.webscolaire.registry.exception;
 
 import lombok.Data;
 import lombok.Getter;

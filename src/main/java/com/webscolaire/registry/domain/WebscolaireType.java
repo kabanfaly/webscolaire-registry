@@ -1,4 +1,4 @@
-package com.webscolaire.register.domain;
+package com.webscolaire.registry.domain;
 
 import lombok.Getter;
 

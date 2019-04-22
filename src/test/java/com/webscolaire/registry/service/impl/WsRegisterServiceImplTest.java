@@ -1,10 +1,10 @@
-package com.webscolaire.register.service.impl;
+package com.webscolaire.registry.service.impl;
 
-import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.domain.dto.WsRegisterParam;
-import com.webscolaire.register.exception.WsRegisterError;
-import com.webscolaire.register.exception.WsRegisterException;
-import com.webscolaire.register.service.WsRegisterService;
+import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.exception.WsRegisterError;
+import com.webscolaire.registry.exception.WsRegisterException;
+import com.webscolaire.registry.service.WsRegisterService;
 import javax.inject.Inject;
 import org.junit.Test;
 import static org.junit.Assert.*;
