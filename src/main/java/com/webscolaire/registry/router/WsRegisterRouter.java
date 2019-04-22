@@ -1,8 +1,8 @@
-package com.webscolaire.register.router;
+package com.webscolaire.registry.router;
 
-import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.domain.dto.WsRegisterParam;
-import com.webscolaire.register.service.WsRegisterService;
+import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.service.WsRegisterService;
 import java.util.List;
 import org.springframework.context.annotation.Bean;
 import static org.springframework.http.MediaType.APPLICATION_JSON;

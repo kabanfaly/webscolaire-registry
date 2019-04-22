@@ -1,6 +1,6 @@
-package com.webscolaire.register;
+package com.webscolaire.registry;
 
-import com.webscolaire.register.config.WsRegisterProperties;
+import com.webscolaire.registry.config.WsRegisterProperties;
 import java.util.TimeZone;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;

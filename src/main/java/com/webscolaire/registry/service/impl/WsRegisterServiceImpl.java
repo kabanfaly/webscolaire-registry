@@ -1,17 +1,17 @@
-package com.webscolaire.register.service.impl;
+package com.webscolaire.registry.service.impl;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
-import com.webscolaire.register.config.WsRegisterConstants;
-import static com.webscolaire.register.config.WsRegisterConstants.*;
-import com.webscolaire.register.domain.SexeType;
-import com.webscolaire.register.domain.WebscolaireType;
-import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.domain.dto.WsRegisterParam;
-import com.webscolaire.register.exception.WsRegisterError;
-import com.webscolaire.register.exception.WsRegisterException;
-import com.webscolaire.register.repository.WsRegisterRepository;
-import com.webscolaire.register.service.WsRegisterService;
+import com.webscolaire.registry.config.WsRegisterConstants;
+import static com.webscolaire.registry.config.WsRegisterConstants.*;
+import com.webscolaire.registry.domain.SexeType;
+import com.webscolaire.registry.domain.WebscolaireType;
+import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.exception.WsRegisterError;
+import com.webscolaire.registry.exception.WsRegisterException;
+import com.webscolaire.registry.repository.WsRegisterRepository;
+import com.webscolaire.registry.service.WsRegisterService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;

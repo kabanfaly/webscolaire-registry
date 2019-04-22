@@ -1,7 +1,7 @@
-package com.webscolaire.register.service;
+package com.webscolaire.registry.service;
 
-import com.webscolaire.register.domain.WsRegister;
-import com.webscolaire.register.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsRegisterParam;
 import java.util.List;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

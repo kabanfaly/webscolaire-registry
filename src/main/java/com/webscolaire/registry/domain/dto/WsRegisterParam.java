@@ -1,4 +1,4 @@
-package com.webscolaire.register.domain.dto;
+package com.webscolaire.registry.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

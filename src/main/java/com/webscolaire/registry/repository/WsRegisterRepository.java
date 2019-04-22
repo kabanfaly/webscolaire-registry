@@ -1,7 +1,7 @@
-package com.webscolaire.register.repository;
+package com.webscolaire.registry.repository;
 
-import com.webscolaire.register.domain.WebscolaireType;
-import com.webscolaire.register.domain.WsRegister;
+import com.webscolaire.registry.domain.WebscolaireType;
+import com.webscolaire.registry.domain.WsRegister;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
