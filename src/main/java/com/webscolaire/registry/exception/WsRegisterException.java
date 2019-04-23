@@ -1,6 +1,7 @@
 package com.webscolaire.registry.exception;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 
 /**
@@ -9,19 +10,20 @@ import lombok.Getter;
  * @author KABA N'faly
  */
 @Data
-public class WsRegisterException extends RuntimeException {
-  
+@EqualsAndHashCode(callSuper = false)
+public class WsRegisterException extends RuntimeException   {
+
   private static final long serialVersionUID = 1L;
-  
+
   @Getter
   private final WsRegisterError wsError;
-  
-  public WsRegisterException(WsRegisterError error){
-      this(error, null);
+
+  public WsRegisterException(WsRegisterError error) {
+    this(error, null);
   }
-  
-   public WsRegisterException(WsRegisterError error, Throwable t){
-      super(error.getDescription(), t);
-      this.wsError = error;
+
+  public WsRegisterException(WsRegisterError error, Throwable t) {
+    super(error.getDescription(), t);
+    this.wsError = error;
   }
 }

@@ -13,9 +13,9 @@ import reactor.core.publisher.Mono;
  */
 public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister, String> {
 
-    Flux<WsRegister> findByDateNaissance(String dateNaissance);
+  Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
 
-    Mono<WsRegister> findByNumeroGenere(String numeroGenere);
+  Mono<WsRegister> findByGeneratedNumber(String generatedNumbers);
 
-    Flux<WsRegister> findByWebscolaireType(WebscolaireType webscolaireType);
+  Flux<WsRegister> findByWebscolaireTypeAndDateOfBirth(WebscolaireType webscolaireType, String dateOfBirth);
 }

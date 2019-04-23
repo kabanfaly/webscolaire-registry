@@ -14,18 +14,18 @@ import lombok.NonNull;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WsRegisterParam {
-    
-    @NonNull
-    private String sourceId;
-    
-    @NonNull
-    private String webscolaireType;
-    
-    @NonNull
-    private String dateNaissance;
-    
-    @NonNull
-    private String nom;
-    private String prenom = "";
-    private String sexe = "";
+
+  @NonNull
+  private String sourceId;
+
+  @NonNull
+  private String webscolaireType;
+
+  @NonNull
+  private String dateOfBirth;
+
+  @NonNull
+  private String lastname;
+  private String firstname = "";
+  private String sex = "";
 }

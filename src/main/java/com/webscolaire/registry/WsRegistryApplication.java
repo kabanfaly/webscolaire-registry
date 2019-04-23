@@ -12,16 +12,17 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author KABA N'faly
  */
 @SpringBootApplication
-public class WsRegisterApplication {
+public class WsRegistryApplication {
 
     @Inject
     private WsRegisterProperties properties;
+    
     @PostConstruct
     void started() {
         TimeZone.setDefault(TimeZone.getTimeZone(properties.getTimeZone()));
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(WsRegisterApplication.class, args);
+        SpringApplication.run(WsRegistryApplication.class, args);
     }
 }

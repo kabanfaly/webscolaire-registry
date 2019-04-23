@@ -1,11 +1,11 @@
 package com.webscolaire.registry.domain;
 
-import java.io.Serializable;
 import java.time.ZonedDateTime;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import static com.webscolaire.registry.config.WsRegisterConstants.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.*;
@@ -21,48 +21,43 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author kaban
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @Accessors(chain = true)
 @Document(collection = "register")
-public class WsRegister implements Serializable {
+public class WsRegister  extends AbstractAuditingEntity {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    private String id;
+  @Id
+  @JsonIgnore
+  private String id;
 
-    @Indexed
-    @Field(WEBSCOLAIRE_TYPE)
-    private WebscolaireType webscolaireType;
+  @Indexed
+  @Field(WEBSCOLAIRE_TYPE)
+  private WebscolaireType webscolaireType;
 
-    @Indexed
-    @Field(DATE_NAISSANCE)
-    private String dateNaissance;
+  @Indexed
+  @Field(DATE_OF_BIRTH)
+  private String dateOfBirth;
 
-    @Field(NOM)
-    private String nom;
+  @Field(LASTNAME)
+  private String lastname;
 
-    @Field(PRENOM)
-    private String prenom;
+  @Field(FIRSTNAME)
+  private String firstname;
 
-    @Field(SEXE)
-    private SexeType sexe;
+  @Field(SEX)
+  private SexType sex;
 
-    @Indexed
-    @Field(SOURCE_ID)
-    private String sourceId;
+  @Indexed
+  @JsonIgnore
+  @Field(SOURCE_ID)
+  private String sourceId;
 
-    /**
-     * Identifiant unique généré
-     */
-    @Field(NUMERO_GENERE)
-    private String numeroGenere;
-
-    @Field(DATE_CREATION)
-    @JsonIgnore
-    private ZonedDateTime dateCreation = ZonedDateTime.now();
-
-    @Field(DATE_MODIFICATION)
-    @JsonIgnore
-    private ZonedDateTime dateModification = ZonedDateTime.now();
+  /**
+   * Identifiant unique généré
+   */
+  @Field(GENERATED_NUMBER)
+  private String generatedNumber;
 }
