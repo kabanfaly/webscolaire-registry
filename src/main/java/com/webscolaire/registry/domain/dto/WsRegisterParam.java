@@ -27,5 +27,5 @@ public class WsRegisterParam {
   @NonNull
   private String lastname;
   private String firstname = "";
-  private String sex = "";
+  private String sex;
 }

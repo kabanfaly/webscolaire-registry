@@ -58,33 +58,26 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    * @throws WsRegisterException
    */
   @Override
-  public Mono<WsRegister> registerOne(WsRegisterParam registerParam) throws WsRegisterException {
-    log.info("Request to register {}", registerParam);
+  public Mono<WsRegister> registerOne(WsRegisterParam registerParam) {
+    log.info("Request to register one : {}", registerParam);
 
     try {
-      val type = registerParam.getWebscolaireType();
-      val dateOfBirth = registerParam.getDateOfBirth();
+      // Validation 
+      validateWsRegisterParam(registerParam);
 
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(type), WsRegisterError.WS_003.getCode());
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(dateOfBirth), WsRegisterError.WS_004.getCode());
-      // Contruction du type
-      WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(type);
-      Preconditions.checkNotNull(webscolaireType, WsRegisterError.WS_001.getCode());
-
-      // Vérification du format de la date de naissance
-      Preconditions.checkState(isValidDateOfBirth(dateOfBirth), WsRegisterError.WS_002.getCode());
-      
+      WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(registerParam.getWebscolaireType());
+     
       // Recherche d'une entité existante
       WsRegister register = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
           registerParam.getDateOfBirth(), webscolaireType, SexType.valueOf(registerParam.getSex()));
-      
+
       // Enregistre si aucune entité existante trouvée.
       if (register == null) {
-        val numeroGenere = buildGeneratedNumber(webscolaireType, dateOfBirth);
+        val numeroGenere = buildGeneratedNumber(webscolaireType, registerParam.getDateOfBirth());
 
         register = new WsRegister()
             .setWebscolaireType(webscolaireType)
-            .setDateOfBirth(dateOfBirth)
+            .setDateOfBirth(registerParam.getDateOfBirth())
             .setLastname(registerParam.getLastname().toUpperCase())
             .setSex(SexType.valueOf(registerParam.getSex()))
             .setFirstname(registerParam.getFirstname().toUpperCase())
@@ -98,7 +91,10 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       return Mono.just(register);
 
     } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
-      throw new WsRegisterException(WsRegisterError.getErrorFromCodeStr(ex.getMessage()));
+      log.error(ExceptionUtils.getStackTrace(ex));
+      WsRegisterError registerError = WsRegisterError.getErrorFromCodeStr(ex.getMessage());
+      log.error("{} --- {}", registerError.toString(), registerParam);
+      throw new WsRegisterException(registerError);
     }
   }
 
@@ -110,14 +106,36 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    * @return
    */
   @Override
-  public Flux<WsRegister> registerMany(List<WsRegisterParam> registerParams) throws WsRegisterException {
-    log.info("Request to register {}", registerParams);
+  public Flux<WsRegister> registerMany(List<WsRegisterParam> registerParams) {
+    log.info("Request to register Many : {}", registerParams);
     Flux<WsRegister> registers = Flux.fromIterable(registerParams)
         .flatMap(r -> registerOne(r))
         .onErrorReturn(WsRegisterException.class, new WsRegister());
     registers.subscribe();
     return registers;
   }
+  
+  /**
+   * Valide les attributs du paramètre WsRegisterParam
+   *
+   * @param registerParam
+   */
+  private void validateWsRegisterParam(WsRegisterParam registerParam) {
+
+    // Validation de l'attribut webscolaireType
+    Preconditions.checkNotNull(WebscolaireType.getTypeFromString(registerParam.getWebscolaireType()), WsRegisterError.WS_001.getCode());
+
+    // Vérification du format de la date de naissance
+    Preconditions.checkState(isValidDateOfBirth(registerParam.getDateOfBirth()), WsRegisterError.WS_002.getCode());
+    
+    // Validation de l'attribut 'sex'
+    Preconditions.checkNotNull(SexType.getSexFromString(registerParam.getSex()), WsRegisterError.WS_003.getCode());
+    
+    // Validation de l'attribut 'lastname'
+    Preconditions.checkArgument(!Strings.isNullOrEmpty(registerParam.getLastname()), WsRegisterError.WS_004.getCode());
+    
+  }
+
 
   /**
    * Vérifie que la date fournie est correcte.
@@ -131,21 +149,22 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     try {
       formatter.parse(dateOfBirh);
       return true;
-    } catch (ParseException ex) {
+    } catch (ParseException | NullPointerException ex) {
       log.error(ExceptionUtils.getStackTrace(ex));
       return false;
     }
   }
 
   /**
-   * Recherche une entité WsRegister 
+   * Recherche une entité WsRegister
+   *
    * @param sourceId
    * @param lastname
    * @param firstname
    * @param dateOfBirth
    * @param webscolaireType
    * @param sex
-   * @return 
+   * @return
    */
   private WsRegister findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
       WebscolaireType webscolaireType, SexType sex) {
@@ -174,13 +193,13 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    */
   private String buildGeneratedNumber(WebscolaireType webscolaireType, String dateOfBirth) {
     log.info("Building generated number ...");
-    
+
     // Génération d'un token
     String token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
-    
+
     // Construction du numéro webscolaire initial
     String generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
-    
+
     boolean isUnique = false;
     // Tant que le numéro webscolaire construit n'est pas unique en base on n'en contruit de nouveau
     while (!isUnique) {
@@ -189,13 +208,12 @@ public class WsRegisterServiceImpl implements WsRegisterService {
           where(GENERATED_NUMBER).is(generatedNumber)
       );
       List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
-      
+
       // Le numéro construit est unique
-      if(registers.isEmpty()){
+      if (registers.isEmpty()) {
         isUnique = true;
         continue;
       }
-      
       // construction d'un nouveau numéro webscolaire
       token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
       generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;

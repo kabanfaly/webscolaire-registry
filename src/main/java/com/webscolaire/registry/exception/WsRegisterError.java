@@ -8,10 +8,10 @@ import lombok.Getter;
  * @author KABA N'faly
  */
 public enum WsRegisterError {
-  WS_001("WS_001", "Type Webscolaire invalide."),
-  WS_002("WS_002", "Le format de la date de naissance est invalide."),
-  WS_003("WS_003", "L'attribut 'webscolaireType' ne doit pas être vide ou 'null'."),
-  WS_004("WS_004", "L'attribut 'dateOfBirth' ne doit pas être vide ou 'null'.");
+  WS_001("WS_001", "La valeur de l'attribut 'webscolaireType' est invalide ou n'est pas définie."),
+  WS_002("WS_002", "Le format de la date de naissance (dateOfBirth) est invalid. le format valide est : JJMMAAAA."),
+  WS_003("WS_003", "La valeur de l'attribut 'sex' est invalide ou n'est pas définie."),
+  WS_004("WS_004", "L'attribut 'lastname' ne doit pas être vide ou 'null'.");
 
   @Getter
   private final String code;
@@ -36,5 +36,10 @@ public enum WsRegisterError {
       }
     }
     return null;
+  }
+
+  @Override
+  public String toString() {
+    return description;
   }
 }

@@ -6,9 +6,9 @@ package com.webscolaire.registry.domain;
  * @author KABA N'faly
  */
 public enum SexType {
-  H, F;
+  H, F, A; // Homme, Femme, Autre
 
-  public static SexType getSexeFromString(String str) {
+  public static SexType getSexFromString(String str) {
     for (SexType sexe : SexType.values()) {
       if (sexe.name().equals(str)) {
         return sexe;

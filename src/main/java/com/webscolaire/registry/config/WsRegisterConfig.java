@@ -9,11 +9,10 @@ import org.springframework.security.core.userdetails.MapReactiveUserDetailsServi
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import static org.springframework.web.reactive.function.server.RequestPredicates.GET;
-import static org.springframework.web.reactive.function.server.RequestPredicates.POST;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
+import org.springframework.web.reactive.function.server.ServerResponse;
 
 /**
  *
@@ -47,8 +46,15 @@ public class WsRegisterConfig {
 
   @Bean
   RouterFunction<?> routerFunction(WsRegisterHandler wsRegisterHandler) {
-    return route(GET("/"), wsRegisterHandler::home)
-        .andRoute(POST("/register").and(accept(APPLICATION_JSON_UTF8)), wsRegisterHandler::registerOne)
-        .andRoute(POST("/registers").and(accept(APPLICATION_JSON_UTF8)), wsRegisterHandler::registerMany);
+    
+    RouterFunction<ServerResponse> registryRoutes = route()
+        .nest(accept(APPLICATION_JSON_UTF8), builder -> {
+          builder
+              .GET("/", wsRegisterHandler::home)
+              .POST("/register", wsRegisterHandler::registerOne)
+              .POST("/registers",wsRegisterHandler::registerMany);
+        }).build();
+    
+    return route().path("/ws", () -> registryRoutes).build();
   }
 }
