@@ -18,7 +18,7 @@ import java.util.List;
 import javax.inject.Inject;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.springframework.data.mongodb.core.MongoTemplate;
@@ -40,7 +40,7 @@ import reactor.core.publisher.Mono;
 @Data
 @NoArgsConstructor
 @Transactional
-@Slf4j
+@Log4j2
 public class WsRegisterServiceImpl implements WsRegisterService {
 
   @Inject
@@ -214,11 +214,34 @@ public class WsRegisterServiceImpl implements WsRegisterService {
         isUnique = true;
         continue;
       }
+      log.info("Building generated number ...");
       // construction d'un nouveau numéro webscolaire
       token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
       generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
     }
 
     return generatedNumber;
+  }
+
+  /**
+   * Recherche une entité WsRegister par son numéro
+   * @param number le numéro de cherche
+   * @return WsRegister
+   */
+  @Override
+  public Mono<WsRegister> findRegisterByNumber(String number) {
+    log.info("Request to find register by number : {}", number);
+    return registerRepository.findOneByGeneratedNumber(number);
+  }
+
+  /**
+   * Recherche des entités WsRegister par une même sourceId 
+   * @param sourceId la sourceI de recherche
+   * @return WsRegister
+   */
+  @Override
+  public Flux<WsRegister> findRegisterBySourceId(String sourceId) {
+    log.info("Request to find register by sourceId : {}", sourceId);
+    return registerRepository.findBySourceId(sourceId);
   }
 }

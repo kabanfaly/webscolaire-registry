@@ -16,6 +16,10 @@ import reactor.core.publisher.Mono;
 public interface WsRegisterService {
 
   Mono<WsRegister> registerOne(WsRegisterParam registerParam);
+  
+  Mono<WsRegister> findRegisterByNumber(String number);
+  
+  Flux<WsRegister> findRegisterBySourceId(String sourceId);
 
   Flux<WsRegister> registerMany(List<WsRegisterParam> registerParam);
 }

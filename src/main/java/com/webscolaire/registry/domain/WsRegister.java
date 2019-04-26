@@ -1,7 +1,5 @@
 package com.webscolaire.registry.domain;
 
-import java.time.ZonedDateTime;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import static com.webscolaire.registry.config.WsRegisterConstants.*;
 import lombok.Data;
@@ -51,7 +49,6 @@ public class WsRegister  extends AbstractAuditingEntity {
   private SexType sex;
 
   @Indexed
-  @JsonIgnore
   @Field(SOURCE_ID)
   private String sourceId;
 

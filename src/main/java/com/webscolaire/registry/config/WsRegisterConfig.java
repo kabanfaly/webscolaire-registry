@@ -1,5 +1,7 @@
 package com.webscolaire.registry.config;
 
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -38,7 +40,7 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        .pathMatchers("/register").authenticated()
+        .pathMatchers("/ws").authenticated()
         .anyExchange().permitAll()
         .and()
         .build();
@@ -46,15 +48,20 @@ public class WsRegisterConfig {
 
   @Bean
   RouterFunction<?> routerFunction(WsRegisterHandler wsRegisterHandler) {
-    
-    RouterFunction<ServerResponse> registryRoutes = route()
+
+    RouterFunction<ServerResponse> registryPostRoutes = route()
         .nest(accept(APPLICATION_JSON_UTF8), builder -> {
           builder
-              .GET("/", wsRegisterHandler::home)
               .POST("/register", wsRegisterHandler::registerOne)
-              .POST("/registers",wsRegisterHandler::registerMany);
+              .POST("/registers", wsRegisterHandler::registerMany);
         }).build();
-    
-    return route().path("/ws", () -> registryRoutes).build();
+
+    RouterFunction<ServerResponse> registryGetRoutes = route()
+        .GET("/", wsRegisterHandler::home)
+        .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
+        .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceID)
+        .build();
+
+    return route().path("/ws", () -> registryPostRoutes.and(registryGetRoutes)).build();
   }
 }
