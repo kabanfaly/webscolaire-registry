@@ -2,14 +2,18 @@ package com.webscolaire.registry.config;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
+import com.webscolaire.registry.handler.UniqueGenKeyHandler;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -25,12 +29,16 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 public class WsRegisterConfig {
 
   @Bean
-  ReactiveUserDetailsService authentication(WsRegisterProperties generatorProperties) {
-    return new MapReactiveUserDetailsService(User.withDefaultPasswordEncoder()
-        .username(generatorProperties.getUsername())
-        .password(generatorProperties.getPassword())
+  ReactiveUserDetailsService authentication(WsRegisterProperties generatorProperties, PasswordEncoder encoder) {
+    return new MapReactiveUserDetailsService(User.withUsername(generatorProperties.getUsername())
+        .password(encoder.encode(generatorProperties.getPassword()))
         .roles("ADMIN")
         .build());
+  }
+
+  @Bean
+  PasswordEncoder passwordEncoder() {
+    return new BCryptPasswordEncoder();
   }
 
   @Bean
@@ -40,14 +48,14 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        .pathMatchers("/ws").authenticated()
-        .anyExchange().permitAll()
+        //.pathMatchers("/ws/*").authenticated()
+        .anyExchange().authenticated()
         .and()
         .build();
   }
 
   @Bean
-  RouterFunction<?> routerFunction(WsRegisterHandler wsRegisterHandler) {
+  RouterFunction<?> routerFunction(WsRegisterHandler wsRegisterHandler, UniqueGenKeyHandler uniqueGenKeyHandler) {
 
     RouterFunction<ServerResponse> registryPostRoutes = route()
         .nest(accept(APPLICATION_JSON_UTF8), builder -> {
@@ -62,6 +70,10 @@ public class WsRegisterConfig {
         .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceID)
         .build();
 
-    return route().path("/ws", () -> registryPostRoutes.and(registryGetRoutes)).build();
+    RouterFunction<ServerResponse> uniqueKeyRoutes = route()
+        .POST("/genKey", uniqueGenKeyHandler::generateUniqueKey)
+        .build();
+        
+    return route().path("/ws", () -> registryPostRoutes.and(registryGetRoutes).and(uniqueKeyRoutes)).build();
   }
 }

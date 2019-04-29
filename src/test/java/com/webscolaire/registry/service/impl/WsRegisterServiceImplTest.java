@@ -28,7 +28,7 @@ import reactor.test.StepVerifier;
 public class WsRegisterServiceImplTest {
 
   public static final String DOB = "20121999";
-  public static final String GENERATED_NUMBER_PREFIX = "EE-20121999";
+  public static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
 
   @Inject
   private WsRegisterService registerService;
@@ -103,13 +103,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerTestOK_should_retreive_existing_data() {
     // Given
-    registerRepository.save(new WsRegister()
-        .setSourceId("SRC-12235")
-        .setDateOfBirth(DOB)
-        .setLastname("kaba".toUpperCase())
-        .setFirstname("N'faly".toUpperCase())
-        .setSex(SexType.H)
-        .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)).subscribe();
+    registerRepository.save(newWsRegister()).subscribe();
 
     // When
     registerService
@@ -119,4 +113,34 @@ public class WsRegisterServiceImplTest {
     assertEquals(1, registerRepository.findAll().collectList().block().size());
   }
 
+  @Test
+  public void findRegisterByNumber_when_data_found(){
+    // Given
+    var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
+    registerRepository.save(newWsRegister().setGeneratedNumber(generatedNumber)).subscribe();
+    
+    WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
+   
+    assertEquals(generatedNumber, result.getGeneratedNumber());
+  }
+  
+   @Test
+  public void findRegisterByNumber_when_no_data_found(){
+    
+    var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
+    
+    WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
+   
+     assertNull(result);
+  }
+ 
+  public static WsRegister newWsRegister(){
+    return new WsRegister()
+        .setSourceId("SRC-12235")
+        .setDateOfBirth(DOB)
+        .setLastname("kaba".toUpperCase())
+        .setFirstname("N'faly".toUpperCase())
+        .setSex(SexType.H)
+        .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT);
+  }
 }

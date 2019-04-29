@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -51,6 +52,10 @@ public class WsRegister  extends AbstractAuditingEntity {
   @Indexed
   @Field(SOURCE_ID)
   private String sourceId;
+  
+  @DBRef
+  @Field
+  private UniqueGenKey uniqueGenKey;
 
   /**
    * Identifiant unique généré

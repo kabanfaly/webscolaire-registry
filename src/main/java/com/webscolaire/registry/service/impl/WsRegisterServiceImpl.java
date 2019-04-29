@@ -192,7 +192,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    * @return String
    */
   private String buildGeneratedNumber(WebscolaireType webscolaireType, String dateOfBirth) {
-    log.info("Building generated number ...");
+    log.info("Building generated number.");
 
     // Génération d'un token
     String token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
@@ -207,14 +207,13 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       query.addCriteria(
           where(GENERATED_NUMBER).is(generatedNumber)
       );
-      List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
 
       // Le numéro construit est unique
-      if (registers.isEmpty()) {
+      if (mongoTemplate.findOne(query, WsRegister.class) == null) {
         isUnique = true;
         continue;
       }
-      log.info("Building generated number ...");
+      log.info("Building new generated number.");
       // construction d'un nouveau numéro webscolaire
       token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
       generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
