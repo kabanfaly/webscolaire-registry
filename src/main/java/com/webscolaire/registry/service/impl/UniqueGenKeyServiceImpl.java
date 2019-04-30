@@ -1,13 +1,11 @@
 package com.webscolaire.registry.service.impl;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_CHARACTERS;
-import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_NUMBERS;
 import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
 import static com.webscolaire.registry.config.WsRegisterConstants.UNIQUE_KEY;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.repository.UniqueKeyRepository;
 import com.webscolaire.registry.utils.WsRegistryUtils;
-import java.util.List;
 import javax.inject.Inject;
 import lombok.Data;
 import lombok.NoArgsConstructor;

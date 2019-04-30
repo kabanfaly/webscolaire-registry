@@ -23,7 +23,7 @@ public class UniqueGenKey extends AbstractAuditingEntity {
 
   private static final long serialVersionUID = 1L;
   
-  @Indexed
+  @Indexed(unique = true)
   @Field(UNIQUE_KEY)
   private String uniqueKey;
   

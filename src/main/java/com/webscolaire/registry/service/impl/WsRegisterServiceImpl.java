@@ -66,7 +66,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       validateWsRegisterParam(registerParam);
 
       WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(registerParam.getWebscolaireType());
-     
+
       // Recherche d'une entité existante
       WsRegister register = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
           registerParam.getDateOfBirth(), webscolaireType, SexType.valueOf(registerParam.getSex()));
@@ -114,7 +114,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     registers.subscribe();
     return registers;
   }
-  
+
   /**
    * Valide les attributs du paramètre WsRegisterParam
    *
@@ -127,15 +127,14 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     // Vérification du format de la date de naissance
     Preconditions.checkState(isValidDateOfBirth(registerParam.getDateOfBirth()), WsRegisterError.WS_002.getCode());
-    
+
     // Validation de l'attribut 'sex'
     Preconditions.checkNotNull(SexType.getSexFromString(registerParam.getSex()), WsRegisterError.WS_003.getCode());
-    
+
     // Validation de l'attribut 'lastname'
     Preconditions.checkArgument(!Strings.isNullOrEmpty(registerParam.getLastname()), WsRegisterError.WS_004.getCode());
-    
-  }
 
+  }
 
   /**
    * Vérifie que la date fournie est correcte.
@@ -224,6 +223,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
   /**
    * Recherche une entité WsRegister par son numéro
+   *
    * @param number le numéro de cherche
    * @return WsRegister
    */
@@ -234,7 +234,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   }
 
   /**
-   * Recherche des entités WsRegister par une même sourceId 
+   * Recherche des entités WsRegister par une même sourceId
+   *
    * @param sourceId la sourceI de recherche
    * @return WsRegister
    */

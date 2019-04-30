@@ -93,11 +93,16 @@ public class WsRegisterServiceImplTest {
   public void registerTestOK_should_save_new_data() {
     Mono<WsRegister> registerMono = registerService
         .registerOne(new WsRegisterParam("SRC-12235", "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
-    StepVerifier.create(registerMono).expectComplete();
-    WsRegister register = registerMono.block();
+
+    StepVerifier.create(registerMono)
+        .assertNext(register -> {
+          assertEquals(DOB, register.getDateOfBirth());
+          assertTrue(register.getGeneratedNumber().startsWith(GENERATED_NUMBER_PREFIX));
+        }).expectComplete()
+        .verify();
+
     assertEquals(1, registerRepository.findAll().collectList().block().size());
-    assertTrue(register.getGeneratedNumber().startsWith(GENERATED_NUMBER_PREFIX));
-    assertEquals(DOB, register.getDateOfBirth());
+
   }
 
   @Test
@@ -106,35 +111,37 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     // When
-    registerService
-        .registerOne(new WsRegisterParam("SRC-12235", "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));    
+    registerService.registerOne(new WsRegisterParam("SRC-12235", "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
 
     // Then
     assertEquals(1, registerRepository.findAll().collectList().block().size());
   }
 
   @Test
-  public void findRegisterByNumber_when_data_found(){
+  public void findRegisterByNumber_when_data_found() {
     // Given
     var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
     registerRepository.save(newWsRegister().setGeneratedNumber(generatedNumber)).subscribe();
-    
-    WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
-   
-    assertEquals(generatedNumber, result.getGeneratedNumber());
+
+    StepVerifier.create(registerService.findRegisterByNumber(generatedNumber))
+        .assertNext(register -> {
+          assertEquals(generatedNumber, register.getGeneratedNumber());
+        })
+        .expectComplete()
+        .verify();
+
   }
-  
-   @Test
-  public void findRegisterByNumber_when_no_data_found(){
-    
+
+  @Test
+  public void findRegisterByNumber_when_no_data_found() {
+
     var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
-    
+
     WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
-   
-     assertNull(result);
+    assertNull(result);
   }
- 
-  public static WsRegister newWsRegister(){
+
+  public static WsRegister newWsRegister() {
     return new WsRegister()
         .setSourceId("SRC-12235")
         .setDateOfBirth(DOB)

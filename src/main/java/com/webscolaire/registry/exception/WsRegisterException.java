@@ -11,7 +11,7 @@ import lombok.Getter;
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
-public class WsRegisterException extends RuntimeException   {
+public class WsRegisterException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
@@ -20,6 +20,11 @@ public class WsRegisterException extends RuntimeException   {
 
   public WsRegisterException(WsRegisterError error) {
     this(error, null);
+  }
+
+  public WsRegisterException(String msg, Throwable t) {
+    super(msg, t);
+    wsError = null;
   }
 
   public WsRegisterException(WsRegisterError error, Throwable t) {

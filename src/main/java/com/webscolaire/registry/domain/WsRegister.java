@@ -1,12 +1,10 @@
 package com.webscolaire.registry.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import static com.webscolaire.registry.config.WsRegisterConstants.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -27,10 +25,6 @@ import org.springframework.data.mongodb.core.mapping.Field;
 public class WsRegister  extends AbstractAuditingEntity {
 
   private static final long serialVersionUID = 1L;
-
-  @Id
-  @JsonIgnore
-  private String id;
 
   @Indexed
   @Field(WEBSCOLAIRE_TYPE)
@@ -60,6 +54,7 @@ public class WsRegister  extends AbstractAuditingEntity {
   /**
    * Identifiant unique généré
    */
+  @Indexed(unique = true)
   @Field(GENERATED_NUMBER)
   private String generatedNumber;
 }
