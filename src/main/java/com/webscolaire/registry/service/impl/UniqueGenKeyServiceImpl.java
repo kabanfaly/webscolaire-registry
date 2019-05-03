@@ -4,7 +4,6 @@ import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_CHA
 import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
 import static com.webscolaire.registry.config.WsRegisterConstants.UNIQUE_KEY;
 import com.webscolaire.registry.domain.UniqueGenKey;
-import com.webscolaire.registry.repository.UniqueKeyRepository;
 import com.webscolaire.registry.utils.WsRegistryUtils;
 import javax.inject.Inject;
 import lombok.Data;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import com.webscolaire.registry.service.UniqueGenKeyService;
+import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 
 /**
  *
@@ -31,7 +31,7 @@ import com.webscolaire.registry.service.UniqueGenKeyService;
 public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
 
   @Inject
-  private UniqueKeyRepository uniqueKeyRepository;
+  private UniqueGenKeyRepository uniqueKeyRepository;
 
   @Inject
   private MongoTemplate mongoTemplate;

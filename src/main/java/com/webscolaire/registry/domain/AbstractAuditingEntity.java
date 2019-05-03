@@ -6,6 +6,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.MODIFICATION_D
 import java.io.Serializable;
 import java.time.ZonedDateTime;
 import lombok.Data;
+import lombok.experimental.Accessors;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -15,19 +16,20 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author KABA N'faly
  */
 @Data
+@Accessors(chain = true)
 public abstract class AbstractAuditingEntity implements Serializable {
 
   private static final long serialVersionUID = 1L;
   
   @Id
   @JsonIgnore
-  private String id;
+  protected String id;
 
   @Field(CREATION_DATE)
   @JsonIgnore
-  private ZonedDateTime creationDate = ZonedDateTime.now();
+  protected ZonedDateTime creationDate = ZonedDateTime.now();
 
   @Field(MODIFICATION_DATE)
   @JsonIgnore
-  private ZonedDateTime modificationDate = ZonedDateTime.now();
+  protected ZonedDateTime modificationDate = ZonedDateTime.now();
 }

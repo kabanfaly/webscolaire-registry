@@ -1,6 +1,7 @@
 package com.webscolaire.registry.service.impl;
 
 import com.webscolaire.registry.domain.SexType;
+import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterParam;
@@ -17,6 +18,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
+import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 
 /**
  *
@@ -29,6 +31,7 @@ public class WsRegisterServiceImplTest {
 
   public static final String DOB = "20121999";
   public static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
+  public static final String SOURCE_ID = "SRC-12235";
 
   @Inject
   private WsRegisterService registerService;
@@ -36,9 +39,13 @@ public class WsRegisterServiceImplTest {
   @Inject
   private WsRegisterRepository registerRepository;
 
+  @Inject
+  private UniqueGenKeyRepository uniqueGenKeyRepository;
+
   @Before
   public void setUp() {
     registerRepository.deleteAll().subscribe();
+    uniqueGenKeyRepository.deleteAll().subscribe();
   }
 
   @Test
@@ -81,6 +88,7 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void shouldThrowException_withWS_004_when_lastname_IsEmptyOrNull() {
+    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
     try {
       registerService.registerOne(new WsRegisterParam("", "ELEVE_ETUDIANT", DOB, "", "", "H"));
       fail("WsRegisterException(WS_004) expected");
@@ -90,9 +98,17 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
+  public void shouldThrowException_withWS_005_when_invalidSourceID() {
+      StepVerifier.create(registerService.registerOne(new WsRegisterParam(SOURCE_ID, "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H")))
+          .expectErrorMessage(WsRegisterError.WS_005.getDescription());
+  }
+
+  @Test
   public void registerTestOK_should_save_new_data() {
+    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
+    
     Mono<WsRegister> registerMono = registerService
-        .registerOne(new WsRegisterParam("SRC-12235", "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
+        .registerOne(new WsRegisterParam(SOURCE_ID, "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
 
     StepVerifier.create(registerMono)
         .assertNext(register -> {
@@ -111,7 +127,7 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     // When
-    registerService.registerOne(new WsRegisterParam("SRC-12235", "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
+    registerService.registerOne(new WsRegisterParam(SOURCE_ID, "ELEVE_ETUDIANT", DOB, "KABA", "N'faly", "H"));
 
     // Then
     assertEquals(1, registerRepository.findAll().collectList().block().size());

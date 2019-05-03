@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 
 /**
  *
@@ -45,6 +46,9 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
   @Inject
   private WsRegisterRepository registerRepository;
+
+  @Inject
+  private UniqueGenKeyRepository uniqueGenKeyRepository;
 
   @Inject
   private MongoTemplate mongoTemplate;
@@ -65,26 +69,33 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       // Validation 
       validateWsRegisterParam(registerParam);
 
-      WebscolaireType webscolaireType = WebscolaireType.getTypeFromString(registerParam.getWebscolaireType());
+      val webscolaireType = WebscolaireType.getTypeFromString(registerParam.getWebscolaireType());
 
       // Recherche d'une entité existante
-      WsRegister register = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
+      var register = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
           registerParam.getDateOfBirth(), webscolaireType, SexType.valueOf(registerParam.getSex()));
 
       // Enregistre si aucune entité existante trouvée.
       if (register == null) {
         val numeroGenere = buildGeneratedNumber(webscolaireType, registerParam.getDateOfBirth());
 
-        register = new WsRegister()
-            .setWebscolaireType(webscolaireType)
-            .setDateOfBirth(registerParam.getDateOfBirth())
-            .setLastname(registerParam.getLastname().toUpperCase())
-            .setSex(SexType.valueOf(registerParam.getSex()))
-            .setFirstname(registerParam.getFirstname().toUpperCase())
-            .setGeneratedNumber(numeroGenere)
-            .setSourceId(registerParam.getSourceId());
+        val registerMono = uniqueGenKeyRepository.findOneByUniqueKey(registerParam.getSourceId())
+            .flatMap(uniqueGenKey -> 
+            {
+              return registerRepository.save(new WsRegister()
+                  .setWebscolaireType(webscolaireType)
+                  .setDateOfBirth(registerParam.getDateOfBirth())
+                  .setLastname(registerParam.getLastname().toUpperCase())
+                  .setSex(SexType.valueOf(registerParam.getSex()))
+                  .setFirstname(registerParam.getFirstname().toUpperCase())
+                  .setGeneratedNumber(numeroGenere)
+                  .setUniqueGenKey(uniqueGenKey)
+                  .setSourceId(registerParam.getSourceId()));
 
-        registerRepository.save(register).subscribe();
+            })
+            .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)));
+        
+        return registerMono;
       } else {
         log.info("Retrieving existing data : {} ", register);
       }
@@ -111,7 +122,6 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     Flux<WsRegister> registers = Flux.fromIterable(registerParams)
         .flatMap(r -> registerOne(r))
         .onErrorReturn(WsRegisterException.class, new WsRegister());
-    registers.subscribe();
     return registers;
   }
 
@@ -168,7 +178,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   private WsRegister findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
       WebscolaireType webscolaireType, SexType sex) {
 
-    Query query = new Query();
+    var query = new Query();
     query.addCriteria(
         where(WEBSCOLAIRE_TYPE).is(webscolaireType)
             .and(SOURCE_ID).is(sourceId)
@@ -177,9 +187,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
             .and(DATE_OF_BIRTH).is(dateOfBirth)
             .and(SEX).is(sex)
     );
-    List<WsRegister> registers = mongoTemplate.find(query, WsRegister.class);
-
-    return registers.stream().findFirst().orElse(null);
+    return mongoTemplate.findOne(query, WsRegister.class);
   }
 
   /**
@@ -194,12 +202,12 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     log.info("Building generated number.");
 
     // Génération d'un token
-    String token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
+    var token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
 
     // Construction du numéro webscolaire initial
-    String generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
+    var generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
 
-    boolean isUnique = false;
+    var isUnique = false;
     // Tant que le numéro webscolaire construit n'est pas unique en base on n'en contruit de nouveau
     while (!isUnique) {
       Query query = new Query();

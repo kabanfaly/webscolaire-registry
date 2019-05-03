@@ -1,6 +1,8 @@
 package com.webscolaire.registry.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import static com.webscolaire.registry.config.WsRegisterConstants.*;
+import java.time.ZonedDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -22,7 +24,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Document(collection = "register")
-public class WsRegister  extends AbstractAuditingEntity {
+public class WsRegister extends AbstractAuditingEntity {
 
   private static final long serialVersionUID = 1L;
 
@@ -46,9 +48,10 @@ public class WsRegister  extends AbstractAuditingEntity {
   @Indexed
   @Field(SOURCE_ID)
   private String sourceId;
-  
+
   @DBRef
   @Field
+  @JsonIgnore
   private UniqueGenKey uniqueGenKey;
 
   /**
@@ -57,4 +60,16 @@ public class WsRegister  extends AbstractAuditingEntity {
   @Indexed(unique = true)
   @Field(GENERATED_NUMBER)
   private String generatedNumber;
+
+  @Override
+  public WsRegister setId(String id) {
+    this.id = id;
+    return this;
+  }
+
+  @Override
+  public WsRegister setModificationDate(ZonedDateTime modificationDate) {
+    this.modificationDate = modificationDate;
+    return this;
+  }
 }
