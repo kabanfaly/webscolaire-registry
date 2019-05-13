@@ -1,6 +1,7 @@
 package com.webscolaire.registry.repository;
 
 import com.webscolaire.registry.domain.UniqueGenKey;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Mono;
 

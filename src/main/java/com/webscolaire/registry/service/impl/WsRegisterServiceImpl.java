@@ -63,7 +63,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    */
   @Override
   public Mono<WsRegister> registerOne(WsRegisterParam registerParam) {
-    log.info("Request to register one : {}", registerParam);
+    log.info("Registering one : {}", registerParam);
 
     try {
       // Validation 
@@ -118,7 +118,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    */
   @Override
   public Flux<WsRegister> registerMany(List<WsRegisterParam> registerParams) {
-    log.info("Request to register Many : {}", registerParams);
+    log.info("Registering Many : {}", registerParams);
     Flux<WsRegister> registers = Flux.fromIterable(registerParams)
         .flatMap(r -> registerOne(r))
         .onErrorReturn(WsRegisterException.class, new WsRegister());

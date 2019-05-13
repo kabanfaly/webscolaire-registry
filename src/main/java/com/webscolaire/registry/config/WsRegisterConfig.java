@@ -64,12 +64,14 @@ public class WsRegisterConfig {
               .POST("/registers", wsRegisterHandler::registerMany);
         }).build();
 
+    // Route
     RouterFunction<ServerResponse> registryGetRoutes = route()
         .GET("/", wsRegisterHandler::home)
         .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
         .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceID)
         .build();
 
+    // Route 
     RouterFunction<ServerResponse> uniqueKeyRoutes = route()
         .POST("/genKey", uniqueGenKeyHandler::generateUniqueKey)
         .build();

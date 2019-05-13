@@ -12,10 +12,11 @@ public enum WsRegisterError {
   WS_002("WS_002", "Le format de la date de naissance (dateOfBirth) est invalid. le format valide est : JJMMAAAA."),
   WS_003("WS_003", "La valeur de l'attribut 'sex' est invalide ou n'est pas définie."),
   WS_004("WS_004", "L'attribut 'lastname' ne doit pas être vide ou 'null'."),
-  WS_005("WS_005", "L'attribut 'sourceId' est invalide.");
+  WS_005("WS_005", "La valeur de l'attribut 'sourceId' est invalide.");
 
   @Getter
   private final String code;
+  
   @Getter
   private final String description;
 
