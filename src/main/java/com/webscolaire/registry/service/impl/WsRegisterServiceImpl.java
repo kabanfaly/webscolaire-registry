@@ -105,7 +105,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       log.error(ExceptionUtils.getStackTrace(ex));
       WsRegisterError registerError = WsRegisterError.getErrorFromCodeStr(ex.getMessage());
       log.error("{} --- {}", registerError.toString(), registerParam);
-      throw new WsRegisterException(registerError);
+      //return Mono.error(new WsRegisterException(registerError));
+     throw new WsRegisterException(registerError);
     }
   }
 
@@ -251,5 +252,11 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   public Flux<WsRegister> findRegisterBySourceId(String sourceId) {
     log.info("Request to find register by sourceId : {}", sourceId);
     return registerRepository.findBySourceId(sourceId);
+  }
+
+  @Override
+  public Flux<WsRegister> findByDateOfBirth(String dateOfBirth) {
+    log.info("Request to find register by dateOfBirth : {}", dateOfBirth);
+    return registerRepository.findByDateOfBirth(dateOfBirth);
   }
 }

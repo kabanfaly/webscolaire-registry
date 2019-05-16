@@ -2,8 +2,10 @@ package com.webscolaire.registry.handler;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.exception.WsRegisterException;
 import com.webscolaire.registry.service.WsRegisterService;
 import javax.inject.Inject;
 import lombok.extern.log4j.Log4j2;
@@ -12,7 +14,10 @@ import org.springframework.stereotype.Component;
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import static org.springframework.web.reactive.function.server.ServerResponse.badRequest;
+import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -32,8 +37,8 @@ public class WsRegisterHandler {
   }
 
   public Mono<ServerResponse> registerOne(ServerRequest request) {
-    log.info("POST call registerOne"); 
-    return ok()
+    log.info("POST call registerOne");
+        return ok()
         .contentType(APPLICATION_JSON_UTF8)
         .body(fromPublisher(request.bodyToMono(WsRegisterParam.class)
             .flatMap(registerService::registerOne), WsRegister.class));
@@ -47,18 +52,52 @@ public class WsRegisterHandler {
         .body(fromPublisher(request.bodyToFlux(WsRegisterParam.class)
             .buffer().flatMap(registerService::registerMany), WsRegister.class));
   }
-  
+
   public Mono<ServerResponse> findRegisterByNumber(ServerRequest request) {
- 
-    return ok()
-        .contentType(APPLICATION_JSON_UTF8)
-        .body(registerService.findRegisterByNumber(request.pathVariable(PATH_NUMBER)), WsRegister.class);
+
+    Mono<WsRegister> wsRegisterMono = registerService.findRegisterByNumber(request.pathVariable(PATH_NUMBER));
+
+    return wsRegisterMono.hasElement().flatMap(it -> {
+      if (it) {
+        return ok()
+            .contentType(APPLICATION_JSON_UTF8)
+            .body(wsRegisterMono, WsRegister.class);
+      }
+      log.info("No data found for number '{}'", request.pathVariable(PATH_NUMBER));
+      return notFound().build();
+    });
+
   }
-  
-  public Mono<ServerResponse> findRegisterBySourceID(ServerRequest request) {
-    return ok()
-        .contentType(APPLICATION_JSON_UTF8)
-        .body(registerService.findRegisterBySourceId(request.pathVariable(PATH_SOURCE_ID)), WsRegister.class);
+
+  public Mono<ServerResponse> findRegisterBySourceId(ServerRequest request) {
+
+    Flux<WsRegister> wsRegisterFlux = registerService.findRegisterBySourceId(request.pathVariable(PATH_SOURCE_ID));
+
+    return wsRegisterFlux.hasElements().flatMap(it -> {
+      if (it) {
+        return ok()
+            .contentType(APPLICATION_JSON_UTF8)
+            .body(wsRegisterFlux, WsRegister.class);
+      }
+      log.info("No data found for sourceId '{}'", request.pathVariable(PATH_SOURCE_ID));
+      return notFound().build();
+    });
+
+  }
+
+  public Mono<ServerResponse> findRegisterByDateOfBirth(ServerRequest request) {
+    Flux<WsRegister> wsRegisterFlux = registerService.findByDateOfBirth(request.pathVariable(PATH_DOB));
+
+    return wsRegisterFlux.hasElements().flatMap(it -> {
+      if (it) {
+        return ok()
+            .contentType(APPLICATION_JSON_UTF8)
+            .body(wsRegisterFlux, WsRegister.class);
+      }
+      log.info("No data found for sourceId '{}'", request.pathVariable(PATH_DOB));
+      return notFound().build();
+    });
+ 
   }
 
 }

@@ -18,6 +18,6 @@ public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister
   Mono<WsRegister> findOneByGeneratedNumber(String generatedNumber);
   
   Flux<WsRegister> findBySourceId(String sourceId);
-
+  
   Flux<WsRegister> findByWebscolaireTypeAndDateOfBirth(WebscolaireType webscolaireType, String dateOfBirth);
 }

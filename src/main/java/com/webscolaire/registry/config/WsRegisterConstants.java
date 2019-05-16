@@ -13,6 +13,7 @@ public class WsRegisterConstants {
   public static final String PATH_NUMBER = "number";
   public static final String PATH_SOURCE_ID = "sourceId";
   public static final String DEFAULT_TIME_ZONE = "UTC";
+  public static final String PATH_DOB = "dob";
   /**
    * Les caractères alpha-numériques autorisées dans une clé unique (UniqueGenKey)
    */

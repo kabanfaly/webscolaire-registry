@@ -46,6 +46,7 @@ public class WsRegisterServiceImplTest {
   public void setUp() {
     registerRepository.deleteAll().subscribe();
     uniqueGenKeyRepository.deleteAll().subscribe();
+    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
   }
 
   @Test
@@ -156,10 +157,52 @@ public class WsRegisterServiceImplTest {
     WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
     assertNull(result);
   }
+  
+  @Test
+  public void findRegisterBySourceId_when_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
+    StepVerifier.create(registerService.findRegisterBySourceId(SOURCE_ID))
+        .assertNext(register -> {
+          assertEquals(SOURCE_ID, register.getSourceId());
+        })
+        .expectComplete()
+        .verify();
+
+  }
+
+  @Test
+  public void findRegisterBySourceId_when_no_data_found() {
+
+    WsRegister result = registerService.findRegisterByNumber("SRC").block();
+    assertNull(result);
+  }
+  
+  @Test
+  public void findRegisterByDateOfBirth_when_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
+    StepVerifier.create(registerService.findByDateOfBirth(DOB))
+        .assertNext(register -> {
+          assertEquals(DOB, register.getDateOfBirth());
+        })
+        .expectComplete()
+        .verify();
+
+  }
+
+  @Test
+  public void findRegisterByDateOfBirth_when_no_data_found() {
+
+    WsRegister result = registerService.findByDateOfBirth("DOB_").blockFirst();
+    assertNull(result);
+  }
 
   public static WsRegister newWsRegister() {
     return new WsRegister()
-        .setSourceId("SRC-12235")
+        .setSourceId(SOURCE_ID)
         .setDateOfBirth(DOB)
         .setLastname("kaba".toUpperCase())
         .setFirstname("N'faly".toUpperCase())

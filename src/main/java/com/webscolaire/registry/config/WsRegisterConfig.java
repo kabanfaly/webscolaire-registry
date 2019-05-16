@@ -1,13 +1,13 @@
 package com.webscolaire.registry.config;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
 import com.webscolaire.registry.handler.UniqueGenKeyHandler;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
-import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -48,8 +48,9 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        //.pathMatchers("/ws/*").authenticated()
-        .anyExchange().authenticated()
+        .pathMatchers("/ws/**").authenticated()
+        //.pathMatchers("/actuator/**").permitAll()
+        .anyExchange().permitAll()
         .and()
         .build();
   }
@@ -57,25 +58,23 @@ public class WsRegisterConfig {
   @Bean
   RouterFunction<?> routerFunction(WsRegisterHandler wsRegisterHandler, UniqueGenKeyHandler uniqueGenKeyHandler) {
 
-    RouterFunction<ServerResponse> registryPostRoutes = route()
+    // Home
+    RouterFunction<ServerResponse> homeRoute = route()
+        .GET("/", wsRegisterHandler::home)
+        .build();
+
+    // Routes
+    RouterFunction<ServerResponse> wsRoutes = route()
         .nest(accept(APPLICATION_JSON_UTF8), builder -> {
           builder
               .POST("/register", wsRegisterHandler::registerOne)
-              .POST("/registers", wsRegisterHandler::registerMany);
+              .POST("/registers", wsRegisterHandler::registerMany)
+              .POST("/genKey", accept(APPLICATION_JSON_UTF8), uniqueGenKeyHandler::generateUniqueKey)
+              .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
+              .GET("/dob/{" + PATH_DOB + "}", wsRegisterHandler::findRegisterByDateOfBirth)
+              .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceId);
         }).build();
 
-    // Route
-    RouterFunction<ServerResponse> registryGetRoutes = route()
-        .GET("/", wsRegisterHandler::home)
-        .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
-        .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceID)
-        .build();
-
-    // Route 
-    RouterFunction<ServerResponse> uniqueKeyRoutes = route()
-        .POST("/genKey", uniqueGenKeyHandler::generateUniqueKey)
-        .build();
-        
-    return route().path("/ws", () -> registryPostRoutes.and(registryGetRoutes).and(uniqueKeyRoutes)).build();
+    return route().path("/ws", () -> wsRoutes).add(homeRoute).build();
   }
 }
