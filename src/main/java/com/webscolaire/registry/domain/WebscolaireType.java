@@ -10,7 +10,7 @@ import lombok.Getter;
 public enum WebscolaireType {
   ELEVE_ETUDIANT("EE"),
   ENSEIGNANT_PROF("EP"),
-  ECOLE_UNIVERSITE("EU"),
+  ETABLISSEMENT("ET"),
   PARENT_ELEVE("PE");
 
   @Getter

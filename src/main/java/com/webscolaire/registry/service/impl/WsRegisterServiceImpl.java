@@ -80,8 +80,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
         val numeroGenere = buildGeneratedNumber(webscolaireType, registerParam.getDateOfBirth());
 
         val registerMono = uniqueGenKeyRepository.findOneByUniqueKey(registerParam.getSourceId())
-            .flatMap(uniqueGenKey -> 
-            {
+            .flatMap(uniqueGenKey
+                -> {
               return registerRepository.save(new WsRegister()
                   .setWebscolaireType(webscolaireType)
                   .setDateOfBirth(registerParam.getDateOfBirth())
@@ -94,7 +94,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
             })
             .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)));
-        
+
         return registerMono;
       } else {
         log.info("Retrieving existing data : {} ", register);
@@ -106,7 +106,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       WsRegisterError registerError = WsRegisterError.getErrorFromCodeStr(ex.getMessage());
       log.error("{} --- {}", registerError.toString(), registerParam);
       //return Mono.error(new WsRegisterException(registerError));
-     throw new WsRegisterException(registerError);
+      throw new WsRegisterException(registerError);
     }
   }
 
@@ -139,12 +139,17 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     // Vérification du format de la date de naissance
     Preconditions.checkState(isValidDateOfBirth(registerParam.getDateOfBirth()), WsRegisterError.WS_002.getCode());
 
+    // Validation du prénom
+    Preconditions.checkState(!Strings.isNullOrEmpty(registerParam.getFirstname()), WsRegisterError.WS_006.getCode());
+
+    if (registerParam.getWebscolaireType().equals(WebscolaireType.ETABLISSEMENT.name())) {
+      registerParam.setSex(SexType.A.name());
+    } else {
+      // Validation du prénom
+      Preconditions.checkState(!Strings.isNullOrEmpty(registerParam.getLastname()), WsRegisterError.WS_004.getCode());
+    }
     // Validation de l'attribut 'sex'
     Preconditions.checkNotNull(SexType.getSexFromString(registerParam.getSex()), WsRegisterError.WS_003.getCode());
-
-    // Validation de l'attribut 'lastname'
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(registerParam.getLastname()), WsRegisterError.WS_004.getCode());
-
   }
 
   /**

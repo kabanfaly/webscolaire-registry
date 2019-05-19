@@ -1,8 +1,6 @@
 package com.webscolaire.registry.utils;
 
 import com.google.common.base.Joiner;
-import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_CHARACTERS;
-import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
 import java.util.Collections;
 import java.util.List;
 
