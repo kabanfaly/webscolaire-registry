@@ -1,9 +1,10 @@
-package com.webscolaire.register.domain.dto;
+package com.webscolaire.registry.domain.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.experimental.Accessors;
 
 /**
  *
@@ -13,19 +14,20 @@ import lombok.NonNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 public class WsRegisterParam {
-    
-    @NonNull
-    private String sourceId;
-    
-    @NonNull
-    private String webscolaireType;
-    
-    @NonNull
-    private String dateNaissance;
-    
-    @NonNull
-    private String nom;
-    private String prenom = "";
-    private String sexe = "";
+
+  @NonNull
+  private String sourceId;
+
+  @NonNull
+  private String webscolaireType;
+
+  @NonNull
+  private String dateOfBirth;
+
+  @NonNull
+  private String firstname;
+  private String lastname = "";
+  private String sex;
 }

@@ -1,15 +1,14 @@
-package com.webscolaire.register.domain;
-
-import java.io.Serializable;
-import java.time.ZonedDateTime;
+package com.webscolaire.registry.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import static com.webscolaire.register.config.WsRegisterConstants.*;
+import static com.webscolaire.registry.config.WsRegisterConstants.*;
+import java.time.ZonedDateTime;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import org.springframework.data.annotation.*;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -21,48 +20,56 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * @author kaban
  */
 @Data
+@EqualsAndHashCode(callSuper = false)
 @NoArgsConstructor
 @Accessors(chain = true)
 @Document(collection = "register")
-public class WsRegister implements Serializable {
+public class WsRegister extends AbstractAuditingEntity {
 
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    @Id
-    private String id;
+  @Indexed
+  @Field(WEBSCOLAIRE_TYPE)
+  private WebscolaireType webscolaireType;
 
-    @Indexed
-    @Field(WEBSCOLAIRE_TYPE)
-    private WebscolaireType webscolaireType;
+  @Indexed
+  @Field(DATE_OF_BIRTH)
+  private String dateOfBirth;
 
-    @Indexed
-    @Field(DATE_NAISSANCE)
-    private String dateNaissance;
+  @Field(LASTNAME)
+  private String lastname;
 
-    @Field(NOM)
-    private String nom;
+  @Field(FIRSTNAME)
+  private String firstname;
 
-    @Field(PRENOM)
-    private String prenom;
+  @Field(SEX)
+  private SexType sex;
 
-    @Field(SEXE)
-    private SexeType sexe;
+  @Indexed
+  @Field(SOURCE_ID)
+  private String sourceId;
 
-    @Indexed
-    @Field(SOURCE_ID)
-    private String sourceId;
+  @DBRef
+  @Field
+  @JsonIgnore
+  private UniqueGenKey uniqueGenKey;
 
-    /**
-     * Identifiant unique généré
-     */
-    @Field(NUMERO_GENERE)
-    private String numeroGenere;
+  /**
+   * Identifiant unique généré
+   */
+  @Indexed(unique = true)
+  @Field(GENERATED_NUMBER)
+  private String generatedNumber;
 
-    @Field(DATE_CREATION)
-    @JsonIgnore
-    private ZonedDateTime dateCreation = ZonedDateTime.now();
+  @Override
+  public WsRegister setId(String id) {
+    this.id = id;
+    return this;
+  }
 
-    @Field(DATE_MODIFICATION)
-    @JsonIgnore
-    private ZonedDateTime dateModification = ZonedDateTime.now();
+  @Override
+  public WsRegister setModificationDate(ZonedDateTime modificationDate) {
+    this.modificationDate = modificationDate;
+    return this;
+  }
 }

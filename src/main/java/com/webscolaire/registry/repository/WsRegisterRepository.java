@@ -1,7 +1,7 @@
-package com.webscolaire.register.repository;
+package com.webscolaire.registry.repository;
 
-import com.webscolaire.register.domain.WebscolaireType;
-import com.webscolaire.register.domain.WsRegister;
+import com.webscolaire.registry.domain.WebscolaireType;
+import com.webscolaire.registry.domain.WsRegister;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -13,9 +13,11 @@ import reactor.core.publisher.Mono;
  */
 public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister, String> {
 
-    Flux<WsRegister> findByDateNaissance(String dateNaissance);
+  Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
 
-    Mono<WsRegister> findByNumeroGenere(String numeroGenere);
-
-    Flux<WsRegister> findByWebscolaireType(WebscolaireType webscolaireType);
+  Mono<WsRegister> findOneByGeneratedNumber(String generatedNumber);
+  
+  Flux<WsRegister> findBySourceId(String sourceId);
+  
+  Flux<WsRegister> findByWebscolaireTypeAndDateOfBirth(WebscolaireType webscolaireType, String dateOfBirth);
 }
