@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Configuration;
 @ConfigurationProperties(prefix = "webscolaire.generator")
 public class WsRegisterProperties {
 
-    private String username;
-    private String password;
-    private String timeZone = DEFAULT_TIME_ZONE;
+  private String username;
+  private String password;
+  private String timeZone = DEFAULT_TIME_ZONE;
 }

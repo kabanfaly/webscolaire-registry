@@ -14,7 +14,14 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface WsRegisterService {
- 
+
   Mono<WsRegister> registerOne(WsRegisterParam registerParam);
+  
+  Mono<WsRegister> findRegisterByNumber(String number);
+  
+  Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
+  
+  Flux<WsRegister> findRegisterBySourceId(String sourceId);
+
   Flux<WsRegister> registerMany(List<WsRegisterParam> registerParam);
 }
