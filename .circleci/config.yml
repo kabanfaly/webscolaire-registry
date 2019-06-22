@@ -42,19 +42,17 @@ jobs:
       - store_artifacts:
           path: target/classes
           destination: webscolaire-registry
-  deploy-job:
-    steps:
-       - add_ssh_keys:
-          fingerprints:
-              - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
-  deploy:
-    machine:
-      enabled: true
-    steps:
-      - run:
-          name: Deploy Over SSH
-          command: |
-            ssh root@vps408358.ovh.net "java -jar webscolaire-registry-0.0.1-SNAPSHOT.jar -Dspring.profile.active=dev"
+deploy:
+  machine:
+    enabled: true
+  steps:
+    - add_ssh_keys:
+        fingerprints:
+            - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
+    - run:
+        name: Deploy Over SSH
+        command: |
+          ssh root@vps408358.ovh.net "java -jar webscolaire-registry-0.0.1-SNAPSHOT.jar -Dspring.profile.active=dev"
 workflows:
   version: 2
   build-and-deploy:
