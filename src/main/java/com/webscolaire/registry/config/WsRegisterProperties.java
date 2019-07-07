@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 @Data
 @NoArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "webscolaire.generator")
+@ConfigurationProperties(prefix = "webscolaire.registry")
 public class WsRegisterProperties {
 
   private String username;
