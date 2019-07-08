@@ -264,4 +264,10 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     log.info("Request to find register by dateOfBirth : {}", dateOfBirth);
     return registerRepository.findByDateOfBirth(dateOfBirth);
   }
+
+  @Override
+  public Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType) {
+    log.info("Request to find register by sourceId : {} and webscolaireType: {}", sourceId, webscolaireType);
+    return registerRepository.findBySourceIdAndWebscolaireType(sourceId, webscolaireType);
+  }
 }

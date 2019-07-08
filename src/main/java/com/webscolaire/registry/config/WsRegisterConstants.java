@@ -12,6 +12,7 @@ public class WsRegisterConstants {
 
   public static final String PATH_NUMBER = "number";
   public static final String PATH_SOURCE_ID = "sourceId";
+  public static final String PATH_TYPE = "type";
   public static final String DEFAULT_TIME_ZONE = "UTC";
   public static final String PATH_DOB = "dob";
   /**
@@ -29,17 +30,16 @@ public class WsRegisterConstants {
 
   public static final String SEPARATOR = "-";
 
-  public final static String DATE_FORMAT_DD_MM_YYYY = "ddMMyyyy";
+  public static final String DATE_FORMAT_DD_MM_YYYY = "ddMMyyyy";
 
-  public final static String SOURCE_ID = "source_id";
-  public final static String DATE_OF_BIRTH = "date_of_birth";
-  public final static String LASTNAME = "lastname";
-  public final static String FIRSTNAME = "firstname";
-  public final static String SEX = "sex";
-  public final static String UNIQUE_KEY = "unique_key";
-  public final static String WEBSCOLAIRE_TYPE = "webscolaire_type";
-  public final static String GENERATED_NUMBER = "generated_number";
-  public final static String CREATION_DATE = "creation_date";
-  public final static String MODIFICATION_DATE = "modification";
-
+  public static final String SOURCE_ID = "sourceId";
+  public static final String DATE_OF_BIRTH = "dateOfBirth";
+  public static final String LASTNAME = "lastname";
+  public static final String FIRSTNAME = "firstname";
+  public static final String SEX = "sex";
+  public static final String UNIQUE_KEY = "uniqueKey";
+  public static final String WEBSCOLAIRE_TYPE = "webscolaireType";
+  public static final String GENERATED_NUMBER = "generatedNumber";
+  public static final String CREATION_DATE = "creationDate";
+  public static final String MODIFICATION_DATE = "modificationDate";
 }

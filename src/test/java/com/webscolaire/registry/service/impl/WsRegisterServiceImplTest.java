@@ -173,7 +173,9 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterByNumber_when_no_data_found() {
-
+     // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
     var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
 
     WsRegister result = registerService.findRegisterByNumber(generatedNumber).block();
@@ -196,7 +198,9 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterBySourceId_when_no_data_found() {
-
+     // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
     WsRegister result = registerService.findRegisterByNumber("SRC").block();
     assertNull(result);
   }
@@ -217,11 +221,37 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterByDateOfBirth_when_no_data_found() {
-
+     // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
     WsRegister result = registerService.findByDateOfBirth("DOB_").blockFirst();
     assertNull(result);
   }
 
+  
+  @Test
+  public void findBySourceIdAndWebscolaireType_when_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+
+    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType(SOURCE_ID, WebscolaireType.ELEVE_ETUDIANT))
+        .assertNext(register -> {
+          assertEquals(SOURCE_ID, register.getSourceId());
+          assertEquals(WebscolaireType.ELEVE_ETUDIANT, register.getWebscolaireType());
+        })
+        .expectComplete()
+        .verify();
+
+  }
+
+  @Test
+  public void findBySourceIdAndWebscolaireType_when_no_data_found() {
+     // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    
+    WsRegister result = registerService.findBySourceIdAndWebscolaireType("SOURCE_ID_",  WebscolaireType.ELEVE_ETUDIANT).blockFirst();
+    assertNull(result);
+  }
   public static WsRegister newWsRegister() {
     return new WsRegister()
         .setSourceId(SOURCE_ID)

@@ -65,4 +65,10 @@ public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
     
     return Mono.just(genKey);
   }
+
+  @Override
+  public Mono<UniqueGenKey> findByUniqueKey(String key) {
+    log.info("Request to find UniqueGenKey by key : {}", key);
+    return uniqueKeyRepository.findOneByUniqueKey(key);
+  }
 }

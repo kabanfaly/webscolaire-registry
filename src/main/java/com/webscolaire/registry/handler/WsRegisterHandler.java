@@ -3,6 +3,8 @@ package com.webscolaire.registry.handler;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
+import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterParam;
 import com.webscolaire.registry.service.WsRegisterService;
@@ -93,6 +95,22 @@ public class WsRegisterHandler {
             .body(wsRegisterFlux, WsRegister.class);
       }
       log.info("No data found for dateOfBirth '{}'", request.pathVariable(PATH_DOB));
+      return notFound().build();
+    });
+ 
+  }
+  
+  public Mono<ServerResponse> findBySourceIdAndWebscolaireType(ServerRequest request) {
+    Flux<WsRegister> wsRegisterFlux = registerService
+        .findBySourceIdAndWebscolaireType(request.pathVariable(PATH_SOURCE_ID), WebscolaireType.getTypeFromString(request.pathVariable(PATH_TYPE)));
+
+    return wsRegisterFlux.hasElements().flatMap(it -> {
+      if (it) {
+        return ok()
+            .contentType(APPLICATION_JSON_UTF8)
+            .body(wsRegisterFlux, WsRegister.class);
+      }
+      log.info("No data found for sourceId '{}' and type '{}'", request.pathVariable(PATH_SOURCE_ID), request.pathVariable(PATH_TYPE));
       return notFound().build();
     });
  
