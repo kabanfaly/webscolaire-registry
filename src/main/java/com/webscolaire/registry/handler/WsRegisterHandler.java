@@ -44,6 +44,12 @@ public class WsRegisterHandler {
             .flatMap(registerService::registerOne), WsRegister.class));
 
   }
+  
+  public Mono<ServerResponse> updateSourceIdByNumber(ServerRequest request) {
+    return ok()
+        .contentType(APPLICATION_JSON_UTF8)
+        .body(registerService.updateSourceIdByNumber(request.pathVariable(PATH_NUMBER), request.pathVariable(PATH_SOURCE_ID)), WsRegister.class);
+  }
 
   public Mono<ServerResponse> registerMany(ServerRequest request) {
     log.info("POST call registerMany");
@@ -54,7 +60,7 @@ public class WsRegisterHandler {
   }
 
   public Mono<ServerResponse> findRegisterByNumber(ServerRequest request) {
-
+    
     Mono<WsRegister> wsRegisterMono = registerService.findRegisterByNumber(request.pathVariable(PATH_NUMBER));
 
     return wsRegisterMono.hasElement().flatMap(it -> {

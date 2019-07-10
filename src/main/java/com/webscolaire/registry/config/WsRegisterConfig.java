@@ -49,7 +49,7 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        .pathMatchers("/ws/**").authenticated()
+        .pathMatchers("/wsregistry/**").authenticated()
         //.pathMatchers("/actuator/**").permitAll()
         .anyExchange().permitAll()
         .and()
@@ -70,6 +70,7 @@ public class WsRegisterConfig {
           builder
               .POST("/register", wsRegisterHandler::registerOne)
               .POST("/registers", wsRegisterHandler::registerMany)
+              .PUT("/update-source/number/{" + PATH_NUMBER + "}/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::updateSourceIdByNumber)
               .POST("/genKey", accept(APPLICATION_JSON_UTF8), uniqueGenKeyHandler::generateUniqueKey)
               .GET("/genKey/{" + PATH_SOURCE_ID + "}", uniqueGenKeyHandler::findByUniqueKey)
               .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
@@ -78,6 +79,6 @@ public class WsRegisterConfig {
               .GET("/sourceId/{" + PATH_SOURCE_ID + "}/type/{" + PATH_TYPE + "}", wsRegisterHandler::findBySourceIdAndWebscolaireType);
         }).build();
 
-    return route().path("/ws", () -> wsRoutes).add(homeRoute).build();
+    return route().path("/wsregistry/", () -> wsRoutes).add(homeRoute).build();
   }
 }

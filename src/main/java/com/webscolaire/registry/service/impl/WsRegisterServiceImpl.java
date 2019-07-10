@@ -109,10 +109,33 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       throw new WsRegisterException(registerError);
     }
   }
+  
+  /**
+   * Modifie le source id d'une entité register identifiée par son numéro (generatedNumber)
+   * @param number le numéro d'identification
+   * @param sourceId la sourceId
+   * @return WsRegister
+   */
+  @Override
+  public Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId) {
+    log.info("Request to update sourceId {} by number : {}", sourceId, number);
+
+    return uniqueGenKeyRepository.findOneByUniqueKey(sourceId)
+        .hasElement().flatMap(it -> {
+          if (it) {
+             return registerRepository.findOneByGeneratedNumber(number)
+                .flatMap(register -> {
+                  register.setSourceId(sourceId);
+                  return registerRepository.save(register);
+                }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
+          }
+          log.error("SourceId '{}' not found ", sourceId);
+          return Mono.error(new WsRegisterException(WsRegisterError.WS_005));
+        });
+  }
 
   /**
-   * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le
-   * registre.
+   * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le registre.
    *
    * @param registerParams
    * @return

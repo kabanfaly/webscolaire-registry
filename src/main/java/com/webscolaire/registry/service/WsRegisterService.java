@@ -18,6 +18,8 @@ public interface WsRegisterService {
 
   Mono<WsRegister> registerOne(WsRegisterParam registerParam);
   
+  Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId);
+  
   Mono<WsRegister> findRegisterByNumber(String number);
   
   Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
