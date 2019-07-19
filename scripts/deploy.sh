@@ -22,10 +22,10 @@ fi
 
 function usage {
   printf "Usage:\n"
-  printf "${BLUE}\t ./deploy.sh ${YELLOW}NOM_DOSSIER_ZIP$ ${GREEN}NOM_FICHIER_WAR {NORMAL}\n"
-  printf "${YELLOW}\t\t - NOM_DOSSIER_ZIP : ${NORMAL} Nom de l'archive zip contenant le service war a déployer.\n"
-  printf "${GREEN}\t\t - NOM_FICHIER_WAR : ${NORMAL} Nom du fichier war à déployer.\n"
-  printf "${BOLD}\t Exemple : ./deploy.sh Delivery-2017-09-25.zip jhipster-0.0.1-SNAPSHOT.war ${NORMAL}\n"
+  printf "${BLUE}\t ./deploy.sh ${YELLOW}NOM_DOSSIER_ZIP$ ${GREEN}NOM_FICHIER_JAR {NORMAL}\n"
+  printf "${YELLOW}\t\t - NOM_DOSSIER_ZIP : ${NORMAL} Nom de l'archive zip contenant le service jar à déployer.\n"
+  printf "${GREEN}\t\t - NOM_FICHIER_JAR : ${NORMAL} Nom du fichier jar à déployer.\n"
+  printf "${BOLD}\t Exemple : ./deploy.sh project-0.0.1.zip project-0.0.1-SNAPSHOT.jar ${NORMAL}\n"
 }
 
 if [ $# -eq 0 ]; then
@@ -36,7 +36,7 @@ fi
 # Date du jour
 DATE=`date +%Y-%m-%d_%H%M%S`
 
-# Vérification des parametres
+# Vérification des paramètres
 if [ $# -ne 2 ]; then
  printf "${RED}Nombre d'arguments est incorrect. Le nom du fichier zip est manquant.${NORMAL}\n"
  usage
@@ -63,21 +63,22 @@ sudo /etc/init.d/ws-registry stop 2>/dev/null
 printf "${GREEN}Arrêt du service ws-registry OK\n"
 
 PROJECT_ZIP_FILE=$1
-WAR_FILE_NAME=$2
-INSTALL_DIR=/workspace/webscolaire-registry
+JAR_FILE_NAME=$2
+INSTALL_DIR=/root/workspace/webscolaire-registry
+cd $INSTALL_DIR
 
 PROJECT_ZIP_FILE_EXT=`getFileExtension $PROJECT_ZIP_FILE`
-WAR_FILE_NAME_EXT=`getFileExtension $WAR_FILE_NAME`
+JAR_FILE_NAME_EXT=`getFileExtension $JAR_FILE_NAME`
 
 # Vérification de l'extension du fichier
 if [ "$PROJECT_ZIP_FILE_EXT" != "zip" ]; then
-  printf "${RED}Le premier argument doit être un fichier zip contant le '.war' à déployer!${NORMAL}\n"
+  printf "${RED}Le premier argument doit être un fichier zip contant le '.jar' à déployer!${NORMAL}\n"
   usage
   exit
 fi
 
-if [ "$WAR_FILE_NAME_EXT" != "war" ]; then
-  printf "${RED}Le deuxième argument doit être le nom du fichier '.war' à déployer!${NORMAL}\n"
+if [ "$JAR_FILE_NAME_EXT" != "jar" ]; then
+  printf "${RED}Le deuxième argument doit être le nom du fichier '.jar' à déployer!${NORMAL}\n"
   usage
   exit
 fi
@@ -87,18 +88,18 @@ fi
 PROJECT_DIR=`getFileName $PROJECT_ZIP_FILE`
 
 # Backup du service existant s'il s'agit du même service
-TMP=/$INSTALL_DIR/tmp
+TMP=./tmp
 
 sudo mkdir $TMP 2>/dev/null
-if [ -d "/$INSTALL_DIR/$PROJECT_DIR" ]; then
+if [ -d "./$PROJECT_DIR" ]; then
   BACKUP=$TMP/${PROJECT_DIR}__BK_${DATE}
-  printf "${GREEN}Renommage du Dossier existant '/$INSTALL_DIR/$PROJECT_DIR' en '$BACKUP'.${NORMAL}\n"
-  sudo mv /$INSTALL_DIR/$PROJECT_DIR $BACKUP
+  printf "${GREEN}Renommage du Dossier existant './$PROJECT_DIR' en '$BACKUP'.${NORMAL}\n"
+  sudo mv ./$PROJECT_DIR $BACKUP
 fi
 
 # Décompression du fichier
-unzip $PROJECT_ZIP_FILE -d /$INSTALL_DIR/ >/dev/null 2>&1
-if [ -d "/$INSTALL_DIR/$PROJECT_DIR" ]; then
+unzip $PROJECT_ZIP_FILE -d $INSTALL_DIR/ >/dev/null 2>&1
+if [ -d "./$PROJECT_DIR" ]; then
   printf "${GREEN}Décompression du fichier OK.${NORMAL}\n"
 else
   printf "${RED}Erreur lors de la décompression du fichier $PROJECT_ZIP_FILE ${NORMAL}.\n"
@@ -107,25 +108,26 @@ fi
 
 
 # Création des lien symboliques
-sudo unlink /$INSTALL_DIR/current_delivery >/dev/null 2>&1
-sudo ln -s /$INSTALL_DIR/$PROJECT_DIR /$INSTALL_DIR/current_delivery
-sudo chmod +x /$INSTALL_DIR/current_delivery/$WAR_FILE_NAME
-sudo ln -sf /$INSTALL_DIR/current_delivery/$WAR_FILE_NAME /$INSTALL_DIR/current_ws_registry.war
-sudo ln -sf /$INSTALL_DIR/config /$INSTALL_DIR/current_delivery
+sudo unlink current_delivery >/dev/null 2>&1
+sudo ln -s ./$PROJECT_DIR current_delivery
+sudo chmod +x current_delivery/$JAR_FILE_NAME
+sudo ln -sf current_delivery/$JAR_FILE_NAME current_ws_registry.jar
+sudo ln -sf $INSTALL_DIR/config current_delivery
 
 # Création du repertoire logs
-LOG_DIR=/$INSTALL_DIR/current_delivery/logs
+LOG_DIR=./current_delivery/logs
 sudo mkdir $LOG_DIR
 sudo chmod a+w $LOG_DIR
-sudo ln -sf $LOG_DIR /$INSTALL_DIR
+sudo ln -sf $LOG_DIR $INSTALL_DIR
 
 # Création de la configuration
-APP_CONFIG_NAME="/$INSTALL_DIR/current_delivery/${PROJECT_DIR}.conf"
-cp /$INSTALL_DIR/etc/service_conf_tpl.conf $APP_CONFIG_NAME
+APP_CONFIG_NAME="./current_delivery/${PROJECT_DIR}.conf"
+cp ./etc/service_conf_tpl.conf $APP_CONFIG_NAME
 
 # Démarrage du service ws-registry
 printf "${GREEN}Démarrage du service ws-registry\n"
-sudo ln -sf /$INSTALL_DIR/current_ws_registry.war /etc/init.d/ws-registry
+sudo ln -sf $INSTALL_DIR/current_ws_registry.jar /etc/init.d/ws-registry
 sudo /etc/init.d/ws-registry start 2>/dev/null
 
 printf "\n${NORMAL}"
+
