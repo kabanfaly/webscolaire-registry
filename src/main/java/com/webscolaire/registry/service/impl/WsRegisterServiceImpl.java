@@ -89,7 +89,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
                   .setSex(SexType.valueOf(registerParam.getSex()))
                   .setFirstname(registerParam.getFirstname().toUpperCase())
                   .setGeneratedNumber(numeroGenere)
-                  .setSourceId(registerParam.getSourceId()));
+                  .setSourceId(uniqueGenKey.getUniqueKey()));
 
             })
             .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)));
