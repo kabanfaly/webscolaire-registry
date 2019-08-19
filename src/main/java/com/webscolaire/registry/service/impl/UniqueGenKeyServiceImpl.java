@@ -42,7 +42,7 @@ public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
     log.info("Request to build uniqueKey");
     
     // Génération d'un token
-    String token = UUID.randomUUID().toString();
+    String token = UUID.randomUUID().toString().replace("-", "");
     UniqueGenKey genKey = new UniqueGenKey().setUniqueKey(token);
 
     uniqueKeyRepository.save(genKey).subscribe();
