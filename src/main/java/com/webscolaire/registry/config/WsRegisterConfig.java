@@ -50,7 +50,7 @@ public class WsRegisterConfig {
         .and()
         .authorizeExchange()
         .pathMatchers("/wsregistry/**").authenticated()
-        //.pathMatchers("/actuator/**").permitAll()
+        .pathMatchers("/actuator/**").authenticated()
         .anyExchange().permitAll()
         .and()
         .build();

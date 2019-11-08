@@ -22,5 +22,4 @@ public class WsRegisterProperties {
   
   @NotNull
   private String timeZone;
-
 }
