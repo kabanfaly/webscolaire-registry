@@ -49,11 +49,6 @@ public class WsRegister extends AbstractAuditingEntity {
   @Field(SOURCE_ID)
   private String sourceId;
 
-  @DBRef
-  @Field
-  @JsonIgnore
-  private UniqueGenKey uniqueGenKey;
-
   /**
    * Identifiant unique généré
    */

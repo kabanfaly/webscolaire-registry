@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Mono;
 import com.webscolaire.registry.service.UniqueGenKeyService;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
+import java.util.UUID;
 
 /**
  *
@@ -41,28 +42,17 @@ public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
     log.info("Request to build uniqueKey");
     
     // Génération d'un token
-    String token = WsRegistryUtils.genToken(AUTHORIZED_CHARACTERS, TOKEN_LENGTH);
-    boolean isUnique = false;
-
-    // Tant que le token construit n'est pas unique en base on n'en contruit de nouveau
-    while (!isUnique) {
-      Query query = new Query();
-      query.addCriteria(
-          where(UNIQUE_KEY).is(token)
-      );
-      // Le numéro construit est unique
-      if (mongoTemplate.findOne(query, UniqueGenKey.class) == null) {
-        isUnique = true;
-        continue;
-      }
-      log.info("Building new token");
-      // construction d'un nouveau numéro webscolaire
-      token = WsRegistryUtils.genToken(AUTHORIZED_CHARACTERS, TOKEN_LENGTH);
-    }
+    String token = UUID.randomUUID().toString().replace("-", "");
     UniqueGenKey genKey = new UniqueGenKey().setUniqueKey(token);
 
     uniqueKeyRepository.save(genKey).subscribe();
     
     return Mono.just(genKey);
+  }
+
+  @Override
+  public Mono<UniqueGenKey> findByUniqueKey(String key) {
+    log.info("Request to find UniqueGenKey by key : {}", key);
+    return uniqueKeyRepository.findOneByUniqueKey(key);
   }
 }

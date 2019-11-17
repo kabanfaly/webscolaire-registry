@@ -3,6 +3,7 @@ package com.webscolaire.registry.config;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
+import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
 import com.webscolaire.registry.handler.UniqueGenKeyHandler;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import org.springframework.context.annotation.Bean;
@@ -48,8 +49,8 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        .pathMatchers("/ws/**").authenticated()
-        //.pathMatchers("/actuator/**").permitAll()
+        .pathMatchers("/wsregistry/**").authenticated()
+        .pathMatchers("/actuator/**").authenticated()
         .anyExchange().permitAll()
         .and()
         .build();
@@ -69,12 +70,15 @@ public class WsRegisterConfig {
           builder
               .POST("/register", wsRegisterHandler::registerOne)
               .POST("/registers", wsRegisterHandler::registerMany)
+              .PUT("/update-source/number/{" + PATH_NUMBER + "}/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::updateSourceIdByNumber)
               .POST("/genKey", accept(APPLICATION_JSON_UTF8), uniqueGenKeyHandler::generateUniqueKey)
+              .GET("/genKey/{" + PATH_SOURCE_ID + "}", uniqueGenKeyHandler::findByUniqueKey)
               .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)
               .GET("/dob/{" + PATH_DOB + "}", wsRegisterHandler::findRegisterByDateOfBirth)
-              .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceId);
+              .GET("/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::findRegisterBySourceId)
+              .GET("/sourceId/{" + PATH_SOURCE_ID + "}/type/{" + PATH_TYPE + "}", wsRegisterHandler::findBySourceIdAndWebscolaireType);
         }).build();
 
-    return route().path("/ws", () -> wsRoutes).add(homeRoute).build();
+    return route().path("/wsregistry/", () -> wsRoutes).add(homeRoute).build();
   }
 }

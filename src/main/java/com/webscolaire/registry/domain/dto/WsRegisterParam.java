@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.experimental.Accessors;
 
+import java.io.Serializable;
+
 /**
  *
  * @since 14 avr. 2019
@@ -15,7 +17,7 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class WsRegisterParam {
+public class WsRegisterParam implements Serializable {
 
   @NonNull
   private String sourceId;

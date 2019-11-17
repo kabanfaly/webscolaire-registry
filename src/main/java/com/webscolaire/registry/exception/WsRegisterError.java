@@ -13,7 +13,8 @@ public enum WsRegisterError {
   WS_003("WS_003", "La valeur de l'attribut 'sex' est invalide ou n'est pas définie."),
   WS_004("WS_004", "L'attribut 'lastname' ne doit pas être vide ou 'null'."),
   WS_005("WS_005", "La valeur de l'attribut 'sourceId' est invalide."),
-  WS_006("WS_006", "L'attribut 'firstname' ne doit pas être vide ou 'null'.");
+  WS_006("WS_006", "L'attribut 'firstname' ne doit pas être vide ou 'null'."),
+  WS_007("WS_007", "Le nunéro fourni est incorrect.");
 
   @Getter
   private final String code;

@@ -1,5 +1,6 @@
 package com.webscolaire.registry.handler;
 
+import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.service.UniqueGenKeyService;
 import javax.inject.Inject;
@@ -8,6 +9,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 import reactor.core.publisher.Mono;
 
@@ -28,5 +30,20 @@ public class UniqueGenKeyHandler {
       return ok()
           .contentType(APPLICATION_JSON_UTF8)
           .body(genKeyService.generateUniqueKey(), UniqueGenKey.class);
+  }
+  public Mono<ServerResponse> findByUniqueKey(ServerRequest request) {
+    Mono<UniqueGenKey> uniqueGenKeyMono = genKeyService
+        .findByUniqueKey(request.pathVariable(SOURCE_ID));
+
+    return uniqueGenKeyMono.hasElement().flatMap(it -> {
+      if (it) {
+        return ok()
+            .contentType(APPLICATION_JSON_UTF8)
+            .body(uniqueGenKeyMono, UniqueGenKey.class);
+      }
+      log.info("No data found for uniqueKey '{}'", request.pathVariable(SOURCE_ID));
+      return notFound().build();
+    });
+ 
   }
 }

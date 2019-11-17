@@ -50,7 +50,7 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_001_when_webscolaireType_IsEmptyOrNull() {
+  public void registerOne_shouldThrowException_withWS_001_when_webscolaireType_IsEmptyOrNull() {
     try {
       registerService.registerOne(new WsRegisterParam().setWebscolaireType(""));
       fail("WsRegisterException(WS_001) expected");
@@ -60,7 +60,7 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_002_when_dateOfBirth_IsInvalid() {
+  public void registerOne_shouldThrowException_withWS_002_when_dateOfBirth_IsInvalid() {
     try {
       registerService.registerOne(new WsRegisterParam()
           .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth("40802222"));
@@ -80,7 +80,7 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_003_when_sex_IsEmptyOrNull() {
+  public void registerOne_shouldThrowException_withWS_003_when_sex_IsEmptyOrNull() {
     try {
       registerService.registerOne(new WsRegisterParam()
           .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
@@ -92,7 +92,7 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_004_when_lastname_IsEmptyOrNull() {
+  public void registerOne_shouldThrowException_withWS_004_when_lastname_IsEmptyOrNull() {
     try {
       registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
           .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
@@ -104,7 +104,7 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_006_when_firstname_IsEmptyOrNull() {
+  public void registerOne_shouldThrowException_withWS_006_when_firstname_IsEmptyOrNull() {
     try {
       registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
           .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB).setFirstname(""));
@@ -115,15 +115,16 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  public void shouldThrowException_withWS_005_when_invalidSourceID() {
+  public void registerOne_shouldThrowException_withWS_005_when_invalidSourceId() {
+    uniqueGenKeyRepository.deleteAll().subscribe();
     StepVerifier.create(registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
         .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
         .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name())))
-        .expectErrorMessage(WsRegisterError.WS_005.getDescription());
+        .expectErrorMessage(WsRegisterError.WS_005.getDescription()).verify();
   }
 
   @Test
-  public void registerTestOK_should_save_new_data() {
+  public void registerOne_should_save_new_data() {
     uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
 
     Mono<WsRegister> registerMono = registerService
@@ -157,6 +158,36 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
+  public void updateSourceIdByNumber_shouldThrowException_withWS_005_when_invalidSourceId() {
+    uniqueGenKeyRepository.deleteAll().subscribe();
+    StepVerifier.create(registerService.updateSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
+        .expectErrorMessage(WsRegisterError.WS_005.getDescription()).verify();
+  }
+
+  @Test
+  public void updateSourceIdByNumber_shouldThrowException_withWS_007_when_invalidNumber() {
+    StepVerifier.create(registerService.updateSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
+        .expectErrorMessage(WsRegisterError.WS_007.getDescription()).verify();
+  }
+
+  @Test
+  public void updateSourceIdByNumber_shouldUpdate() {
+    //given
+    String newSourceId = SOURCE_ID + "2";
+    String number = GENERATED_NUMBER_PREFIX + "17325";
+    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(newSourceId)).subscribe();
+    registerRepository.save(newWsRegister().setGeneratedNumber(number)).subscribe();
+
+    StepVerifier.create(registerService.updateSourceIdByNumber(number, newSourceId))
+        .assertNext(register -> {
+          assertEquals(number, register.getGeneratedNumber());
+          assertEquals(newSourceId, register.getSourceId());
+        })
+        .expectComplete()
+        .verify();
+  }
+
+  @Test
   public void findRegisterByNumber_when_data_found() {
     // Given
     var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
@@ -173,6 +204,8 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterByNumber_when_no_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
 
     var generatedNumber = GENERATED_NUMBER_PREFIX + "21473";
 
@@ -196,6 +229,8 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterBySourceId_when_no_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
 
     WsRegister result = registerService.findRegisterByNumber("SRC").block();
     assertNull(result);
@@ -217,8 +252,34 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void findRegisterByDateOfBirth_when_no_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
 
     WsRegister result = registerService.findByDateOfBirth("DOB_").blockFirst();
+    assertNull(result);
+  }
+
+  @Test
+  public void findBySourceIdAndWebscolaireType_when_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+
+    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType(SOURCE_ID, WebscolaireType.ELEVE_ETUDIANT))
+        .assertNext(register -> {
+          assertEquals(SOURCE_ID, register.getSourceId());
+          assertEquals(WebscolaireType.ELEVE_ETUDIANT, register.getWebscolaireType());
+        })
+        .expectComplete()
+        .verify();
+
+  }
+
+  @Test
+  public void findBySourceIdAndWebscolaireType_when_no_data_found() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+
+    WsRegister result = registerService.findBySourceIdAndWebscolaireType("SOURCE_ID_", WebscolaireType.ELEVE_ETUDIANT).blockFirst();
     assertNull(result);
   }
 
