@@ -3,31 +3,24 @@ version: '3.1'
 services:
   webscolaire-registry:
     build: .
-    # image: registry.gitlab.com/idgst/springboot-mongo-demo:latest
     restart: always
+    container_name: ws-registry
     ports:
       - 8181:8181
     expose:
       - "8181"
     working_dir: /opt/app
-    links:
-      - ws-registry-mongo
-      
-  ws-registry-mongo:
-    image: mongo
-    ports:
-      - 27018:27018
-    command: --smallfiles
-    volumes:
-      - ${HOME}/data/mongo:/data/db
-    restart: always
-   
-  mongo-client:
-    image: mongoclient/mongoclient
-    ports:
-    - 3030:3000
     environment:
-      - MONGOCLIENT_DEFAULT_CONNECTION_URL=mongodb://ws-registry-mongo:27017
-    links:
-      - ws-registry-mongo
-    
+      - JAVA_OPTS=
+         -Dspring.data.mongodb.uri=mongodb://ws-mongo:27017
+    depends_on:
+      - mongo
+      
+  mongo:
+    image: mongo
+    container_name: ws-mongo
+    ports:
+      - 27017:27017
+    volumes:
+      - $HOME/data/mongo:/data/db
+    restart: always
