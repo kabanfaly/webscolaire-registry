@@ -43,6 +43,7 @@ jobs:
       - store_artifacts:
           path: target/classes
           destination: webscolaire-registry
+      - setup_remote_docker
       - run:
           name: Install Docker Compose
           command: |
