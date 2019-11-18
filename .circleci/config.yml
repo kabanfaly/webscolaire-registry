@@ -45,6 +45,7 @@ jobs:
           
   deploy-image:
       docker:
+        - image: circleci/openjdk:11-jdk
         - image: circleci/mongo:4.2
       working_directory: ~/webscolaire-registry
       steps:
