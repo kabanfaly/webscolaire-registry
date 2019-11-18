@@ -65,6 +65,8 @@ jobs:
             docker push knfaly/ws-registry:latest
            
   deploy-prod:
+    branches:
+      only: master
     machine:
       enabled: true
     steps:
@@ -84,6 +86,6 @@ workflows:
   build-deploy:
       jobs:
         - build
-        - deploy-prod
+        - deploy-prod:
                
 
