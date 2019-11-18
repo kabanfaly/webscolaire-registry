@@ -46,6 +46,7 @@ jobs:
   deploy-image:
       docker:
         - image: circleci/mongo:4.2
+      working_directory: ~/webscolaire-registry
       steps:
         - setup_remote_docker
         - run:
