@@ -8,7 +8,6 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/openjdk:11-jdk
-      - image: circleci/mongo:4.2
 
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -45,6 +44,8 @@ jobs:
           destination: webscolaire-registry
           
   deploy-image:
+      docker:
+        - image: circleci/mongo:4.2
       steps:
         - setup_remote_docker
         - run:
@@ -68,6 +69,8 @@ jobs:
               docker push knfaly/ws-registry:latest
 
   deploy-prod:
+    docker:
+      - image: circleci/openjdk:11-jdk
     steps:
       - add_ssh_keys:
          fingerprints:
