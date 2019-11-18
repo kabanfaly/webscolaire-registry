@@ -42,33 +42,26 @@ jobs:
       - store_artifacts:
           path: target/classes
           destination: webscolaire-registry
-          
-  deploy-image:
-      docker:
-        - image: circleci/openjdk:11-jdk
-        - image: circleci/mongo:4.2
-      working_directory: ~/webscolaire-registry
-      steps:
-        - setup_remote_docker
-        - run:
-            name: Install Docker Compose
-            command: |
-              set -x
-              curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > ~/webscolaire-registry/docker-compose
-              sudo mv ~/webscolaire-registry/docker-compose /usr/local/bin/
-              sudo chmod +x /usr/local/bin/docker-compose
-        - run:
-            name: Start container and verify it's working
-            command: |
-              set -x
-              docker-compose up -d
-        - deploy:
-            name: Build and push Docker image
-            command: |
-              #TAG="0.1.${CIRCLE_BUILD_NUM}"
-              docker build -t knfaly/ws-registry:latest .
-              docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-              docker push knfaly/ws-registry:latest
+      - setup_remote_docker
+      - run:
+          name: Install Docker Compose
+          command: |
+            set -x
+            curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > ~/webscolaire-registry/docker-compose
+            sudo mv ~/webscolaire-registry/docker-compose /usr/local/bin/
+            sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Start container and verify it's working
+          command: |
+            set -x
+            docker-compose up -d
+      - deploy:
+          name: Build and push Docker image
+          command: |
+            #TAG="0.1.${CIRCLE_BUILD_NUM}"
+            docker build -t knfaly/ws-registry:latest .
+            docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
+            docker push knfaly/ws-registry:latest
 
   deploy-prod:
     docker:
@@ -86,10 +79,7 @@ workflows:
   build-deploy:
       jobs:
         - build
-        - deploy-image:
-             requires:
-               - build
         - deploy-prod:
             requires:
-              - deploy-image
+              - build
 
