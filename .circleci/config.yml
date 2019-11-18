@@ -63,6 +63,10 @@ jobs:
             docker build -t knfaly/ws-registry:latest .
             docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
             docker push knfaly/ws-registry:latest
+          filters:
+            branches:
+              only:
+                - master
 
   deploy-prod:
     machine:
