@@ -79,10 +79,10 @@ workflows:
   version: 2
   build-deploy:
       jobs:
-        - build:
+        - build
         - deploy-prod:
             filters:
-                branches:
-                    only: master
+             branches:
+               only: master
         
 
