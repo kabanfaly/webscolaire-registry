@@ -65,17 +65,16 @@ jobs:
             docker push knfaly/ws-registry:latest
 
   deploy-prod:
-      deploy:
-         machine:
-            enabled: true
-      steps:
-        - add_ssh_keys:
-           fingerprints:
-             - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
-        - run:
-            name: deploying application over SSH
-            command: |
-              ssh $SSH_USER@$SSH_HOST "sh $APP_RUN_SCRIPT"
+    machine:
+      enabled: true
+    steps:
+      - add_ssh_keys:
+         fingerprints:
+           - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
+      - run:
+          name: deploying application over SSH
+          command: |
+            ssh $SSH_USER@$SSH_HOST "sh $APP_RUN_SCRIPT"
 workflows:
   version: 2
   build-deploy:
