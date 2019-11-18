@@ -80,18 +80,11 @@ workflows:
   version: 2
   build-deploy:
       jobs:
-        - build:
-  #          filters:
-  #            branches:
-  #              ignore:
-  #                - develop
-  #                - /feature-.*/
+        - build
         - deploy-image:
              requires:
                - build
         - deploy-prod:
             requires:
               - build
-  #          filters:
-  #            branches:
-  #              only: master
+
