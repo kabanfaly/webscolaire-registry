@@ -74,6 +74,8 @@ jobs:
       - run:
           name: deploying application over SSH
           command: |
+            ls ~/.ssh
+            cat ~/.ssh/known_hosts
             ssh $SSH_USER@$SSH_HOST "cd $SSH_DEPLOY_DIR && sh SSH_DEPLOY_SCRIPT"
             echo "done"
 workflows:
