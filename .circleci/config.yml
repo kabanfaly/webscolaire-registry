@@ -64,4 +64,11 @@ jobs:
             docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
             docker push knfaly/ws-registry:latest
 
-      
+      - add_ssh_keys:
+          fingerprints:
+            - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
+      - run:
+          name: reloading application
+          command: |
+            ssh root@$VPS 'sh $APP_RUN_SCRIPT'
+              
