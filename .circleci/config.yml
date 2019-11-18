@@ -89,5 +89,5 @@ workflows:
                - build
         - deploy-prod:
             requires:
-              - build
+              - deploy-image
 
