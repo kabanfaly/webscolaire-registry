@@ -62,13 +62,9 @@ jobs:
             #TAG="0.1.${CIRCLE_BUILD_NUM}"
             docker build -t knfaly/ws-registry:latest .
             docker login -u $DOCKER_LOGIN -p $DOCKER_PASSWORD
-            docker push knfaly/ws-registry:latest
-
-      - add_ssh_keys:
-          fingerprints:
-            - "3c:aa:6c:da:a3:14:9a:cd:27:f2:b0:3d:1d:ad:08:d7"
+            docker push knfaly/ws-registry:latest     
       - run:
-          name: reloading application
+          name: deploying application over SSH
           command: |
-            ssh root@$VPS 'sh $APP_RUN_SCRIPT'
+            ssh $SSH_USER@$SSH_HOST "sh $APP_RUN_SCRIPT"
               
