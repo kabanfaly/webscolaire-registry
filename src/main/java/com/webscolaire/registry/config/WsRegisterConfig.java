@@ -49,7 +49,7 @@ public class WsRegisterConfig {
         .httpBasic()
         .and()
         .authorizeExchange()
-        .pathMatchers("/wsregistry/**").authenticated()
+        .pathMatchers("/**").authenticated()
         .pathMatchers("/actuator/**").authenticated()
         .anyExchange().permitAll()
         .and()

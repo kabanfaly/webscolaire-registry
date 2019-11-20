@@ -24,7 +24,7 @@ public class SwaggerConfiguration {
         .enable(true)
         .select()
         .apis(RequestHandlerSelectors.basePackage("com.webscolaire.registry.config"))
-        .paths(PathSelectors.ant("/wsregistry/**"))
+        .paths(PathSelectors.ant("/**"))
         .build();
 
   }
