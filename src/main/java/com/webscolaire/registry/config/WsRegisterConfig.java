@@ -79,6 +79,6 @@ public class WsRegisterConfig {
               .GET("/sourceId/{" + PATH_SOURCE_ID + "}/type/{" + PATH_TYPE + "}", wsRegisterHandler::findBySourceIdAndWebscolaireType);
         }).build();
 
-    return route().path("/wsregistry/", () -> wsRoutes).add(homeRoute).build();
+    return route().path("/", () -> wsRoutes).add(homeRoute).build();
   }
 }
