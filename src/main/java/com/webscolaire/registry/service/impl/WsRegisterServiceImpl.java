@@ -21,7 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import lombok.val;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
@@ -30,6 +29,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 
 /**
  *
@@ -52,7 +52,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   private UniqueGenKeyRepository uniqueGenKeyRepository;
 
   @Inject
-  private MongoTemplate mongoTemplate;
+  private ReactiveMongoTemplate reactiveMongoTemplate;
 
   /**
    *
@@ -73,14 +73,17 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       val webscolaireType = WebscolaireType.getTypeFromString(registerParam.getWebscolaireType());
 
       // Recherche d'une entité existante
-      var register = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
+      Mono<WsRegister> registerMono = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
           registerParam.getDateOfBirth(), webscolaireType, SexType.valueOf(registerParam.getSex()));
 
       // Enregistre si aucune entité existante trouvée.
-      if (register == null) {
+      return registerMono.hasElement().flatMap(it -> {
+        if (it) {
+          log.info("Retrieving existing data : {} ", registerMono);
+          return registerMono;
+        }
         val numeroGenere = buildGeneratedNumber(webscolaireType, registerParam.getDateOfBirth());
-
-        val registerMono = uniqueGenKeyRepository.findOneByUniqueKey(registerParam.getSourceId())
+        return uniqueGenKeyRepository.findOneByUniqueKey(registerParam.getSourceId())
             .flatMap(uniqueGenKey
                 -> {
               return registerRepository.save(new WsRegister()
@@ -94,12 +97,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
             })
             .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)));
-
-        return registerMono;
-      } else {
-        log.info("Retrieving existing data : {} ", register);
-      }
-      return Mono.just(register);
+      });
 
     } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
       log.error(ExceptionUtils.getStackTrace(ex));
@@ -109,9 +107,10 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       throw new WsRegisterException(registerError);
     }
   }
-  
+
   /**
    * Modifie le source id d'une entité register identifiée par son numéro (generatedNumber)
+   *
    * @param number le numéro d'identification
    * @param sourceId la sourceId
    * @return WsRegister
@@ -123,7 +122,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     return uniqueGenKeyRepository.findOneByUniqueKey(sourceId)
         .hasElement().flatMap(it -> {
           if (it) {
-             return registerRepository.findOneByGeneratedNumber(number)
+            return registerRepository.findOneByGeneratedNumber(number)
                 .flatMap(register -> {
                   register.setSourceId(sourceId);
                   return registerRepository.save(register);
@@ -204,7 +203,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    * @param sex
    * @return
    */
-  private WsRegister findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
+  private Mono<WsRegister> findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
       WebscolaireType webscolaireType, SexType sex) {
 
     var query = new Query();
@@ -216,7 +215,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
             .and(DATE_OF_BIRTH).is(dateOfBirth)
             .and(SEX).is(sex)
     );
-    return mongoTemplate.findOne(query, WsRegister.class);
+    return reactiveMongoTemplate.findOne(query, WsRegister.class);
   }
 
   /**
@@ -233,29 +232,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     // Génération d'un token
     var token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
 
-    // Construction du numéro webscolaire initial
-    var generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
-
-    var isUnique = false;
-    // Tant que le numéro webscolaire construit n'est pas unique en base on n'en contruit de nouveau
-    while (!isUnique) {
-      Query query = new Query();
-      query.addCriteria(
-          where(GENERATED_NUMBER).is(generatedNumber)
-      );
-
-      // Le numéro construit est unique
-      if (mongoTemplate.findOne(query, WsRegister.class) == null) {
-        isUnique = true;
-        continue;
-      }
-      log.info("Building new generated number.");
-      // construction d'un nouveau numéro webscolaire
-      token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
-      generatedNumber = webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
-    }
-
-    return generatedNumber;
+    // Construction du numéro webscolaire unique
+    return webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
   }
 
   /**
