@@ -5,7 +5,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.convert.converter.Converter;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -13,9 +12,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 
 @Configuration
-@EnableMongoRepositories("com.webscolaire.registry.repository")
+@EnableReactiveMongoRepositories(basePackages ="com.webscolaire.registry.repository")
 @Import(value = MongoAutoConfiguration.class)
 public class DatabaseConfiguration {
 
