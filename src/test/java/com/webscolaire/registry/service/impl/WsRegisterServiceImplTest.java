@@ -19,6 +19,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
+import org.springframework.data.domain.PageRequest;
 
 /**
  *
@@ -281,6 +282,19 @@ public class WsRegisterServiceImplTest {
 
     WsRegister result = registerService.findBySourceIdAndWebscolaireType("SOURCE_ID_", WebscolaireType.ELEVE_ETUDIANT).blockFirst();
     assertNull(result);
+  }
+
+  @Test
+  public void findAll() {
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    StepVerifier.create(registerService.findAllRegisters(PageRequest.of(0, 10)))
+        .assertNext(register -> {
+          assertEquals(SOURCE_ID, register.getSourceId());
+          assertEquals(WebscolaireType.ELEVE_ETUDIANT, register.getWebscolaireType());
+        })
+        .expectComplete()
+        .verify();
   }
 
   public static WsRegister newWsRegister() {

@@ -4,6 +4,7 @@ import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterParam;
 import java.util.List;
+import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -29,4 +30,6 @@ public interface WsRegisterService {
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
   
   Flux<WsRegister> registerMany(List<WsRegisterParam> registerParam);
+  
+  Flux<WsRegister> findAllRegisters(Pageable page);
 }

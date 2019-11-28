@@ -69,6 +69,7 @@ public class WsRegisterConfig {
         .nest(accept(APPLICATION_JSON_UTF8), builder -> {
           builder
               .POST("/register", wsRegisterHandler::registerOne)
+              .GET("/registers", wsRegisterHandler::findAllRegisters)
               .POST("/registers", wsRegisterHandler::registerMany)
               .PUT("/update-source/number/{" + PATH_NUMBER + "}/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::updateSourceIdByNumber)
               .POST("/genKey", accept(APPLICATION_JSON_UTF8), uniqueGenKeyHandler::generateUniqueKey)

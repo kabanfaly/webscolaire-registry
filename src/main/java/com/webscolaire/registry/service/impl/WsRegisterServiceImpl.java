@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
+import org.springframework.data.domain.Pageable;
 
 /**
  *
@@ -291,5 +292,10 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   public Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType) {
     log.info("Request to find register by sourceId : {} and webscolaireType: {}", sourceId, webscolaireType);
     return registerRepository.findBySourceIdAndWebscolaireType(sourceId, webscolaireType);
+  }
+
+  @Override
+  public Flux<WsRegister> findAllRegisters(Pageable page) {
+    return registerRepository.findAll(page);
   }
 }
