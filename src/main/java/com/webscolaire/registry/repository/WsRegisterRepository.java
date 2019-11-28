@@ -2,6 +2,8 @@ package com.webscolaire.registry.repository;
 
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -22,4 +24,7 @@ public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
   
   Flux<WsRegister> findByWebscolaireTypeAndDateOfBirth(WebscolaireType webscolaireType, String dateOfBirth);
+  
+  @Query("{ id: { $exists: true }}")
+  Flux<WsRegister> findAll(Pageable pageable);
 }
