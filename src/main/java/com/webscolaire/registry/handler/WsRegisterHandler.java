@@ -49,6 +49,13 @@ public class WsRegisterHandler {
             .flatMap(registerService::registerOne), WsRegister.class));
 
   }
+  public Mono<ServerResponse> updateRegister(ServerRequest request) {
+    log.info("POST call registerOne");
+    return ok()
+        .contentType(APPLICATION_JSON_UTF8)
+        .body(fromPublisher(request.bodyToMono(WsRegisterParam.class)
+            .flatMap(registerService::updateRegister), WsRegister.class));
+  }
 
   public Mono<ServerResponse> findAllRegisters(ServerRequest request) {
     log.info("GET call findAllRegisters");

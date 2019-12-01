@@ -32,4 +32,5 @@ public class WsRegisterParam implements Serializable {
   private String firstname;
   private String lastname = "";
   private String sex;
+  private String generatedNumber;
 }

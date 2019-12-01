@@ -297,6 +297,36 @@ public class WsRegisterServiceImplTest {
         .verify();
   }
 
+  @Test
+  public void updateRegister_when_number_is_not_correct(){
+    // Given
+    registerRepository.save(newWsRegister()).subscribe();
+    StepVerifier.create(registerService.updateRegister(new WsRegisterParam()
+          .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
+          .setGeneratedNumber("NOT_FOUND")
+          .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))
+         .expectErrorMessage(WsRegisterError.WS_007.getDescription()).verify();
+  }
+  
+   @Test
+  public void updateRegister_when_number_is_correct(){
+    // Given
+    WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
+    StepVerifier.create(registerService.updateRegister(new WsRegisterParam()
+          .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
+          .setGeneratedNumber(wsRegister.getGeneratedNumber())
+          .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))
+         .assertNext(register  -> {
+           assertEquals("ALY", register.getFirstname());
+           assertEquals("Kaba", register.getLastname());
+           assertEquals(SexType.H, register.getSex());
+           assertEquals(wsRegister.getSourceId(), register.getSourceId());
+           assertEquals(wsRegister.getGeneratedNumber(), register.getGeneratedNumber());
+         })
+        .expectComplete()
+        .verify();
+  }
+  
   public static WsRegister newWsRegister() {
     return new WsRegister()
         .setSourceId(SOURCE_ID)

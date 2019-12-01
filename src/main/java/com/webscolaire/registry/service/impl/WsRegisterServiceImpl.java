@@ -58,7 +58,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
    *
    * Enregistre une entité webScolaire {@link WebscolaireType} dans le registre.
    *
-   * @param registerParam Les paramètre d'entrée
+   * @param registerParam Les paramètres d'entrée.
    * @return WsRegister
    * @throws WsRegisterException
    */
@@ -103,13 +103,41 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       log.error(ExceptionUtils.getStackTrace(ex));
       WsRegisterError registerError = WsRegisterError.getErrorFromCodeStr(ex.getMessage());
       log.error("{} --- {}", registerError.toString(), registerParam);
-      //return Mono.error(new WsRegisterException(registerError));
       throw new WsRegisterException(registerError);
     }
   }
 
   /**
-   * Modifie le source id d'une entité register identifiée par son numéro (generatedNumber)
+   * Modifie une entity
+   *
+   * @param registerParam Les paramètres d'entrée.
+   * @return WsRegister
+   */
+  @Override
+  public Mono<WsRegister> updateRegister(WsRegisterParam registerParam) {
+    try {
+      // Validation 
+      validateWsRegisterParam(registerParam);
+      Mono<WsRegister> registerMono = findRegisterByNumber(registerParam.getGeneratedNumber());
+      return registerMono.flatMap(register -> {
+        register.setFirstname(registerParam.getFirstname());
+        register.setLastname(registerParam.getLastname());
+        register.setDateOfBirth(registerParam.getDateOfBirth());
+        register.setSex(SexType.valueOf(registerParam.getSex()));
+        return registerRepository.save(register);
+      }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
+
+    } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
+      log.error(ExceptionUtils.getStackTrace(ex));
+      WsRegisterError registerError = WsRegisterError.getErrorFromCodeStr(ex.getMessage());
+      log.error("{} --- {}", registerError.toString(), registerParam);
+      throw new WsRegisterException(registerError);
+    }
+  }
+
+  /**
+   * Modifie le source id d'une entité register identifiée par son numéro
+   * (generatedNumber)
    *
    * @param number le numéro d'identification
    * @param sourceId la sourceId
@@ -134,7 +162,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
   }
 
   /**
-   * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le registre.
+   * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le
+   * registre.
    *
    * @param registerParams
    * @return
