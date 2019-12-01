@@ -122,7 +122,6 @@ public class WsRegisterServiceImpl implements WsRegisterService {
       return registerMono.flatMap(register -> {
         register.setFirstname(registerParam.getFirstname());
         register.setLastname(registerParam.getLastname());
-        register.setDateOfBirth(registerParam.getDateOfBirth());
         register.setSex(SexType.valueOf(registerParam.getSex()));
         return registerRepository.save(register);
       }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
