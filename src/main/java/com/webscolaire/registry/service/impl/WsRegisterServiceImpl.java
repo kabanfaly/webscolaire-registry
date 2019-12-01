@@ -239,8 +239,8 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     query.addCriteria(
         where(WEBSCOLAIRE_TYPE).is(webscolaireType)
             .and(SOURCE_ID).is(sourceId)
-            .and(LASTNAME).is(lastname.toUpperCase())
-            .and(FIRSTNAME).is(firstname.toUpperCase())
+            .and(LASTNAME).is(lastname)
+            .and(FIRSTNAME).is(firstname)
             .and(DATE_OF_BIRTH).is(dateOfBirth)
             .and(SEX).is(sex)
     );
