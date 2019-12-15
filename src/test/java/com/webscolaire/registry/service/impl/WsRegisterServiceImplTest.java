@@ -30,9 +30,9 @@ import org.springframework.data.domain.PageRequest;
 @SpringBootTest
 public class WsRegisterServiceImplTest {
 
-  public static final String DOB = "20121999";
-  public static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
-  public static final String SOURCE_ID = "SRC-12235";
+  private static final String DOB = "20121999";
+  private static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
+  private static final String SOURCE_ID = "SRC-12235";
 
   @Inject
   private WsRegisterService registerService;
@@ -126,8 +126,6 @@ public class WsRegisterServiceImplTest {
 
   @Test
   public void registerOne_should_save_new_data() {
-    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
-
     Mono<WsRegister> registerMono = registerService
         .registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
@@ -195,9 +193,7 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister().setGeneratedNumber(generatedNumber)).subscribe();
 
     StepVerifier.create(registerService.findRegisterByNumber(generatedNumber))
-        .assertNext(register -> {
-          assertEquals(generatedNumber, register.getGeneratedNumber());
-        })
+        .assertNext(register -> assertEquals(generatedNumber, register.getGeneratedNumber()))
         .expectComplete()
         .verify();
 
@@ -220,9 +216,7 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     StepVerifier.create(registerService.findRegisterBySourceId(SOURCE_ID))
-        .assertNext(register -> {
-          assertEquals(SOURCE_ID, register.getSourceId());
-        })
+        .assertNext(register -> assertEquals(SOURCE_ID, register.getSourceId()))
         .expectComplete()
         .verify();
 
@@ -243,9 +237,7 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     StepVerifier.create(registerService.findByDateOfBirth(DOB))
-        .assertNext(register -> {
-          assertEquals(DOB, register.getDateOfBirth());
-        })
+        .assertNext(register -> assertEquals(DOB, register.getDateOfBirth()))
         .expectComplete()
         .verify();
 
@@ -312,6 +304,7 @@ public class WsRegisterServiceImplTest {
   public void updateRegister_when_number_is_correct(){
     // Given
     WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
+    assertNotNull(wsRegister);
     StepVerifier.create(registerService.updateRegister(new WsRegisterParam()
           .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
           .setGeneratedNumber(wsRegister.getGeneratedNumber())
