@@ -2,19 +2,17 @@ package com.webscolaire.registry.utils;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_NUMBERS;
 import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 /**
  *
  * @since 23 avr. 2019 - 20:12:30
  * @author KABA N'faly
  */
-@RunWith(SpringRunner.class)
-@SpringBootTest
+@DisplayName("WsRegistryUtils Test")
 public class WsRegistryUtilsTest {
   
   /**

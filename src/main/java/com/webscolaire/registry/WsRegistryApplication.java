@@ -3,10 +3,11 @@ package com.webscolaire.registry;
 import com.webscolaire.registry.config.WsRegisterProperties;
 import java.util.TimeZone;
 import javax.annotation.PostConstruct;
-import javax.inject.Inject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
 import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 
 /**
@@ -15,14 +16,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
  */
 @SpringBootApplication
 @EnableSwagger2WebFlux
+@EnableWebFluxSecurity
 public class WsRegistryApplication {
 
-    @Inject
-    private WsRegisterProperties properties;
-    
+
     @PostConstruct
     void started() {
-        TimeZone.setDefault(TimeZone.getTimeZone(properties.getTimeZone()));
+        TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
     }
 
     public static void main(String[] args) {
