@@ -11,10 +11,10 @@
     <properties>
         <project.encoding>UTF-8</project.encoding>
         <java.version>11</java.version>
-        <spring-boot.version>2.2.2.RELEASE</spring-boot.version>
-        <spring-cloud.version>Hoxton.RELEASE</spring-cloud.version>
+        <spring-boot.version>2.2.4.RELEASE</spring-boot.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
 
+        <start-class>com.webscolaire.registry.WsRegistryApplication</start-class>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
@@ -134,10 +134,18 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>${spring-boot.version}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
                 <configuration>
+                    <mainClass>${start-class}</mainClass>
                     <executable>true</executable>
                 </configuration>
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,9 +1,7 @@
 package com.webscolaire.registry;
 
-import com.webscolaire.registry.config.WsRegisterProperties;
 import java.util.TimeZone;
 import javax.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -18,7 +16,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 @EnableSwagger2WebFlux
 @EnableWebFluxSecurity
 public class WsRegistryApplication {
-
 
     @PostConstruct
     void started() {
