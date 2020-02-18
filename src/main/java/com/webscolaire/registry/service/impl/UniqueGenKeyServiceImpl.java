@@ -28,11 +28,7 @@ public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
 
         // Génération d'un token
         String token = UUID.randomUUID().toString().replace("-", "");
-        UniqueGenKey genKey = new UniqueGenKey().setUniqueKey(token);
-
-        uniqueKeyRepository.save(genKey).subscribe();
-
-        return Mono.just(genKey);
+        return uniqueKeyRepository.save(new UniqueGenKey().setUniqueKey(token));
     }
 
     @Override

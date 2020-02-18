@@ -23,8 +23,6 @@ public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister
   
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
   
-  Flux<WsRegister> findByWebscolaireTypeAndDateOfBirth(WebscolaireType webscolaireType, String dateOfBirth);
-  
   @Query("{ id: { $exists: true }}")
   Flux<WsRegister> findAll(Pageable pageable);
 }

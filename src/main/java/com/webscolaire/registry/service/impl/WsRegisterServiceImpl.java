@@ -18,7 +18,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import lombok.extern.log4j.Log4j2;
-import lombok.val;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
 import static com.webscolaire.registry.domain.WebscolaireType.getTypeFromString;

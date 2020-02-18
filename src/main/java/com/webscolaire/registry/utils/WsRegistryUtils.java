@@ -10,7 +10,9 @@ import java.util.Random;
  * @since 23 avr. 2019 - 20:01:45
  * @author KABA N'faly
  */
-public class WsRegistryUtils {
+public final class WsRegistryUtils {
+
+  private WsRegistryUtils(){}
 
   /**
    * Génère un token de caractères dont la longueur = len
