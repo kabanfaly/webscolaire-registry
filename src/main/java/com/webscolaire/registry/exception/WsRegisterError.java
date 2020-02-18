@@ -14,7 +14,8 @@ public enum WsRegisterError {
   WS_004("WS_004", "L'attribut 'lastname' ne doit pas être vide ou 'null'."),
   WS_005("WS_005", "La valeur de l'attribut 'sourceId' est invalide."),
   WS_006("WS_006", "L'attribut 'firstname' ne doit pas être vide ou 'null'."),
-  WS_007("WS_007", "Le nunéro fourni est incorrect.");
+  WS_007("WS_007", "Le nunéro fourni est incorrect."),
+  WS_008("WS_008", "Invalid token");
 
   @Getter
   private final String code;

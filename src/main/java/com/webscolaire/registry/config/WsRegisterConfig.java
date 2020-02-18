@@ -4,6 +4,8 @@ import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
+
+import com.webscolaire.registry.domain.dto.WsRegisterMapper;
 import com.webscolaire.registry.handler.UniqueGenKeyHandler;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
@@ -17,6 +19,7 @@ import org.springframework.context.annotation.Configuration;
 
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -25,6 +28,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import static org.springframework.web.reactive.function.server.RequestPredicates.accept;
+
 import org.springframework.web.reactive.function.server.RouterFunction;
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -39,8 +43,8 @@ public class WsRegisterConfig {
 
     @Bean
     public WsRegisterService wsRegisterService(WsRegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
-        ReactiveMongoTemplate reactiveMongoTemplate) {
-        return new WsRegisterServiceImpl(registerRepository, uniqueGenKeyRepository, reactiveMongoTemplate);
+                                               ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper) {
+        return new WsRegisterServiceImpl(registerRepository, uniqueGenKeyRepository, reactiveMongoTemplate, wsRegisterMapper);
     }
 
     @Bean

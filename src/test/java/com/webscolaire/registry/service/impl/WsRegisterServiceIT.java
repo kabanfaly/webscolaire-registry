@@ -3,9 +3,8 @@ package com.webscolaire.registry.service.impl;
 import com.webscolaire.registry.config.WsRegisterProperties;
 import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.UniqueGenKey;
-import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.repository.WsRegisterRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +14,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
@@ -57,14 +55,15 @@ public class WsRegisterServiceIT {
     webTestClient = WebTestClient.bindToServer()
             .baseUrl("http://localhost:" + port)
             .filter(basicAuthentication(properties.getUsername(), properties.getPassword()))
+            .defaultHeader("WS-TOKEN", "token")
             .build();
     registerRepository.deleteAll().subscribe();
     uniqueGenKeyRepository.deleteAll().subscribe();
     uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
   }
 
-  public WsRegisterParam createWsRegisterParam() {
-    return new WsRegisterParam().setSourceId(SOURCE_ID)
+  public WsRegisterDto createWsRegisterParam() {
+    return new WsRegisterDto().setSourceId(SOURCE_ID)
         .setWebscolaireType(ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
         .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name());
   }
@@ -76,7 +75,7 @@ public class WsRegisterServiceIT {
         .uri("/register")
         .contentType(APPLICATION_JSON)
         .accept(APPLICATION_JSON)
-        .body(Mono.just(createWsRegisterParam()), WsRegisterParam.class)
+        .body(Mono.just(createWsRegisterParam()), WsRegisterDto.class)
         .exchange()
         .expectStatus().isOk()
         .expectBody()

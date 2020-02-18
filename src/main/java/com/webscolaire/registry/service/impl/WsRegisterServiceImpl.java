@@ -4,9 +4,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import static com.webscolaire.registry.config.WsRegisterConstants.*;
 import com.webscolaire.registry.domain.SexType;
+import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.dto.WsRegisterDto;
+import com.webscolaire.registry.domain.dto.WsRegisterMapper;
 import com.webscolaire.registry.exception.WsRegisterError;
 import com.webscolaire.registry.exception.WsRegisterException;
 import com.webscolaire.registry.repository.WsRegisterRepository;
@@ -45,60 +47,56 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     private final ReactiveMongoTemplate reactiveMongoTemplate;
 
+    private final WsRegisterMapper wsRegisterMapper;
+
     public WsRegisterServiceImpl(WsRegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
-                                 ReactiveMongoTemplate reactiveMongoTemplate) {
+                                 ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper) {
         this.registerRepository = registerRepository;
         this.uniqueGenKeyRepository = uniqueGenKeyRepository;
         this.reactiveMongoTemplate = reactiveMongoTemplate;
+        this.wsRegisterMapper = wsRegisterMapper;
     }
 
     /**
      *
      * Enregistre une entité webScolaire {@link WebscolaireType} dans le registre.
      *
-     * @param registerParam Les paramètres d'entrée.
+     * @param registerDto Les paramètres d'entrée.
      * @return WsRegister
      * @throws WsRegisterException
      */
     @Override
-    public Mono<WsRegister> registerOne(WsRegisterParam registerParam) {
-        log.info("Registering one : {}", registerParam);
+    public Mono<WsRegister> registerOne(WsRegisterDto registerDto) {
+        log.info("Registering one : {}", registerDto);
 
         try {
             // Validation 
-            validateWsRegisterParam(registerParam);
-
-            val webscolaireType = getTypeFromString(registerParam.getWebscolaireType());
+            validateWsRegisterParam(registerDto);
 
             // Recherche d'une entité existante
-            Mono<WsRegister> registerMono = findRegister(registerParam.getSourceId(), registerParam.getLastname(), registerParam.getFirstname(),
-                    registerParam.getDateOfBirth(), webscolaireType, SexType.valueOf(registerParam.getSex()));
+            Mono<WsRegister> registerMono = findRegister(registerDto.getSourceId(), registerDto.getLastname(), registerDto.getFirstname(),
+                    registerDto.getDateOfBirth(), WebscolaireType.valueOf(registerDto.getWebscolaireType()), SexType.valueOf(registerDto.getSex()));
 
-            // Enregistre si aucune entité existante trouvée.
-            return registerMono.hasElement().flatMap(it -> {
-                if (it) {
-                    log.info("Retrieving existing data : {} ", registerMono);
-                    return registerMono;
-                }
-                val numeroGenere = buildGeneratedNumber(webscolaireType, registerParam.getDateOfBirth());
-                return uniqueGenKeyRepository.findOneByUniqueKey(registerParam.getSourceId())
-                        .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)))
-                        .flatMap(uniqueGenKey -> registerRepository.save(new WsRegister()
-                                .setWebscolaireType(webscolaireType)
-                                .setDateOfBirth(registerParam.getDateOfBirth())
-                                .setLastname(registerParam.getLastname().toUpperCase())
-                                .setSex(SexType.valueOf(registerParam.getSex()))
-                                .setFirstname(registerParam.getFirstname().toUpperCase())
-                                .setGeneratedNumber(numeroGenere)
-                                .setSourceId(uniqueGenKey.getUniqueKey())));
-            });
+           return registerMono.flatMap(wsRegister -> {
+                log.info("Retrieving existing data : {} ", registerMono);
+                return Mono.just(wsRegister);
+            }).switchIfEmpty(uniqueGenKeyRepository.findOneByUniqueKey(registerDto.getSourceId())
+                    .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)))
+                    .flatMap(uniqueGenKey -> saveNew(registerDto, uniqueGenKey)));
+
 
         } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
             log.error(ExceptionUtils.getStackTrace(ex));
             WsRegisterError registerError = getErrorFromCodeStr(ex.getMessage());
-            log.error("{} --- {}", registerError.toString(), registerParam);
+            log.error("{} --- {}", registerError.toString(), registerDto);
             throw new WsRegisterException(registerError);
         }
+    }
+
+    private Mono<WsRegister> saveNew(WsRegisterDto registerDto, UniqueGenKey uniqueGenKey) {
+        WsRegister wsRegister = wsRegisterMapper.apply(registerDto);
+        return registerRepository.save(wsRegister.setSourceId(uniqueGenKey.getUniqueKey())
+                .setGeneratedNumber(buildGeneratedNumber(wsRegister.getWebscolaireType(), wsRegister.getDateOfBirth())));
     }
 
     /**
@@ -108,7 +106,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return WsRegister
      */
     @Override
-    public Mono<WsRegister> updateRegister(WsRegisterParam registerParam) {
+    public Mono<WsRegister> updateRegister(WsRegisterDto registerParam) {
         try {
             // Validation 
             validateWsRegisterParam(registerParam);
@@ -160,7 +158,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return
      */
     @Override
-    public Flux<WsRegister> registerMany(List<WsRegisterParam> registerParams) {
+    public Flux<WsRegister> registerMany(List<WsRegisterDto> registerParams) {
         log.info("Registering Many : {}", registerParams);
         Flux<WsRegister> registers = Flux.fromIterable(registerParams)
                 .flatMap(r -> registerOne(r))
@@ -173,7 +171,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      *
      * @param registerParam
      */
-    private void validateWsRegisterParam(WsRegisterParam registerParam) {
+    private void validateWsRegisterParam(WsRegisterDto registerParam) {
 
         // Validation de l'attribut webscolaireType
         Preconditions.checkNotNull(getTypeFromString(registerParam.getWebscolaireType()), WsRegisterError.WS_001.getCode());

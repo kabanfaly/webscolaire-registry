@@ -4,7 +4,7 @@ import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.exception.WsRegisterError;
 import com.webscolaire.registry.exception.WsRegisterException;
 import com.webscolaire.registry.repository.WsRegisterRepository;
@@ -55,7 +55,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_001_when_webscolaireType_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterParam().setWebscolaireType(""));
+      registerService.registerOne(new WsRegisterDto().setWebscolaireType(""));
       fail("WsRegisterException(WS_001) expected");
     } catch (WsRegisterException ex) {
       assertEquals(WsRegisterError.WS_001, ex.getWsError());
@@ -65,7 +65,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_002_when_dateOfBirth_IsInvalid() {
     try {
-      registerService.registerOne(new WsRegisterParam()
+      registerService.registerOne(new WsRegisterDto()
               .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth("40802222"));
       fail("WsRegisterException(WS_002) expected");
     } catch (WsRegisterException ex) {
@@ -74,7 +74,7 @@ public class WsRegisterServiceImplTest {
 
     // When dateOfBirth is empty
     try {
-      registerService.registerOne(new WsRegisterParam()
+      registerService.registerOne(new WsRegisterDto()
               .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(""));
       fail("WsRegisterException(WS_002) expected");
     } catch (WsRegisterException ex) {
@@ -85,7 +85,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_003_when_sex_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterParam()
+      registerService.registerOne(new WsRegisterDto()
               .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
               .setFirstname("N'faly").setLastname("Kaba").setDateOfBirth(DOB).setSex(""));
       fail("WsRegisterException(WS_003) expected");
@@ -97,7 +97,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_004_when_lastname_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
+      registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
               .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
               .setFirstname("N'faly").setDateOfBirth(DOB).setSex(""));
       fail("WsRegisterException(WS_004) expected");
@@ -109,7 +109,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_006_when_firstname_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
+      registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
               .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB).setFirstname(""));
       fail("WsRegisterException(WS_006) expected");
     } catch (WsRegisterException ex) {
@@ -120,7 +120,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_shouldThrowException_withWS_005_when_invalidSourceId() {
     uniqueGenKeyRepository.deleteAll().subscribe();
-    StepVerifier.create(registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
+    StepVerifier.create(registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
             .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name())))
             .expectErrorMessage(WsRegisterError.WS_005.getDescription()).verify();
@@ -129,7 +129,7 @@ public class WsRegisterServiceImplTest {
   @Test
   public void registerOne_should_save_new_data() {
     Mono<WsRegister> registerMono = registerService
-            .registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
+            .registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
                     .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
                     .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name()));
 
@@ -150,7 +150,7 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     // When
-    registerService.registerOne(new WsRegisterParam().setSourceId(SOURCE_ID)
+    registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
             .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name()));
 
@@ -297,7 +297,7 @@ public class WsRegisterServiceImplTest {
   public void updateRegister_when_number_is_not_correct(){
     // Given
     registerRepository.save(newWsRegister()).subscribe();
-    StepVerifier.create(registerService.updateRegister(new WsRegisterParam()
+    StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
             .setGeneratedNumber("NOT_FOUND")
             .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))
@@ -309,7 +309,7 @@ public class WsRegisterServiceImplTest {
     // Given
     WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
 
-    StepVerifier.create(registerService.updateRegister(new WsRegisterParam()
+    StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
             .setGeneratedNumber(wsRegister.getGeneratedNumber())
             .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))

@@ -10,11 +10,12 @@ import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
 import static com.webscolaire.registry.config.WsRegisterConstants.SIZE;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.service.WsRegisterService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 
+import static com.webscolaire.registry.domain.WebscolaireType.*;
 import static java.lang.Integer.parseInt;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.stereotype.Component;
@@ -47,18 +48,16 @@ public class WsRegisterHandler {
 
     public Mono<ServerResponse> registerOne(ServerRequest request) {
         log.info("POST call registerOne");
-        return ok()
-                .contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToMono(WsRegisterParam.class)
+        return ok().contentType(APPLICATION_JSON)
+                .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
                         .flatMap(registerService::registerOne), WsRegister.class));
 
     }
 
     public Mono<ServerResponse> updateRegister(ServerRequest request) {
         log.info("POST call registerOne");
-        return ok()
-                .contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToMono(WsRegisterParam.class)
+        return ok().contentType(APPLICATION_JSON)
+                .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
                         .flatMap(registerService::updateRegister), WsRegister.class));
     }
 
@@ -66,23 +65,20 @@ public class WsRegisterHandler {
         log.info("GET call findAllRegisters");
         int page = parseInt(request.queryParam(PAGE).orElse(DEFAULT_PAGE));
         int size = parseInt(request.queryParam(SIZE).orElse(DEFAULT_SIZE));
-        return ok()
-                .contentType(APPLICATION_JSON)
+        return ok().contentType(APPLICATION_JSON)
                 .body(registerService.findAllRegisters(PageRequest.of(page, size)), WsRegister.class);
     }
 
     public Mono<ServerResponse> updateSourceIdByNumber(ServerRequest request) {
-        return ok()
-                .contentType(APPLICATION_JSON)
+        return ok().contentType(APPLICATION_JSON)
                 .body(registerService.updateSourceIdByNumber(request.pathVariable(PATH_NUMBER),
                         request.pathVariable(PATH_SOURCE_ID)), WsRegister.class);
     }
 
     public Mono<ServerResponse> registerMany(ServerRequest request) {
         log.info("POST call registerMany");
-        return ok()
-                .contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToFlux(WsRegisterParam.class)
+        return ok().contentType(APPLICATION_JSON)
+                .body(fromPublisher(request.bodyToFlux(WsRegisterDto.class)
                         .buffer().flatMap(registerService::registerMany), WsRegister.class));
     }
 
@@ -101,9 +97,7 @@ public class WsRegisterHandler {
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok()
-                        .contentType(APPLICATION_JSON)
-                        .body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
             }
             log.info("No data found for sourceId '{}'", request.pathVariable(PATH_SOURCE_ID));
             return notFound().build();
@@ -116,9 +110,7 @@ public class WsRegisterHandler {
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok()
-                        .contentType(APPLICATION_JSON)
-                        .body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
             }
             log.info("No data found for dateOfBirth '{}'", request.pathVariable(PATH_DOB));
             return notFound().build();
@@ -128,13 +120,11 @@ public class WsRegisterHandler {
 
     public Mono<ServerResponse> findBySourceIdAndWebscolaireType(ServerRequest request) {
         Flux<WsRegister> wsRegisterFlux = registerService
-                .findBySourceIdAndWebscolaireType(request.pathVariable(PATH_SOURCE_ID), WebscolaireType.getTypeFromString(request.pathVariable(PATH_TYPE)));
+                .findBySourceIdAndWebscolaireType(request.pathVariable(PATH_SOURCE_ID), getTypeFromString(request.pathVariable(PATH_TYPE)));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok()
-                        .contentType(APPLICATION_JSON)
-                        .body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
             }
             log.info("No data found for sourceId '{}' and type '{}'", request.pathVariable(PATH_SOURCE_ID), request.pathVariable(PATH_TYPE));
             return notFound().build();

@@ -17,7 +17,7 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Accessors(chain = true)
-public class WsRegisterParam implements Serializable {
+public class WsRegisterDto implements Serializable {
 
   @NonNull
   private String sourceId;

@@ -2,7 +2,7 @@ package com.webscolaire.registry.service;
 
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsRegisterParam;
+import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import reactor.core.publisher.Flux;
@@ -17,9 +17,9 @@ import reactor.core.publisher.Mono;
  */
 public interface WsRegisterService {
 
-  Mono<WsRegister> registerOne(WsRegisterParam registerParam);
+  Mono<WsRegister> registerOne(WsRegisterDto registerParam);
   
-  Mono<WsRegister> updateRegister(WsRegisterParam registerParam);
+  Mono<WsRegister> updateRegister(WsRegisterDto registerParam);
   
   Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId);
   
@@ -31,7 +31,7 @@ public interface WsRegisterService {
 
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
   
-  Flux<WsRegister> registerMany(List<WsRegisterParam> registerParam);
+  Flux<WsRegister> registerMany(List<WsRegisterDto> registerParam);
   
   Flux<WsRegister> findAllRegisters(Pageable page);
 }
