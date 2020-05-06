@@ -8,10 +8,10 @@ import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
 import static com.webscolaire.registry.config.WsRegisterConstants.SIZE;
-import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.service.WsRegisterService;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.PageRequest;
 
@@ -33,14 +33,11 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 @Component
+@AllArgsConstructor
 @Log4j2
 public class WsRegisterHandler {
 
     private final WsRegisterService registerService;
-
-    public WsRegisterHandler(WsRegisterService registerService) {
-        this.registerService = registerService;
-    }
 
     public Mono<ServerResponse> home(ServerRequest request) {
         return ok().body(Mono.just("Registre WebScolaire"), String.class);

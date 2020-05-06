@@ -17,6 +17,8 @@ import com.webscolaire.registry.utils.WsRegistryUtils;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
+
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang.exception.ExceptionUtils;
 
@@ -38,23 +40,13 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
  * @author KABA N'faly
  */
 @Log4j2
+@AllArgsConstructor
 public class WsRegisterServiceImpl implements WsRegisterService {
 
     private final WsRegisterRepository registerRepository;
-
     private final UniqueGenKeyRepository uniqueGenKeyRepository;
-
     private final ReactiveMongoTemplate reactiveMongoTemplate;
-
     private final WsRegisterMapper wsRegisterMapper;
-
-    public WsRegisterServiceImpl(WsRegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
-                                 ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper) {
-        this.registerRepository = registerRepository;
-        this.uniqueGenKeyRepository = uniqueGenKeyRepository;
-        this.reactiveMongoTemplate = reactiveMongoTemplate;
-        this.wsRegisterMapper = wsRegisterMapper;
-    }
 
     /**
      *
@@ -221,7 +213,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return
      */
     private Mono<WsRegister> findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
-                                          WebscolaireType webscolaireType, SexType sex) {
+        WebscolaireType webscolaireType, SexType sex) {
 
         var query = new Query();
         query.addCriteria(

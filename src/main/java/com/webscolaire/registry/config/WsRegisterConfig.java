@@ -74,7 +74,6 @@ public class WsRegisterConfig {
             .authorizeExchange()
             .pathMatchers("/**").authenticated()
             .pathMatchers("/actuator/**").authenticated()
-            .anyExchange().permitAll()
             .and()
             .build();
     }

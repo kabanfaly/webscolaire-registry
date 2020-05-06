@@ -3,6 +3,7 @@ package com.webscolaire.registry.handler;
 import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.service.UniqueGenKeyService;
+import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.stereotype.Component;
@@ -19,13 +20,10 @@ import reactor.core.publisher.Mono;
  */
 @Component
 @Log4j2
+@AllArgsConstructor
 public class UniqueGenKeyHandler {
 
     private final UniqueGenKeyService genKeyService;
-
-    public UniqueGenKeyHandler(UniqueGenKeyService genKeyService) {
-        this.genKeyService = genKeyService;
-    }
 
     public Mono<ServerResponse> generateUniqueKey(ServerRequest request) {
         log.info("POST call generateUniqueKey");

@@ -17,7 +17,7 @@ import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRep
 @Configuration
 @EnableReactiveMongoRepositories(basePackages ="com.webscolaire.registry.repository")
 @Import(value = MongoAutoConfiguration.class)
-public class DatabaseConfiguration {
+public class MongoConfiguration {
 
   @Bean
   public MongoCustomConversions customConversions() {
