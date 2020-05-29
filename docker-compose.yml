@@ -12,14 +12,14 @@ services:
     working_dir: /opt/app
     environment:
       - JAVA_OPTS=
-         -Dspring.data.mongodb.uri=mongodb://ws-mongo:27017
+         -Dspring.data.mongodb.uri=mongodb://localhost:27017
          -Dspring.profiles.active=dev
     depends_on:
       - mongo
       
   mongo:
     image: mongo
-    container_name: ws-mongo
+    #container_name: ws-mongo
     ports:
       - 27017:27017
     volumes:
