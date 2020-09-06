@@ -9,8 +9,6 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface UniqueGenKeyService {
-
   Mono<UniqueGenKey> generateUniqueKey();
-
   Mono<UniqueGenKey> findByUniqueKey(String key);
 }

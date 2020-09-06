@@ -14,15 +14,10 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister, String> {
-
   Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
-
   Mono<WsRegister> findOneByGeneratedNumber(String generatedNumber);
-  
   Flux<WsRegister> findBySourceId(String sourceId);
-  
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
-  
   @Query("{ id: { $exists: true }}")
   Flux<WsRegister> findAll(Pageable pageable);
 }

@@ -10,6 +10,5 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface UniqueGenKeyRepository extends ReactiveMongoRepository<UniqueGenKey, String> {
-
   Mono<UniqueGenKey> findOneByUniqueKey(String uniqueKey);
 }

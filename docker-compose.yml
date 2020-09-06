@@ -12,7 +12,7 @@ services:
     working_dir: /opt/app
     environment:
       - JAVA_OPTS=
-         -Dspring.data.mongodb.uri=mongodb://localhost:27017
+         -Dspring.data.mongodb.uri=mongodb://localhost:27017/webscolaire_registry
          -Dspring.profiles.active=dev
     depends_on:
       - mongo
