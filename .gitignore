@@ -24,7 +24,7 @@ HELP.md
 /nbdist/
 /.nb-gradle/
 /build/
-*nbactions.xml
+*nbactions*.xml
 *nb-configuration.xml
 
 ### VS Code ###

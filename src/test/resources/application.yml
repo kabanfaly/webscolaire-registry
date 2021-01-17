@@ -1,6 +1,0 @@
-# Authentication
-webscolaire:
-  registry:
-    username: admin
-    password: kaba
-    timeZone: UTC

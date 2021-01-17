@@ -20,9 +20,8 @@
         <project.encoding>UTF-8</project.encoding>
         <java.version>11</java.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
-        <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
         <jib.version>2.5.0</jib.version>
-        <image-path>registry.hub.docker.com/knfaly/ws-registry</image-path>
+        <image-path>ws-registry:latest</image-path>
 
         <start-class>com.webscolaire.registry.WsRegistryApplication</start-class>
         <maven.compiler.source>${java.version}</maven.compiler.source>
@@ -35,23 +34,7 @@
             <url>http://oss.jfrog.org/artifactory/oss-snapshot-local/</url>
         </repository>
     </repositories>
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-config</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -164,14 +147,6 @@
                         <image>${image-path}</image>
                     </to>
                 </configuration>
-                <executions>
-                    <execution>
-                        <phase>install</phase>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
@@ -188,9 +163,16 @@
                     <optional>true</optional>
                 </dependency>
             </dependencies>
+            <properties>
+                <!-- default Spring profiles -->
+                <spring.profiles.active>dev</spring.profiles.active>
+            </properties>
         </profile>
         <profile>
             <id>prod</id>
+            <properties>
+                <spring.profiles.active>prod</spring.profiles.active>
+            </properties>
         </profile>
     </profiles>
 </project>

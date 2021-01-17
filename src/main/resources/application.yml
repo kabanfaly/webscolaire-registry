@@ -1,0 +1,31 @@
+info:
+  app:
+    name: WebScolaire Registry
+    description: A registry for WebScolaire application
+    version: '@project.version@'
+spring:
+  data:
+    mongodb:
+      auto-index-creation: false
+      uri: mongodb://${WS_DB_HOST:localhost}:${WS_DB_PORT:27017}/${WS_DB_NAME:webscolaire_registry}
+  application:
+    name: webscolaire-registry
+  profiles:
+    active: '@spring.profiles.active@' # Value from pom.xml
+    
+server:
+  port: 8181
+management:
+  server:
+    port: 9090
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+# Authentication
+webscolaire:
+  registry:
+    username: admin
+    password: kaba
+    timeZone: UTC
