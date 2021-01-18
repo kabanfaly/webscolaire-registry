@@ -7,7 +7,7 @@ spring:
   data:
     mongodb:
       auto-index-creation: false
-      uri: mongodb://${WS_DB_HOST:localhost}:${WS_DB_PORT:27017}/${WS_DB_NAME:webscolaire_registry}
+      uri: ${MONGO_URI}
   application:
     name: webscolaire-registry
   profiles:

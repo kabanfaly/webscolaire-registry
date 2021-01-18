@@ -14,6 +14,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
@@ -30,11 +36,15 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
  * @author N'faly KABA
  */
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@Testcontainers
 public class WsRegisterServiceImplTest {
 
   private static final String DOB = "20121999";
   private static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
   private static final String SOURCE_ID = "SRC-12235";
+
+  @Container
+  final static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
 
   @Autowired
   private WsRegisterService registerService;
@@ -44,6 +54,11 @@ public class WsRegisterServiceImplTest {
 
   @Autowired
   private UniqueGenKeyRepository uniqueGenKeyRepository;
+
+  @DynamicPropertySource
+  static void configure(DynamicPropertyRegistry registry) {
+    registry.add("MONGO_URI", mongoDBContainer::getReplicaSetUrl);
+  }
 
   @BeforeEach
   public void setUp() {

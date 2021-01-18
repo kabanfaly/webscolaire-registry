@@ -9,12 +9,17 @@ import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.repository.WsRegisterRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -29,12 +34,14 @@ import static org.springframework.web.reactive.function.client.ExchangeFilterFun
  * @author KABA N'faly
  * @since 15/12/2019 00:32
  */
-@Tag("integration")
 @SpringBootTest(webEnvironment = RANDOM_PORT)
-@DisplayName("Catalog API Tests")
+@Testcontainers
 public class WsRegisterServiceIT {
   @LocalServerPort
   private int port;
+
+  @Container
+  final static MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"));
 
   private static final String SOURCE_ID = UUID.randomUUID().toString();
   private static final String DOB = "20121999";
@@ -49,6 +56,11 @@ public class WsRegisterServiceIT {
 
   @Autowired
   private UniqueGenKeyRepository uniqueGenKeyRepository;
+
+  @DynamicPropertySource
+  static void configure(DynamicPropertyRegistry registry) {
+    registry.add("MONGO_URI", mongoDBContainer::getReplicaSetUrl);
+  }
 
   @BeforeEach
   public void setUp() {

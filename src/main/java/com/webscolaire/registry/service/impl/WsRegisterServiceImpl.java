@@ -68,7 +68,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
             Mono<WsRegister> registerMono = findRegister(registerDto.getSourceId(), registerDto.getLastname(), registerDto.getFirstname(),
                     registerDto.getDateOfBirth(), WebscolaireType.valueOf(registerDto.getWebscolaireType()), SexType.valueOf(registerDto.getSex()));
 
-           return registerMono.flatMap(wsRegister -> {
+            return registerMono.flatMap(wsRegister -> {
                 log.info("Retrieving existing data : {} ", registerMono);
                 return Mono.just(wsRegister);
             }).switchIfEmpty(uniqueGenKeyRepository.findOneByUniqueKey(registerDto.getSourceId())
@@ -213,7 +213,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      * @return
      */
     private Mono<WsRegister> findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
-        WebscolaireType webscolaireType, SexType sex) {
+            WebscolaireType webscolaireType, SexType sex) {
 
         var query = new Query();
         query.addCriteria(
@@ -282,6 +282,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     @Override
     public Flux<WsRegister> findAllRegisters(Pageable page) {
+        log.info("Request to find register par pagination");
         return registerRepository.findAll(page);
     }
 }

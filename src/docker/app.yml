@@ -8,9 +8,7 @@ services:
       - 8181:8181
     environment:
       - JAVA_OPTS=-Xmx512m -Xms256m
-      - WS_DB_HOST=mongo
-      - WS_DB_PORT=27017
-      - WS_DB_NAME=webscolaire_registry
+      - MONGO_URI=mongodb://mongo:27017/webscolaire_registry
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - mongo
