@@ -23,7 +23,6 @@
         <jib.version>2.5.0</jib.version>
         <image-path>ws-registry:latest</image-path>
 
-        <start-class>com.webscolaire.registry.WsRegistryApplication</start-class>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
