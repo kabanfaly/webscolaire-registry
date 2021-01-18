@@ -32,7 +32,7 @@ jobs:
           key: v1-dependencies-{{ checksum "pom.xml" }}
           
       # package into a jar
-      - run: mvn clean package
+      - run: /mvnw clean package
       - store_artifacts:
           path: target/classes
           destination: webscolaire-registry
