@@ -14,6 +14,8 @@ import com.webscolaire.registry.service.UniqueGenKeyService;
 import com.webscolaire.registry.service.WsRegisterService;
 import com.webscolaire.registry.service.impl.UniqueGenKeyServiceImpl;
 import com.webscolaire.registry.service.impl.WsRegisterServiceImpl;
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -39,6 +41,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  * @author KABA N'faly
  */
 @Configuration
+@ConfigurationPropertiesScan
 public class WsRegisterConfig {
 
     @Bean
