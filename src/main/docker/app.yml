@@ -2,13 +2,13 @@ version: '3.1'
 
 services:
   ws-registry:
-    image: ws-registry
+    image: webscolaire-registry:2.0.0-SNAPSHOT
     restart: always
     ports:
       - 8181:8181
     environment:
       - JAVA_OPTS=-Xmx512m -Xms256m
-      - MONGO_URI=mongodb://mongo:27017/webscolaire_registry
+      - MONGO_URI=mongodb://mongo:27017
       - SPRING_PROFILES_ACTIVE=prod
     depends_on:
       - mongo

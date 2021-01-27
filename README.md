@@ -1,16 +1,30 @@
 #Webscolaire Registry
 
 ## Run test
-./mvnw clean test
+`./mvnw clean test`
 
 ## Build application
-./mvnw clean install
+`./mvnw clean install`
 
 ## Run application
 ###- In development environment
-java -jar target/webscolaire-registry-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+`./mvnw -Pdev`
  
 ###- In production environment
-java -jar target/webscolaire-registry-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+`export MONGO_URI=mongodb://localhost:27017`
+`./mvnw -Pprod`
  
 ## Docker
+### To build the image
+`./mvnw spring-boot:build-image`
+
+### To start the application
+make run
+
+### To stop the application
+make stop
+
+### To view the application log
+make logs
+
+
