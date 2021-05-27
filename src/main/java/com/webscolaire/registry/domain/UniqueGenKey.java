@@ -1,7 +1,6 @@
 package com.webscolaire.registry.domain;
 
 import static com.webscolaire.registry.config.WsRegisterConstants.UNIQUE_KEY;
-import java.time.ZonedDateTime;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -28,15 +27,4 @@ public class UniqueGenKey extends AbstractAuditingEntity {
   @Field(UNIQUE_KEY)
   private String uniqueKey;
   
-  @Override
-  public UniqueGenKey setId(String id){
-    this.id = id;
-    return this;
-  }
-  
-  @Override
-  public UniqueGenKey setModificationDate(ZonedDateTime modificationDate){
-    this.modificationDate = modificationDate;
-    return this;
-  }
 }

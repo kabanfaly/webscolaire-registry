@@ -74,9 +74,9 @@ public class WsRegisterServiceIT {
                 .filter(basicAuthentication(properties.getUsername(), properties.getPassword()))
                 .defaultHeader("WS-TOKEN", "token")
                 .build();
-        registerRepository.deleteAll().subscribe();
-        uniqueGenKeyRepository.deleteAll().subscribe();
-        uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
+        registerRepository.deleteAll().block();
+        uniqueGenKeyRepository.deleteAll().block();
+        uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).block();
     }
     
     @AfterAll

@@ -26,7 +26,7 @@ class UniqueGenKeyServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        uniqueKeyRepository.deleteAll().subscribe();
+        uniqueKeyRepository.deleteAll().block();
     }
 
     @DisplayName("Should generate and save uniqueKey")

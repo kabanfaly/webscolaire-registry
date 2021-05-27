@@ -19,9 +19,11 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import org.springframework.data.mongodb.config.EnableReactiveMongoAuditing;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
 import org.springframework.security.core.userdetails.ReactiveUserDetailsService;
@@ -42,6 +44,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
  */
 @Configuration
 @ConfigurationPropertiesScan
+@EnableReactiveMongoAuditing
+@EnableReactiveMongoRepositories(basePackages ="com.webscolaire.registry.repository")
 public class WsRegisterConfig {
 
     @Bean

@@ -44,9 +44,9 @@ public class WsRegisterServiceImplTest {
 
   @BeforeEach
   public void setUp() {
-    registerRepository.deleteAll().subscribe();
-    uniqueGenKeyRepository.deleteAll().subscribe();
-    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).subscribe();
+    registerRepository.deleteAll().block();
+    uniqueGenKeyRepository.deleteAll().block();
+    uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).block();
   }
 
   @Test
