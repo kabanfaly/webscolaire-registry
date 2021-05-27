@@ -15,7 +15,6 @@ import com.webscolaire.registry.service.WsRegisterService;
 import com.webscolaire.registry.service.impl.UniqueGenKeyServiceImpl;
 import com.webscolaire.registry.service.impl.WsRegisterServiceImpl;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
