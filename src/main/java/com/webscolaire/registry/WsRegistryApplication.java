@@ -6,14 +6,12 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
-import springfox.documentation.swagger2.annotations.EnableSwagger2WebFlux;
 
 /**
  * @since 11 avr. 2019
  * @author KABA N'faly
  */
 @SpringBootApplication
-@EnableSwagger2WebFlux
 @EnableWebFluxSecurity
 public class WsRegistryApplication {
 
