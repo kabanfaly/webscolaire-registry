@@ -1,36 +1,40 @@
 package com.webscolaire.registry.service.impl;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import static com.webscolaire.registry.config.WsRegisterConstants.*;
-import com.webscolaire.registry.domain.SexType;
-import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
-import com.webscolaire.registry.domain.dto.WsRegisterMapper;
+import com.webscolaire.registry.mapper.WsRegisterMapper;
 import com.webscolaire.registry.exception.WsRegisterError;
 import com.webscolaire.registry.exception.WsRegisterException;
+import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.repository.WsRegisterRepository;
 import com.webscolaire.registry.service.WsRegisterService;
 import com.webscolaire.registry.utils.WsRegistryUtils;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
-
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
-import org.apache.commons.lang.exception.ExceptionUtils;
-
-import static com.webscolaire.registry.domain.WebscolaireType.getTypeFromString;
-import static com.webscolaire.registry.exception.WsRegisterError.getErrorFromCodeStr;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
+import com.webscolaire.registry.validator.GenericValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import com.webscolaire.registry.repository.UniqueGenKeyRepository;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.Locale;
+
+import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_NUMBERS;
+import static com.webscolaire.registry.config.WsRegisterConstants.DATE_FORMAT_DD_MM_YYYY;
+import static com.webscolaire.registry.config.WsRegisterConstants.DATE_OF_BIRTH;
+import static com.webscolaire.registry.config.WsRegisterConstants.FIRSTNAME;
+import static com.webscolaire.registry.config.WsRegisterConstants.LASTNAME;
+import static com.webscolaire.registry.config.WsRegisterConstants.SEPARATOR;
+import static com.webscolaire.registry.config.WsRegisterConstants.SEX;
+import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
+import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
+import static com.webscolaire.registry.config.WsRegisterConstants.WEBSCOLAIRE_TYPE;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  *
@@ -39,209 +43,142 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
  * @since 12 avr. 2019
  * @author KABA N'faly
  */
-@Log4j2
-@AllArgsConstructor
 public class WsRegisterServiceImpl implements WsRegisterService {
+
+    private final Logger log = LoggerFactory.getLogger(WsRegisterServiceImpl.class);
 
     private final WsRegisterRepository registerRepository;
     private final UniqueGenKeyRepository uniqueGenKeyRepository;
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final WsRegisterMapper wsRegisterMapper;
+    private final GenericValidator validator;
+
+    public WsRegisterServiceImpl(WsRegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
+                                 ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper, GenericValidator validator) {
+        this.registerRepository = registerRepository;
+        this.uniqueGenKeyRepository = uniqueGenKeyRepository;
+        this.reactiveMongoTemplate = reactiveMongoTemplate;
+        this.wsRegisterMapper = wsRegisterMapper;
+        this.validator = validator;
+    }
 
     /**
+     * Save a {@link WsRegister}.
      *
-     * Enregistre une entité webScolaire {@link WebscolaireType} dans le registre.
-     *
-     * @param registerDto Les paramètres d'entrée.
-     * @return WsRegister
-     * @throws WsRegisterException
+     * @param registerDto The entity DTO to save
+     * @return The saved {@link WsRegister}
      */
     @Override
-    public Mono<WsRegister> registerOne(WsRegisterDto registerDto) {
-        log.info("Registering one : {}", registerDto);
-
-        try {
-            // Validation 
-            validateWsRegisterParam(registerDto);
-
-            // Recherche d'une entité existante
-            Mono<WsRegister> registerMono = findRegister(registerDto.getSourceId(), registerDto.getLastname(), registerDto.getFirstname(),
-                    registerDto.getDateOfBirth(), WebscolaireType.valueOf(registerDto.getWebscolaireType()), SexType.valueOf(registerDto.getSex()));
-
-            return registerMono.flatMap(wsRegister -> {
-                log.info("Retrieving existing data : {} ", registerMono);
-                return Mono.just(wsRegister);
-            }).switchIfEmpty(uniqueGenKeyRepository.findOneByUniqueKey(registerDto.getSourceId())
+    public Mono<WsRegister> saveRegister(WsRegisterDto registerDto) {
+        log.info("Saving register : {}", registerDto);
+        return Mono.just(registerDto)
+            .map(validator::validate)
+            .flatMap(this::findRegister) // return existing
+            .switchIfEmpty( // save new
+                uniqueGenKeyRepository.findOneByUniqueKey(registerDto.getSourceId())
+                    .map(uniqueGenKey -> registerDto
+                        .setSourceId(uniqueGenKey.getUniqueKey())
+                        .setGeneratedNumber(buildGeneratedNumber(registerDto.getWebscolaireType(), registerDto.getDateOfBirth())))
+                    .map(wsRegisterMapper)
+                    .flatMap(registerRepository::save)
                     .switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_005)))
-                    .flatMap(uniqueGenKey -> saveNew(registerDto, uniqueGenKey)));
-
-
-        } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
-            log.error(ExceptionUtils.getStackTrace(ex));
-            WsRegisterError registerError = getErrorFromCodeStr(ex.getMessage());
-            log.error("{} --- {}", registerError.toString(), registerDto);
-            throw new WsRegisterException(registerError);
-        }
-    }
-
-    private Mono<WsRegister> saveNew(WsRegisterDto registerDto, UniqueGenKey uniqueGenKey) {
-        WsRegister wsRegister = wsRegisterMapper.apply(registerDto);
-        return registerRepository.save(wsRegister.setSourceId(uniqueGenKey.getUniqueKey())
-                .setGeneratedNumber(buildGeneratedNumber(wsRegister.getWebscolaireType(), wsRegister.getDateOfBirth())));
+            );
     }
 
     /**
-     * Modifie une entity
-     *
-     * @param registerParam Les paramètres d'entrée.
-     * @return WsRegister
+     * Updates a WsRegister. The following attributes will be updated:
+     *  - firstname
+     *  - lastname
+     *  - sex
+     * @param registerDto the entity {@link WsRegisterDto} to update
+     * @return The updated {@link WsRegister}
      */
     @Override
-    public Mono<WsRegister> updateRegister(WsRegisterDto registerParam) {
-        try {
-            // Validation 
-            validateWsRegisterParam(registerParam);
-            return findRegisterByNumber(registerParam.getGeneratedNumber())
-                    .flatMap(register -> {
-                        register.setFirstname(registerParam.getFirstname());
-                        register.setLastname(registerParam.getLastname());
-                        register.setSex(SexType.valueOf(registerParam.getSex()));
-                        return registerRepository.save(register);
-                    }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
-
-        } catch (IllegalArgumentException | IllegalStateException | NullPointerException ex) {
-            log.error(ExceptionUtils.getStackTrace(ex));
-            WsRegisterError registerError = getErrorFromCodeStr(ex.getMessage());
-            log.error("{} --- {}", registerError.toString(), registerParam);
-            throw new WsRegisterException(registerError);
-        }
+    public Mono<WsRegister> updateRegister(WsRegisterDto registerDto) {
+        log.info("Updating register : {}", registerDto);
+        return Mono.just(registerDto)
+            .map(validator::validate)
+            .flatMap(regDto -> findRegisterByNumber(regDto.getGeneratedNumber()))
+            .flatMap(register -> {
+                register.setFirstname(registerDto.getFirstname());
+                register.setLastname(registerDto.getLastname());
+                register.setSex(registerDto.getSex());
+                return registerRepository.save(register);
+            }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
     }
 
     /**
-     * Modifie le source id d'une entité register identifiée par son numéro (generatedNumber)
+     * Update a {@link WsRegister} entity sourceId by generatedNumber.
      *
-     * @param number le numéro d'identification
-     * @param sourceId la sourceId
-     * @return WsRegister
+     * @param number The entity number
+     * @param newSourceId The new sourceId
+     * @return The updated {@link WsRegister}
      */
     @Override
-    public Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId) {
-        log.info("Request to update sourceId {} by number : {}", sourceId, number);
-
-        return uniqueGenKeyRepository.findOneByUniqueKey(sourceId)
-                .hasElement().flatMap(it -> {
-                    if (it) {
-                        return registerRepository.findOneByGeneratedNumber(number)
-                                .flatMap(register -> {
-                                    register.setSourceId(sourceId);
-                                    return registerRepository.save(register);
-                                }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
-                    }
-                    log.error("SourceId '{}' not found ", sourceId);
-                    return Mono.error(new WsRegisterException(WsRegisterError.WS_005));
-                });
+    public Mono<WsRegister> updateRegisterSourceIdByNumber(String number, String newSourceId) {
+        log.info("Request to update sourceId {} by number : {}", newSourceId, number);
+        return uniqueGenKeyRepository.findOneByUniqueKey(newSourceId)
+            .hasElement().flatMap(it -> {
+                if (it) {
+                    return registerRepository.findOneByGeneratedNumber(number)
+                        .flatMap(register -> {
+                            register.setSourceId(newSourceId);
+                            return registerRepository.save(register);
+                        }).switchIfEmpty(Mono.error(new WsRegisterException(WsRegisterError.WS_007)));
+                }
+                log.error("SourceId '{}' not found ", newSourceId);
+                return Mono.error(new WsRegisterException(WsRegisterError.WS_005));
+            });
     }
 
     /**
-     * Enregistre plusieurs entités webScolaires {@link WebscolaireType} dans le registre.
+     * Save many {@link WsRegister}.
      *
-     * @param registerParams
-     * @return
+     * @param registerDtos The entities to save
+     * @return a {@link List} of {@link WsRegister}.
      */
     @Override
-    public Flux<WsRegister> registerMany(List<WsRegisterDto> registerParams) {
-        log.info("Registering Many : {}", registerParams);
-        Flux<WsRegister> registers = Flux.fromIterable(registerParams)
-                .flatMap(r -> registerOne(r))
-                .onErrorReturn(WsRegisterException.class, new WsRegister());
-        return registers;
+    public Flux<WsRegister> saveRegisters(List<WsRegisterDto> registerDtos) {
+        log.info("Registering Many : {}", registerDtos);
+        return Flux.fromIterable(registerDtos)
+            .flatMap(this::saveRegister);
     }
 
     /**
-     * Valide les attributs du paramètre WsRegisterParam
+     * Find a {@link WsRegister}.
      *
-     * @param registerParam
+     * @return found {@link WsRegister}
      */
-    private void validateWsRegisterParam(WsRegisterDto registerParam) {
-
-        // Validation de l'attribut webscolaireType
-        Preconditions.checkNotNull(getTypeFromString(registerParam.getWebscolaireType()), WsRegisterError.WS_001.getCode());
-
-        // Vérification du format de la date de naissance
-        Preconditions.checkState(isValidDateOfBirth(registerParam.getDateOfBirth()), WsRegisterError.WS_002.getCode());
-
-        // Validation du prénom
-        Preconditions.checkState(!Strings.isNullOrEmpty(registerParam.getFirstname()), WsRegisterError.WS_006.getCode());
-
-        if (registerParam.getWebscolaireType().equals(WebscolaireType.ETABLISSEMENT.name())) {
-            registerParam.setSex(SexType.A.name());
-        } else {
-            // Validation du prénom
-            Preconditions.checkState(!Strings.isNullOrEmpty(registerParam.getLastname()), WsRegisterError.WS_004.getCode());
-        }
-        // Validation de l'attribut 'sex'
-        Preconditions.checkNotNull(SexType.getSexFromString(registerParam.getSex()), WsRegisterError.WS_003.getCode());
-    }
-
-    /**
-     * Vérifie que la date fournie est correcte.
-     *
-     * @param dateOfBirh
-     * @return boolean
-     */
-    private boolean isValidDateOfBirth(String dateOfBirh) {
-        SimpleDateFormat formatter = new SimpleDateFormat(DATE_FORMAT_DD_MM_YYYY);
-        formatter.setLenient(false);
-        try {
-            formatter.parse(dateOfBirh);
-            return true;
-        } catch (ParseException | NullPointerException ex) {
-            log.error(ExceptionUtils.getStackTrace(ex));
-            return false;
-        }
-    }
-
-    /**
-     * Recherche une entité WsRegister
-     *
-     * @param sourceId
-     * @param lastname
-     * @param firstname
-     * @param dateOfBirth
-     * @param webscolaireType
-     * @param sex
-     * @return
-     */
-    private Mono<WsRegister> findRegister(String sourceId, String lastname, String firstname, String dateOfBirth,
-            WebscolaireType webscolaireType, SexType sex) {
-
+    private Mono<WsRegister> findRegister(WsRegisterDto wsRegisterDto) {
         var query = new Query();
         query.addCriteria(
-                where(WEBSCOLAIRE_TYPE).is(webscolaireType)
-                        .and(SOURCE_ID).is(sourceId)
-                        .and(LASTNAME).is(lastname)
-                        .and(FIRSTNAME).is(firstname)
-                        .and(DATE_OF_BIRTH).is(dateOfBirth)
-                        .and(SEX).is(sex)
+            where(WEBSCOLAIRE_TYPE)
+                .is(wsRegisterDto.getWebscolaireType())
+                .and(SOURCE_ID).is(wsRegisterDto.getSourceId())
+                .and(LASTNAME).is(wsRegisterDto.getLastname().toUpperCase(Locale.FRANCE))
+                .and(FIRSTNAME).is(wsRegisterDto.getFirstname().toUpperCase(Locale.FRANCE))
+                .and(DATE_OF_BIRTH).is(wsRegisterDto.getDateOfBirth())
+                .and(SEX).is(wsRegisterDto.getSex())
         );
         return reactiveMongoTemplate.findOne(query, WsRegister.class);
     }
 
     /**
-     * Construit un numero unique webscolaire
+     * Build a unique number based on webscolaireType and date of birth.
      *
-     * @param webscolaireType
-     * @param dateOfBirth
+     * @param webscolaireType The webscolaire type
+     * @param dateOfBirth The date of birth
      * @return String
      */
-    private String buildGeneratedNumber(WebscolaireType webscolaireType, String dateOfBirth) {
+    private String buildGeneratedNumber(WebscolaireType webscolaireType, LocalDate dateOfBirth) {
         log.info("Building generated number.");
 
-        // Génération d'un token
+        var formatter = DateTimeFormatter.ofPattern(DATE_FORMAT_DD_MM_YYYY);
+        // Generate the token
         var token = WsRegistryUtils.genToken(AUTHORIZED_NUMBERS, TOKEN_LENGTH);
 
-        // Construction du numéro webscolaire unique
-        return webscolaireType.getCode() + SEPARATOR + dateOfBirth + SEPARATOR + token;
+        // Build a unique number
+        return webscolaireType.getCode() + SEPARATOR + formatter.format(dateOfBirth).replaceAll("[-/ ]", "") + SEPARATOR + token;
     }
 
     /**
@@ -257,10 +194,10 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     }
 
     /**
-     * Recherche des entités WsRegister par une même sourceId
+     * Fetch all {@link WsRegister} matching a sourceId.
      *
-     * @param sourceId la sourceI de recherche
-     * @return WsRegister
+     * @param sourceId The sourceId
+     * @return found {@link WsRegister}
      */
     @Override
     public Flux<WsRegister> findRegisterBySourceId(String sourceId) {
@@ -271,7 +208,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     @Override
     public Flux<WsRegister> findByDateOfBirth(String dateOfBirth) {
         log.info("Request to find register by dateOfBirth : {}", dateOfBirth);
-        return registerRepository.findByDateOfBirth(dateOfBirth);
+        return registerRepository.findByDateOfBirth(LocalDate.parse(dateOfBirth, DateTimeFormatter.ofPattern(DATE_FORMAT_DD_MM_YYYY)));
     }
 
     @Override

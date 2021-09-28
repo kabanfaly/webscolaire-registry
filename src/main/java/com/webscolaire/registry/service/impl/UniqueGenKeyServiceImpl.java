@@ -3,8 +3,9 @@ package com.webscolaire.registry.service.impl;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.service.UniqueGenKeyService;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import com.webscolaire.registry.validator.GenericValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;
 
 import java.util.UUID;
@@ -14,19 +15,23 @@ import java.util.UUID;
  * @since 29 avr. 2019 - 15 h 29 min 45 s
  * @author KABA N'faly
  */
-@Log4j2
-@AllArgsConstructor
 public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
 
+    private final Logger log = LoggerFactory.getLogger(UniqueGenKeyServiceImpl.class);
+
     private final UniqueGenKeyRepository uniqueKeyRepository;
+
+    public UniqueGenKeyServiceImpl(UniqueGenKeyRepository uniqueKeyRepository) {
+        this.uniqueKeyRepository = uniqueKeyRepository;
+    }
 
     @Override
     public Mono<UniqueGenKey> generateUniqueKey() {
         log.info("Request to build uniqueKey");
 
-        // Génération d'un token
-        String token = UUID.randomUUID().toString().replace("-", "");
-        return uniqueKeyRepository.save(new UniqueGenKey().setUniqueKey(token));
+        return Mono.just(UUID.randomUUID().toString().replace("-", ""))
+            .map(token -> new UniqueGenKey().setUniqueKey(token))
+            .flatMap(uniqueKeyRepository::save);
     }
 
     @Override

@@ -1,13 +1,15 @@
 package com.webscolaire.registry.domain;
 
-import lombok.Data;
-import lombok.experimental.Accessors;
 
-@Data
-@Accessors(chain = true)
 public class WsExceptionMessage {
 
-    private String error;
-    private String details;
-    private int code;
+    public final String error;
+    public final String details;
+    public final int code;
+
+    public WsExceptionMessage(String error, String details, int code) {
+        this.error = error;
+        this.details = details;
+        this.code = code;
+    }
 }

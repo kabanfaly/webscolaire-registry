@@ -1,6 +1,5 @@
 package com.webscolaire.registry.service.impl;
 
-import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
@@ -12,12 +11,17 @@ import com.webscolaire.registry.repository.WsRegisterRepository;
 import com.webscolaire.registry.service.WsRegisterService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.LocalDate;
+
+import static com.webscolaire.registry.domain.SexType.H;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -29,7 +33,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 public class WsRegisterServiceImplTest {
 
-  private static final String DOB = "20121999";
+  private static final LocalDate DOB = LocalDate.of(1990, 12, 20);
+  private static final String DOB_STR = "20121990";
   private static final String GENERATED_NUMBER_PREFIX = "EE-20121999-";
   private static final String SOURCE_ID = "SRC-12235";
 
@@ -50,85 +55,88 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
+  @ParameterizedTest
+  @MethodSource()
   public void registerOne_shouldThrowException_withWS_001_when_webscolaireType_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterDto().setWebscolaireType(""));
+      registerService.saveRegister(new WsRegisterDto().setWebscolaireType(null));
       fail("WsRegisterException(WS_001) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_001, ex.getWsError());
+      assertEquals(WsRegisterError.WS_001, ex.wsError);
     }
   }
+
 
   @Test
   public void registerOne_shouldThrowException_withWS_002_when_dateOfBirth_IsInvalid() {
     try {
-      registerService.registerOne(new WsRegisterDto()
-              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth("40802222"));
+      registerService.saveRegister(new WsRegisterDto()
+              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(LocalDate.of(100, 13, 10)));
       fail("WsRegisterException(WS_002) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_002, ex.getWsError());
+      assertEquals(WsRegisterError.WS_002, ex.wsError);
     }
 
     // When dateOfBirth is empty
     try {
-      registerService.registerOne(new WsRegisterDto()
-              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(""));
+      registerService.saveRegister(new WsRegisterDto()
+              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(null));
       fail("WsRegisterException(WS_002) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_002, ex.getWsError());
+      assertEquals(WsRegisterError.WS_002, ex.wsError);
     }
   }
 
   @Test
   public void registerOne_shouldThrowException_withWS_003_when_sex_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterDto()
-              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
-              .setFirstname("N'faly").setLastname("Kaba").setDateOfBirth(DOB).setSex(""));
+      registerService.saveRegister(new WsRegisterDto()
+              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)
+              .setFirstname("N'faly").setLastname("Kaba").setDateOfBirth(DOB).setSex(null));
       fail("WsRegisterException(WS_003) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_003, ex.getWsError());
+      assertEquals(WsRegisterError.WS_003, ex.wsError);
     }
   }
 
   @Test
   public void registerOne_shouldThrowException_withWS_004_when_lastname_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
-              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
-              .setFirstname("N'faly").setDateOfBirth(DOB).setSex(""));
+      registerService.saveRegister(new WsRegisterDto().setSourceId(SOURCE_ID)
+              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)
+              .setFirstname("N'faly").setDateOfBirth(DOB).setSex(null));
       fail("WsRegisterException(WS_004) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_004, ex.getWsError());
+      assertEquals(WsRegisterError.WS_004, ex.wsError);
     }
   }
 
   @Test
   public void registerOne_shouldThrowException_withWS_006_when_firstname_IsEmptyOrNull() {
     try {
-      registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
-              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB).setFirstname(""));
+      registerService.saveRegister(new WsRegisterDto().setSourceId(SOURCE_ID)
+              .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(DOB).setFirstname(""));
       fail("WsRegisterException(WS_006) expected");
     } catch (WsRegisterException ex) {
-      assertEquals(WsRegisterError.WS_006, ex.getWsError());
+      assertEquals(WsRegisterError.WS_006, ex.wsError);
     }
   }
 
   @Test
   public void registerOne_shouldThrowException_withWS_005_when_invalidSourceId() {
     uniqueGenKeyRepository.deleteAll().subscribe();
-    StepVerifier.create(registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
-            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
-            .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name())))
+    StepVerifier.create(registerService.saveRegister(new WsRegisterDto().setSourceId(SOURCE_ID)
+            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(DOB)
+            .setFirstname("N'faly").setLastname("KABA").setSex(H)))
             .expectErrorMessage(WsRegisterError.WS_005.getDescription()).verify();
   }
 
   @Test
   public void registerOne_should_save_new_data() {
     Mono<WsRegister> registerMono = registerService
-            .registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
-                    .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
-                    .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name()));
+            .saveRegister(new WsRegisterDto().setSourceId(SOURCE_ID)
+                    .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(DOB)
+                    .setFirstname("N'faly").setLastname("KABA").setSex(H));
 
     StepVerifier.create(registerMono)
             .assertNext(register -> {
@@ -147,9 +155,9 @@ public class WsRegisterServiceImplTest {
     registerRepository.save(newWsRegister()).subscribe();
 
     // When
-    registerService.registerOne(new WsRegisterDto().setSourceId(SOURCE_ID)
-            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
-            .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name()));
+    registerService.saveRegister(new WsRegisterDto().setSourceId(SOURCE_ID)
+            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT).setDateOfBirth(DOB)
+            .setFirstname("N'faly").setLastname("KABA").setSex(H));
 
     // Then
     assertEquals(1, registerRepository.findAll().collectList().block().size());
@@ -158,13 +166,13 @@ public class WsRegisterServiceImplTest {
   @Test
   public void updateSourceIdByNumber_shouldThrowException_withWS_005_when_invalidSourceId() {
     uniqueGenKeyRepository.deleteAll().subscribe();
-    StepVerifier.create(registerService.updateSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
             .expectErrorMessage(WsRegisterError.WS_005.getDescription()).verify();
   }
 
   @Test
   public void updateSourceIdByNumber_shouldThrowException_withWS_007_when_invalidNumber() {
-    StepVerifier.create(registerService.updateSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
             .expectErrorMessage(WsRegisterError.WS_007.getDescription()).verify();
   }
 
@@ -176,7 +184,7 @@ public class WsRegisterServiceImplTest {
     uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(newSourceId)).subscribe();
     registerRepository.save(newWsRegister().setGeneratedNumber(number)).subscribe();
 
-    StepVerifier.create(registerService.updateSourceIdByNumber(number, newSourceId))
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(number, newSourceId))
             .assertNext(register -> {
               assertEquals(number, register.getGeneratedNumber());
               assertEquals(newSourceId, register.getSourceId());
@@ -235,7 +243,7 @@ public class WsRegisterServiceImplTest {
     // Given
     registerRepository.save(newWsRegister()).subscribe();
 
-    StepVerifier.create(registerService.findByDateOfBirth(DOB))
+    StepVerifier.create(registerService.findByDateOfBirth(DOB_STR))
             .assertNext(register -> assertEquals(DOB, register.getDateOfBirth()))
             .expectComplete()
             .verify();
@@ -295,9 +303,9 @@ public class WsRegisterServiceImplTest {
     // Given
     registerRepository.save(newWsRegister()).subscribe();
     StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
-            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
+            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)
             .setGeneratedNumber("NOT_FOUND")
-            .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))
+            .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex(H)))
             .expectErrorMessage(WsRegisterError.WS_007.getDescription()).verify();
   }
 
@@ -307,13 +315,13 @@ public class WsRegisterServiceImplTest {
     WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
 
     StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
-            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT.name())
+            .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT)
             .setGeneratedNumber(wsRegister.getGeneratedNumber())
-            .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex("H")))
+            .setFirstname("ALY").setLastname("Kaba").setDateOfBirth(DOB).setSex(H)))
             .assertNext(register  -> {
               assertEquals("ALY", register.getFirstname());
               assertEquals("Kaba", register.getLastname());
-              assertEquals(SexType.H, register.getSex());
+              assertEquals(H, register.getSex());
               assertEquals(wsRegister.getSourceId(), register.getSourceId());
               assertEquals(wsRegister.getGeneratedNumber(), register.getGeneratedNumber());
             })
@@ -327,7 +335,7 @@ public class WsRegisterServiceImplTest {
             .setDateOfBirth(DOB)
             .setLastname("kaba".toUpperCase())
             .setFirstname("N'faly".toUpperCase())
-            .setSex(SexType.H)
+            .setSex(H)
             .setWebscolaireType(WebscolaireType.ELEVE_ETUDIANT);
   }
 }

@@ -33,7 +33,7 @@ public class WsRegisterConstants {
 
   public static final String SEPARATOR = "-";
 
-  public static final String DATE_FORMAT_DD_MM_YYYY = "ddMMyyyy";
+  public static final String DATE_FORMAT_DD_MM_YYYY = "yyyy-MM-dd";
 
   public static final String SOURCE_ID = "sourceId";
   public static final String DATE_OF_BIRTH = "dateOfBirth";

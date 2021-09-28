@@ -11,8 +11,8 @@ import static com.webscolaire.registry.config.WsRegisterConstants.SIZE;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.service.WsRegisterService;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 import static com.webscolaire.registry.domain.WebscolaireType.*;
@@ -33,11 +33,15 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 @Component
-@AllArgsConstructor
-@Log4j2
 public class WsRegisterHandler {
 
+    private final Logger log = LoggerFactory.getLogger(WsRegisterHandler.class);
+
     private final WsRegisterService registerService;
+
+    public WsRegisterHandler(WsRegisterService registerService) {
+        this.registerService = registerService;
+    }
 
     public Mono<ServerResponse> home(ServerRequest request) {
         return ok().body(Mono.just("Registre WebScolaire"), String.class);
@@ -47,7 +51,7 @@ public class WsRegisterHandler {
         log.info("POST call registerOne");
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
-                        .flatMap(registerService::registerOne), WsRegister.class));
+                        .flatMap(registerService::saveRegister), WsRegister.class));
 
     }
 
@@ -68,7 +72,7 @@ public class WsRegisterHandler {
 
     public Mono<ServerResponse> updateSourceIdByNumber(ServerRequest request) {
         return ok().contentType(APPLICATION_JSON)
-                .body(registerService.updateSourceIdByNumber(request.pathVariable(PATH_NUMBER),
+                .body(registerService.updateRegisterSourceIdByNumber(request.pathVariable(PATH_NUMBER),
                         request.pathVariable(PATH_SOURCE_ID)), WsRegister.class);
     }
 
@@ -76,7 +80,7 @@ public class WsRegisterHandler {
         log.info("POST call registerMany");
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(request.bodyToFlux(WsRegisterDto.class)
-                        .buffer().flatMap(registerService::registerMany), WsRegister.class));
+                        .buffer().flatMap(registerService::saveRegisters), WsRegister.class));
     }
 
     public Mono<ServerResponse> findRegisterByNumber(ServerRequest request) {

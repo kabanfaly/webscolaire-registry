@@ -16,13 +16,15 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface WsRegisterService {
-  Mono<WsRegister> registerOne(WsRegisterDto registerParam);
+
+  Mono<WsRegister> saveRegister(WsRegisterDto registerParam);
   Mono<WsRegister> updateRegister(WsRegisterDto registerParam);
-  Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId);
+  Mono<WsRegister> updateRegisterSourceIdByNumber(String number, String newSourceId);
   Mono<WsRegister> findRegisterByNumber(String number);
   Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
   Flux<WsRegister> findRegisterBySourceId(String sourceId);
   Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
-  Flux<WsRegister> registerMany(List<WsRegisterDto> registerParam);
+  Flux<WsRegister> saveRegisters(List<WsRegisterDto> registerParam);
   Flux<WsRegister> findAllRegisters(Pageable page);
+
 }

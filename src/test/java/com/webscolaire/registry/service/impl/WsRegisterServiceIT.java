@@ -16,6 +16,7 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 import static com.webscolaire.registry.domain.WebscolaireType.ELEVE_ETUDIANT;
@@ -49,7 +50,7 @@ public class WsRegisterServiceIT {
     private int port;
 
     private static final String SOURCE_ID = UUID.randomUUID().toString();
-    private static final String DOB = "20121999";
+    private static final LocalDate DOB = LocalDate.of(1999, 10, 11);
 
     private WebTestClient webTestClient;
 
@@ -71,7 +72,7 @@ public class WsRegisterServiceIT {
     public void setUp() {
         webTestClient = WebTestClient.bindToServer()
                 .baseUrl("http://localhost:" + port)
-                .filter(basicAuthentication(properties.getUsername(), properties.getPassword()))
+                .filter(basicAuthentication(properties.username, properties.password))
                 .defaultHeader("WS-TOKEN", "token")
                 .build();
         registerRepository.deleteAll().block();
@@ -86,8 +87,8 @@ public class WsRegisterServiceIT {
 
     public WsRegisterDto createWsRegisterParam() {
         return new WsRegisterDto().setSourceId(SOURCE_ID)
-                .setWebscolaireType(ELEVE_ETUDIANT.name()).setDateOfBirth(DOB)
-                .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H.name());
+                .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
+                .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H);
     }
 
     @DisplayName("Should register with a 200 OK")
