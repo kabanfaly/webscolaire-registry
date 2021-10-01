@@ -23,7 +23,6 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import org.springframework.web.server.ServerWebInputException;
-import org.zalando.problem.AbstractThrowableProblem;
 import reactor.core.publisher.Mono;
 
 import java.time.format.DateTimeParseException;
@@ -53,29 +52,28 @@ public class ErrorHandler extends AbstractErrorWebExceptionHandler {
 
     private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
         Throwable throwable = getError(request);
-        AbstractThrowableProblem problem = handleError(throwable);
-        return ServerResponse.status(problem.getStatus().getStatusCode())
+        BadRequestAlertException problem = handleError(throwable);
+        return ServerResponse.status(problem.statusCode)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(singletonMap("error", problem)));
     }
 
-    public AbstractThrowableProblem handleError(Throwable throwable) {
+    public BadRequestAlertException handleError(Throwable throwable) {
         log.error("error", throwable);
         if (throwable instanceof ValidationException) {
             return handleValidationException((ValidationException) throwable);
         } else if (throwable instanceof WsRegisterException) {
             return handleWsRegisterException((WsRegisterException) throwable);
-        } else if (throwable instanceof AbstractThrowableProblem) {
-            return (AbstractThrowableProblem) throwable;
-        } else if ((throwable instanceof ServerWebInputException && ((ServerWebInputException) throwable).getRootCause() instanceof DateTimeParseException) ) {
+        }  else if ((throwable instanceof ServerWebInputException && ((ServerWebInputException) throwable).getRootCause() instanceof DateTimeParseException) ) {
             return handleDateTimeParseException();
         }
         return new BadRequestAlertException(throwable.getMessage(), "unknownBadRequest");
     }
 
     private BadRequestAlertException handleWsRegisterException(WsRegisterException exception) {
-        WsRegisterError error = exception.wsError;
-        return new BadRequestAlertException(error.getDescription(), error.getCode());
+        WsRegisterError error = exception.error;
+        log.error("{}", error);
+        return new BadRequestAlertException(error.getCode(), error.getCode());
     }
 
     private BadRequestAlertException handleValidationException(ValidationException exception) {
@@ -85,11 +83,12 @@ public class ErrorHandler extends AbstractErrorWebExceptionHandler {
         errors.stream().forEach(validationErrorDescriptor
                 -> params.put(validationErrorDescriptor.field, validationErrorDescriptor.message));
         log.error("invalidBeans : {}", params);
-        return new BadRequestAlertException(exception.wsError.getDescription(), "invalidBean", errors.get(0).entityName, params);
+        return new BadRequestAlertException(exception.error.getDescription(), "invalidBean", params);
     }
 
     private BadRequestAlertException handleDateTimeParseException() {
-        return new BadRequestAlertException(WS_002.getDescription(), "invalid field dateOfBirth", WS_002.getCode(), null);
+        log.error("invalid field dateOfBirth");
+        return new BadRequestAlertException(WS_002.getCode(), WS_002.getCode(), null);
     }
 
 }

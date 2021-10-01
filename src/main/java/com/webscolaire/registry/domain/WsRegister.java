@@ -1,6 +1,5 @@
 package com.webscolaire.registry.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
@@ -9,7 +8,6 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.DATE_FORMAT_DD_MM_YYYY;
 import static com.webscolaire.registry.config.WsRegisterConstants.DATE_OF_BIRTH;
 import static com.webscolaire.registry.config.WsRegisterConstants.FIRSTNAME;
 import static com.webscolaire.registry.config.WsRegisterConstants.GENERATED_NUMBER;

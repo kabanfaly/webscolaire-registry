@@ -9,7 +9,7 @@ public class WsRegisterException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public final WsRegisterError wsError;
+  public final WsRegisterError error;
 
   public WsRegisterException(WsRegisterError error) {
     this(error, null);
@@ -17,7 +17,7 @@ public class WsRegisterException extends RuntimeException {
 
   public WsRegisterException(WsRegisterError error, Throwable t) {
     super(error.getDescription(), t);
-    this.wsError = error;
+    this.error = error;
   }
 
 }

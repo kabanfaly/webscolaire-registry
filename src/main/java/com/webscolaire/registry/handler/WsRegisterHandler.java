@@ -51,7 +51,7 @@ public class WsRegisterHandler {
         log.info("POST call registerOne");
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
-                        .flatMap(registerService::saveRegister), WsRegister.class));
+                        .flatMap(registerService::saveRegister), WsRegisterDto.class));
 
     }
 
@@ -59,7 +59,7 @@ public class WsRegisterHandler {
         log.info("POST call registerOne");
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
-                        .flatMap(registerService::updateRegister), WsRegister.class));
+                        .flatMap(registerService::updateRegister), WsRegisterDto.class));
     }
 
     public Mono<ServerResponse> findAllRegisters(ServerRequest request) {
@@ -80,7 +80,7 @@ public class WsRegisterHandler {
         log.info("POST call registerMany");
         return ok().contentType(APPLICATION_JSON)
                 .body(fromPublisher(request.bodyToFlux(WsRegisterDto.class)
-                        .buffer().flatMap(registerService::saveRegisters), WsRegister.class));
+                        .buffer().flatMap(registerService::saveRegisters), WsRegisterDto.class));
     }
 
     public Mono<ServerResponse> findRegisterByNumber(ServerRequest request) {
@@ -93,7 +93,7 @@ public class WsRegisterHandler {
 
     public Mono<ServerResponse> findRegisterBySourceId(ServerRequest request) {
 
-        Flux<WsRegister> wsRegisterFlux = registerService
+        Flux<WsRegisterDto> wsRegisterFlux = registerService
                 .findRegisterBySourceId(request.pathVariable(PATH_SOURCE_ID));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
@@ -107,7 +107,7 @@ public class WsRegisterHandler {
     }
 
     public Mono<ServerResponse> findRegisterByDateOfBirth(ServerRequest request) {
-        Flux<WsRegister> wsRegisterFlux = registerService.findByDateOfBirth(request.pathVariable(PATH_DOB));
+        Flux<WsRegisterDto> wsRegisterFlux = registerService.findByDateOfBirth(request.pathVariable(PATH_DOB));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
@@ -120,7 +120,7 @@ public class WsRegisterHandler {
     }
 
     public Mono<ServerResponse> findBySourceIdAndWebscolaireType(ServerRequest request) {
-        Flux<WsRegister> wsRegisterFlux = registerService
+        Flux<WsRegisterDto> wsRegisterFlux = registerService
                 .findBySourceIdAndWebscolaireType(request.pathVariable(PATH_SOURCE_ID), getTypeFromString(request.pathVariable(PATH_TYPE)));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {

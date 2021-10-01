@@ -1,22 +1,25 @@
 package com.webscolaire.registry.domain.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.WebscolaireType;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Objects;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.DATE_FORMAT_DD_MM_YYYY;
 
 /**
+ * A DTO for the {@link com.webscolaire.registry.domain.WsRegister} entity.
  *
  * @since 14 avr. 2019
  * @author KABA N'faly
  */
-public class  WsRegisterDto implements Serializable {
+public class WsRegisterDto implements Serializable {
+
+  private String id;
 
   @NotBlank
   private String sourceId;
@@ -25,17 +28,30 @@ public class  WsRegisterDto implements Serializable {
   private WebscolaireType webscolaireType;
 
   @NotNull
-  @JsonFormat(pattern=DATE_FORMAT_DD_MM_YYYY)
   private LocalDate dateOfBirth;
 
   @NotBlank
   private String firstname;
 
-  private String lastname = "";
+  private String lastname;
 
-  private SexType sex = SexType.A;
+  @NotNull
+  private SexType sex;
 
   private String generatedNumber;
+
+  protected Instant createdDate;
+
+  protected Instant lastModifiedDate;
+
+  public String getId() {
+    return id;
+  }
+
+  public WsRegisterDto setId(String id) {
+    this.id = id;
+    return this;
+  }
 
   public String getSourceId() {
     return sourceId;
@@ -98,5 +114,36 @@ public class  WsRegisterDto implements Serializable {
   public WsRegisterDto setGeneratedNumber(String generatedNumber) {
     this.generatedNumber = generatedNumber;
     return this;
+  }
+
+  public Instant getCreatedDate() {
+    return createdDate;
+  }
+
+  public WsRegisterDto setCreatedDate(Instant createdDate) {
+    this.createdDate = createdDate;
+    return this;
+  }
+
+  public Instant getLastModifiedDate() {
+    return lastModifiedDate;
+  }
+
+  public WsRegisterDto setLastModifiedDate(Instant lastModifiedDate) {
+    this.lastModifiedDate = lastModifiedDate;
+    return this;
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    WsRegisterDto that = (WsRegisterDto) o;
+    return Objects.equals(id, that.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id);
   }
 }

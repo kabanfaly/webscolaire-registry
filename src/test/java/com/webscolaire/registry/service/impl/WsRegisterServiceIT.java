@@ -13,41 +13,38 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
+import static com.webscolaire.registry.TestUtils.MONGO_IMAGE;
 import static com.webscolaire.registry.domain.WebscolaireType.ELEVE_ETUDIANT;
-import org.junit.jupiter.api.AfterAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import static org.springframework.web.reactive.function.client.ExchangeFilterFunctions.basicAuthentication;
-import org.testcontainers.containers.MongoDBContainer;
-import org.testcontainers.utility.DockerImageName;
 
 /**
  * @author KABA N'faly
  * @since 15/12/2019 00:32
  */
+@Testcontainers
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 public class WsRegisterServiceIT {
 
-    protected static final MongoDBContainer mongoDBContainer;
-
-    static {
-        mongoDBContainer = new MongoDBContainer(DockerImageName.parse("mongo:4.0.10"))
-                .withReuse(true)
-                .withLabel("reuse.UUID", "fb36b8c0-e03f-4d30-ad3a-38f16a8");
-        mongoDBContainer.start();
-    }
-
     @LocalServerPort
     private int port;
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse(MONGO_IMAGE));
 
     private static final String SOURCE_ID = UUID.randomUUID().toString();
     private static final LocalDate DOB = LocalDate.of(1999, 10, 11);
@@ -63,11 +60,6 @@ public class WsRegisterServiceIT {
     @Autowired
     private UniqueGenKeyRepository uniqueGenKeyRepository;
 
-    @DynamicPropertySource
-    static void configure(DynamicPropertyRegistry registry) {
-        registry.add("MONGO_URI", mongoDBContainer::getReplicaSetUrl);
-    }
-
     @BeforeEach
     public void setUp() {
         webTestClient = WebTestClient.bindToServer()
@@ -79,13 +71,13 @@ public class WsRegisterServiceIT {
         uniqueGenKeyRepository.deleteAll().block();
         uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(SOURCE_ID)).block();
     }
-    
-    @AfterAll
-    public static void tearDown() {
-        mongoDBContainer.stop();
+
+    @DynamicPropertySource
+    static void configure(DynamicPropertyRegistry registry) {
+        registry.add("MONGO_URI", mongoDBContainer::getReplicaSetUrl);
     }
 
-    public WsRegisterDto createWsRegisterParam() {
+    public WsRegisterDto createWsRegisterDto() {
         return new WsRegisterDto().setSourceId(SOURCE_ID)
                 .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
                 .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H);
@@ -93,18 +85,36 @@ public class WsRegisterServiceIT {
 
     @DisplayName("Should register with a 200 OK")
     @Test
-    public void testRegisterOneWith200() {
+    public void saveRegister() {
+        var register = createWsRegisterDto();
         webTestClient.post()
                 .uri("/register")
                 .contentType(APPLICATION_JSON)
                 .accept(APPLICATION_JSON)
-                .body(Mono.just(createWsRegisterParam()), WsRegisterDto.class)
+                .body(Mono.just(register), WsRegisterDto.class)
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
                 .jsonPath("$.generatedNumber").isNotEmpty()
-                .jsonPath("$.webscolaireType").isNotEmpty()
-                .jsonPath("$.webscolaireType").isEqualTo(ELEVE_ETUDIANT.name());
+                .jsonPath("$.webscolaireType").isEqualTo(register.getWebscolaireType().name())
+                .jsonPath("$.firstname").isEqualTo(register.getFirstname())
+                .jsonPath("$.lastname").isEqualTo(register.getLastname())
+                .jsonPath("$.sex").isEqualTo(register.getSex().name())
+                .jsonPath("$.dateOfBirth").isEqualTo(register.getDateOfBirth().toString());
+    }
+
+    @DisplayName("Should return a bad request on saveRegister")
+    @Test
+    public void saveRegister_badRequest() {
+        var register = createWsRegisterDto();
+        register.setSourceId(null);
+        webTestClient.post()
+            .uri("/register")
+            .contentType(APPLICATION_JSON)
+            .accept(APPLICATION_JSON)
+            .body(Mono.just(register), WsRegisterDto.class)
+            .exchange()
+            .expectStatus().isBadRequest();
     }
 
     @DisplayName("Should find by number with 200 OK")

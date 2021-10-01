@@ -3,7 +3,6 @@ package com.webscolaire.registry.service.impl;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.service.UniqueGenKeyService;
-import com.webscolaire.registry.validator.GenericValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import reactor.core.publisher.Mono;

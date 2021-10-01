@@ -1,40 +1,38 @@
 package com.webscolaire.registry.handler.error;
 
-import org.zalando.problem.AbstractThrowableProblem;
-import org.zalando.problem.Status;
-
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.util.CollectionUtils.isEmpty;
 
-public class BadRequestAlertException extends AbstractThrowableProblem {
+public class BadRequestAlertException extends RuntimeException {
 
-    public static final String PROBLEM_BASE_URL = "https://ws-registry/problem";
-    public static final URI DEFAULT_TYPE = URI.create(PROBLEM_BASE_URL + "/bad-request");
+    private static final int DEFAULT_STATUS_CODE = 400;
 
-    private static final long serialVersionUID = 1L;
+    public final String title;
+    public final String detail;
+    public final int statusCode;
+    public final Map<String, Object> parameters;
 
-    public final String entityName;
-
-    public BadRequestAlertException(String defaultMessage, String title) {
-        this(DEFAULT_TYPE, defaultMessage, "", title, null);
+    public BadRequestAlertException(String title, String detail, int statusCode, Map<String, Object> parameters) {
+        this.title = title;
+        this.detail = detail;
+        this.statusCode = statusCode;
+        this.parameters = new HashMap<>();
+        getAlertParameters(parameters);
     }
 
-    public BadRequestAlertException(String defaultMessage, String errorKey, String entityName, Map<String, Object> params) {
-        this(DEFAULT_TYPE, defaultMessage, entityName, errorKey, params);
+    public BadRequestAlertException(String title, String detail, Map<String, Object> parameters) {
+       this(title, detail, DEFAULT_STATUS_CODE, parameters);
     }
 
-    public BadRequestAlertException(URI type, String defaultMessage, String entityName, String title, Map<String, Object> params) {
-        super(type, title, Status.BAD_REQUEST, defaultMessage, null, null, getAlertParameters(params));
-        this.entityName = entityName;
+    public BadRequestAlertException(String title, String detail) {
+       this(title, detail, DEFAULT_STATUS_CODE, new HashMap<>());
     }
 
-    private static Map<String, Object> getAlertParameters(Map<String, Object> params) {
-        Map<String, Object> parameters = new HashMap<>();
+    private Map<String, Object> getAlertParameters(Map<String, Object> params) {
         if (!isEmpty(params)) {
-            params.forEach((key, value) -> parameters.put(key, "InvalidField"));
+            params.forEach((key, value) -> this.parameters.put(key, "invalidValue"));
         }
         return parameters;
     }
