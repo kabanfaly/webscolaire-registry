@@ -16,16 +16,8 @@ public class WsRegisterConstants {
   public static final String PATH_DOB = "dob";
   public static final String PAGE = "page";
   public static final String SIZE = "size";
-  public static final String DEFAULT_SIZE = "50";
+  public static final String DEFAULT_SIZE = "5000";
   public static final String DEFAULT_PAGE = "0";
-  /**
-   * Les caractères alpha-numériques autorisées dans une clé unique (UniqueGenKey)
-   */
-  public static final List<String> AUTHORIZED_CHARACTERS = asList(
-      "1", "2", "3", "4", "5", "6", "7", "9",
-      "A", "B", "C", "D", "F", "G", "H", "J",
-      "K", "M", "N", "P", "R", "S", "W", "X", "Z"
-  );
   public static final List<String> AUTHORIZED_NUMBERS = asList(
       "1", "2", "3", "4", "5", "6", "7", "9"
   );

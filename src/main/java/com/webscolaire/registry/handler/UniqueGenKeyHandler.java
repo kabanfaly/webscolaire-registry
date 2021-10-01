@@ -50,6 +50,5 @@ public class UniqueGenKeyHandler {
             log.info("No data found for uniqueKey '{}'", request.pathVariable(SOURCE_ID));
             return notFound().build();
         });
-
     }
 }

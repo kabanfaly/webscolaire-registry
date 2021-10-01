@@ -101,7 +101,7 @@ public class WsRegisterConfig {
                     .PUT("/register", wsRegisterHandler::updateRegister)
                     .GET("/registers", wsRegisterHandler::findAllRegisters)
                     .POST("/registers", wsRegisterHandler::registerMany)
-                    .PUT("/update-source/number/{" + PATH_NUMBER + "}/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::updateSourceIdByNumber)
+                    .PUT("/update-sourceId", wsRegisterHandler::updateSourceIdByNumber)
                     .POST("/genKey", accept(APPLICATION_JSON), uniqueGenKeyHandler::generateUniqueKey)
                     .GET("/genKey/{" + PATH_SOURCE_ID + "}", uniqueGenKeyHandler::findByUniqueKey)
                     .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)

@@ -5,6 +5,7 @@ import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
+import com.webscolaire.registry.domain.dto.WsSourceIdUpdateDto;
 import com.webscolaire.registry.exception.ValidationException;
 import com.webscolaire.registry.exception.WsRegisterError;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
@@ -38,6 +39,7 @@ import static com.webscolaire.registry.domain.WebscolaireType.ENSEIGNANT_PROF;
 import static com.webscolaire.registry.domain.WebscolaireType.ETABLISSEMENT;
 import static com.webscolaire.registry.exception.WsRegisterError.WS_002;
 import static com.webscolaire.registry.exception.WsRegisterError.WS_005;
+import static com.webscolaire.registry.exception.WsRegisterError.WS_007;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.params.provider.Arguments.arguments;
@@ -56,7 +58,6 @@ public class WsRegisterServiceImplTest {
   private static final String GENERATED_NUMBER_PREFIX = "EE-19991220-";
   private static final String SOURCE_ID = "SRC-12235";
   private static final String FIRST_NAME = "John";
-  private static final String LAST_NAME = "Doe";
 
   @Container
   protected static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse(MONGO_IMAGE));
@@ -148,7 +149,7 @@ public class WsRegisterServiceImplTest {
   @DisplayName("Should not update a sourceId by number when the sourceId is invalid")
   public void updateRegisterSourceIdByNumber_invalid_sourceId() {
     uniqueGenKeyRepository.deleteAll().block();
-    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(new WsSourceIdUpdateDto(GENERATED_NUMBER_PREFIX, SOURCE_ID)))
         .expectErrorMessage(WS_005.getDescription())
         .verify();
   }
@@ -156,8 +157,8 @@ public class WsRegisterServiceImplTest {
   @Test
   @DisplayName("Should not update a sourceId by number when the number is invalid")
   public void updateRegisterSourceIdByNumber_invalid_number() {
-    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(GENERATED_NUMBER_PREFIX, SOURCE_ID))
-        .expectErrorMessage(WsRegisterError.WS_007.getDescription()).
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(new WsSourceIdUpdateDto(GENERATED_NUMBER_PREFIX, SOURCE_ID)))
+        .expectErrorMessage(WS_007.getDescription()).
         verify();
   }
 
@@ -170,7 +171,7 @@ public class WsRegisterServiceImplTest {
     uniqueGenKeyRepository.save(new UniqueGenKey().setUniqueKey(newSourceId)).block();
     registerRepository.save(newWsRegister().setGeneratedNumber(number)).block();
 
-    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(number, newSourceId))
+    StepVerifier.create(registerService.updateRegisterSourceIdByNumber(new WsSourceIdUpdateDto(number, newSourceId)))
         .assertNext(register -> {
           assertEquals(number, register.getGeneratedNumber());
           assertEquals(newSourceId, register.getSourceId());
@@ -303,18 +304,18 @@ public class WsRegisterServiceImplTest {
   }
 
   @Test
-  @DisplayName("should not update WsRegister when the number is valid")
+  @DisplayName("should not update WsRegister when the number is not valid")
   public void updateRegister_invalidNumber() {
     // Given
-    WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
+    WsRegister wsRegister = registerRepository.save(newWsRegister().setGeneratedNumber("number")).block();
     StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
             .setSourceId(wsRegister.getSourceId())
             .setWebscolaireType(wsRegister.getWebscolaireType())
-            .setGeneratedNumber("NOT_FOUND")
+            .setGeneratedNumber(null)
             .setFirstname("ALY").setLastname("Kaba")
             .setDateOfBirth(DOB)
             .setSex(H)))
-        .expectErrorMessage(WsRegisterError.WS_007.getDescription())
+        .expectErrorMessage(WS_007.getDescription())
         .verify();
   }
 
@@ -322,7 +323,7 @@ public class WsRegisterServiceImplTest {
   @DisplayName("should not update WsRegister when the sourceId is valid")
   public void updateRegister_invalidSourceId() {
     // Given
-    WsRegister wsRegister = registerRepository.save(newWsRegister()).block();
+    WsRegister wsRegister = registerRepository.save(newWsRegister().setGeneratedNumber("number")).block();
     StepVerifier.create(registerService.updateRegister(new WsRegisterDto()
             .setSourceId("INVALID_SOURCE_ID")
             .setWebscolaireType(wsRegister.getWebscolaireType())

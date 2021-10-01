@@ -9,6 +9,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
 import static com.webscolaire.registry.config.WsRegisterConstants.SIZE;
 import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsSourceIdUpdateDto;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import com.webscolaire.registry.service.WsRegisterService;
 import org.slf4j.Logger;
@@ -72,8 +73,8 @@ public class WsRegisterHandler {
 
     public Mono<ServerResponse> updateSourceIdByNumber(ServerRequest request) {
         return ok().contentType(APPLICATION_JSON)
-                .body(registerService.updateRegisterSourceIdByNumber(request.pathVariable(PATH_NUMBER),
-                        request.pathVariable(PATH_SOURCE_ID)), WsRegister.class);
+            .body(fromPublisher(request.bodyToMono(WsSourceIdUpdateDto.class)
+                .flatMap(registerService::updateRegisterSourceIdByNumber), WsRegisterDto.class));
     }
 
     public Mono<ServerResponse> registerMany(ServerRequest request) {

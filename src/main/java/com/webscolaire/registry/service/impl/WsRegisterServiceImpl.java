@@ -3,6 +3,7 @@ package com.webscolaire.registry.service.impl;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.WsRegister;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
+import com.webscolaire.registry.domain.dto.WsSourceIdUpdateDto;
 import com.webscolaire.registry.mapper.WsRegisterMapper;
 import com.webscolaire.registry.exception.WsRegisterError;
 import com.webscolaire.registry.exception.WsRegisterException;
@@ -34,6 +35,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.SEX;
 import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
 import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
 import static com.webscolaire.registry.config.WsRegisterConstants.WEBSCOLAIRE_TYPE;
+import static com.webscolaire.registry.exception.WsRegisterError.WS_007;
 import static java.util.Objects.nonNull;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.util.StringUtils.hasLength;
@@ -110,7 +112,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
         log.info("Updating register : {}", registerDto);
         return Mono.just(registerDto)
             .map(this::validate)
-            .flatMap(regDto -> findRegisterByNumber(regDto.getGeneratedNumber()))
+            .flatMap(regDto -> registerRepository.findOneByGeneratedNumber(regDto.getGeneratedNumber()))
             .map(regDto -> {
                 // sourceId should not change
                 if (!regDto.getSourceId().equals(registerDto.getSourceId())) {
@@ -128,7 +130,6 @@ public class WsRegisterServiceImpl implements WsRegisterService {
                 regDto.setSex(registerDto.getSex());
                 return regDto;
             })
-            .map(wsRegisterMapper::toEntity)
             .flatMap(registerRepository::save)
             .map(wsRegisterMapper::toDto)
             .switchIfEmpty(error(new WsRegisterException(WsRegisterError.WS_007)));
@@ -137,23 +138,22 @@ public class WsRegisterServiceImpl implements WsRegisterService {
     /**
      * Update a {@link WsRegister} entity sourceId by generatedNumber.
      *
-     * @param number The entity number
-     * @param newSourceId The new sourceId
+     * @param wsSourceIdUpdateDto The input
      * @return The updated {@link WsRegisterDto}
      */
     @Override
-    public Mono<WsRegisterDto> updateRegisterSourceIdByNumber(String number, String newSourceId) {
-        log.info("Request to update sourceId {} by number : {}", newSourceId, number);
-        return uniqueGenKeyRepository.findOneByUniqueKey(newSourceId)
+    public Mono<WsRegisterDto> updateRegisterSourceIdByNumber(WsSourceIdUpdateDto wsSourceIdUpdateDto) {
+        log.info("Request to update sourceId : {}", wsSourceIdUpdateDto);
+        return uniqueGenKeyRepository.findOneByUniqueKey(wsSourceIdUpdateDto.sourceId)
             .hasElement().flatMap(it -> {
                 if (it) {
-                    return registerRepository.findOneByGeneratedNumber(number)
+                    return registerRepository.findOneByGeneratedNumber(wsSourceIdUpdateDto.number)
                         .flatMap(register -> {
-                            register.setSourceId(newSourceId);
+                            register.setSourceId(wsSourceIdUpdateDto.sourceId);
                             return registerRepository.save(register);
-                        }).switchIfEmpty(error(new WsRegisterException(WsRegisterError.WS_007)));
+                        }).switchIfEmpty(error(new WsRegisterException(WS_007)));
                 }
-                log.error("SourceId '{}' not found ", newSourceId);
+                log.error("SourceId '{}' not found ", wsSourceIdUpdateDto.sourceId);
                 return error(new WsRegisterException(WsRegisterError.WS_005));
             })
             .map(wsRegisterMapper::toDto);
