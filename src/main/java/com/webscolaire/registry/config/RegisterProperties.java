@@ -9,7 +9,7 @@ import org.springframework.validation.annotation.Validated;
 @ConfigurationProperties("webscolaire.registry")
 @ConstructorBinding
 @Validated
-public class WsRegisterProperties {
+public class RegisterProperties {
 
   @NotNull
   public final String username;
@@ -20,7 +20,7 @@ public class WsRegisterProperties {
   @NotNull
   public final String timeZone;
 
-  public WsRegisterProperties(String username, String password, String timeZone) {
+  public RegisterProperties(String username, String password, String timeZone) {
     this.username = username;
     this.password = password;
     this.timeZone = timeZone;

@@ -8,13 +8,13 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.DATE_OF_BIRTH;
-import static com.webscolaire.registry.config.WsRegisterConstants.FIRSTNAME;
-import static com.webscolaire.registry.config.WsRegisterConstants.GENERATED_NUMBER;
-import static com.webscolaire.registry.config.WsRegisterConstants.LASTNAME;
-import static com.webscolaire.registry.config.WsRegisterConstants.SEX;
-import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
-import static com.webscolaire.registry.config.WsRegisterConstants.WEBSCOLAIRE_TYPE;
+import static com.webscolaire.registry.config.Constants.DATE_OF_BIRTH;
+import static com.webscolaire.registry.config.Constants.FIRSTNAME;
+import static com.webscolaire.registry.config.Constants.GENERATED_NUMBER;
+import static com.webscolaire.registry.config.Constants.LASTNAME;
+import static com.webscolaire.registry.config.Constants.SEX;
+import static com.webscolaire.registry.config.Constants.SOURCE_ID;
+import static com.webscolaire.registry.config.Constants.WEBSCOLAIRE_TYPE;
 
 /**
  * @since 11 avr. 2019
@@ -22,7 +22,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.WEBSCOLAIRE_TY
  */
 
 @Document(collection = "register")
-public class WsRegister extends AbstractAuditingEntity {
+public class Register extends AbstractAuditingEntity {
 
   private static final long serialVersionUID = 1L;
 
@@ -61,7 +61,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return webscolaireType;
   }
 
-  public WsRegister setWebscolaireType(WebscolaireType webscolaireType) {
+  public Register setWebscolaireType(WebscolaireType webscolaireType) {
     this.webscolaireType = webscolaireType;
     return this;
   }
@@ -70,7 +70,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return dateOfBirth;
   }
 
-  public WsRegister setDateOfBirth(LocalDate dateOfBirth) {
+  public Register setDateOfBirth(LocalDate dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
     return this;
   }
@@ -79,7 +79,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return lastname;
   }
 
-  public WsRegister setLastname(String lastname) {
+  public Register setLastname(String lastname) {
     this.lastname = lastname;
     return this;
   }
@@ -88,7 +88,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return firstname;
   }
 
-  public WsRegister setFirstname(String firstname) {
+  public Register setFirstname(String firstname) {
     this.firstname = firstname;
     return this;
   }
@@ -97,7 +97,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return sex;
   }
 
-  public WsRegister setSex(SexType sex) {
+  public Register setSex(SexType sex) {
     this.sex = sex;
     return this;
   }
@@ -106,7 +106,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return sourceId;
   }
 
-  public WsRegister setSourceId(String sourceId) {
+  public Register setSourceId(String sourceId) {
     this.sourceId = sourceId;
     return this;
   }
@@ -115,7 +115,7 @@ public class WsRegister extends AbstractAuditingEntity {
     return generatedNumber;
   }
 
-  public WsRegister setGeneratedNumber(String generatedNumber) {
+  public Register setGeneratedNumber(String generatedNumber) {
     this.generatedNumber = generatedNumber;
     return this;
   }

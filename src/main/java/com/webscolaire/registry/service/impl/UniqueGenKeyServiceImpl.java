@@ -1,13 +1,15 @@
 package com.webscolaire.registry.service.impl;
 
 import com.webscolaire.registry.domain.UniqueGenKey;
+import com.webscolaire.registry.domain.dto.UniqueGenKeyDto;
+import com.webscolaire.registry.mapper.UniqueGenKeyMapper;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
 import com.webscolaire.registry.service.UniqueGenKeyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Pageable;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-
-import java.util.UUID;
 
 /**
  *
@@ -19,23 +21,31 @@ public class UniqueGenKeyServiceImpl implements UniqueGenKeyService {
     private final Logger log = LoggerFactory.getLogger(UniqueGenKeyServiceImpl.class);
 
     private final UniqueGenKeyRepository uniqueKeyRepository;
+    private final UniqueGenKeyMapper uniqueGenKeyMapper;
 
-    public UniqueGenKeyServiceImpl(UniqueGenKeyRepository uniqueKeyRepository) {
+    public UniqueGenKeyServiceImpl(UniqueGenKeyRepository uniqueKeyRepository, UniqueGenKeyMapper uniqueGenKeyMapper) {
         this.uniqueKeyRepository = uniqueKeyRepository;
+        this.uniqueGenKeyMapper = uniqueGenKeyMapper;
     }
 
     @Override
-    public Mono<UniqueGenKey> generateUniqueKey() {
+    public Mono<UniqueGenKeyDto> generateUniqueKey() {
         log.info("Request to build uniqueKey");
-
-        return Mono.just(UUID.randomUUID().toString().replace("-", ""))
-            .map(token -> new UniqueGenKey().setUniqueKey(token))
-            .flatMap(uniqueKeyRepository::save);
+        return uniqueKeyRepository.save(new UniqueGenKey())
+            .map(uniqueGenKeyMapper::toDto);
     }
 
     @Override
-    public Mono<UniqueGenKey> findByUniqueKey(String key) {
+    public Mono<UniqueGenKeyDto> findByUniqueKey(String key) {
         log.info("Request to find UniqueGenKey by key : {}", key);
-        return uniqueKeyRepository.findOneByUniqueKey(key);
+        return uniqueKeyRepository.findById(key)
+            .map(uniqueGenKeyMapper::toDto);
+    }
+
+    @Override
+    public Flux<UniqueGenKeyDto> findAllUniqueGenKey(Pageable page) {
+        log.info("Request to find all UniqueGenKey");
+        return uniqueKeyRepository.findAll(page)
+            .map(uniqueGenKeyMapper::toDto);
     }
 }

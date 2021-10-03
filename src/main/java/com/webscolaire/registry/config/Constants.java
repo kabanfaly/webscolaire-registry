@@ -8,7 +8,7 @@ import java.util.List;
  * @since 13 avr. 2019
  * @author KABA N'faly
  */
-public class WsRegisterConstants {
+public class Constants {
 
   public static final String PATH_NUMBER = "number";
   public static final String PATH_SOURCE_ID = "sourceId";

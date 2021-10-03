@@ -1,6 +1,7 @@
 package com.webscolaire.registry.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.webscolaire.registry.domain.Register;
 import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.WebscolaireType;
 
@@ -15,13 +16,15 @@ import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
 
 
 /**
- * A DTO for the {@link com.webscolaire.registry.domain.WsRegister} entity.
+ * A DTO for the {@link Register} entity.
  *
  * @since 14 avr. 2019
  * @author KABA N'faly
  */
 @JsonInclude(NON_NULL)
-public class WsRegisterDto implements Serializable {
+public class RegisterDto implements Serializable {
+
+  private static final long serialVersionUID = 1L;
 
   private String id;
 
@@ -44,15 +47,15 @@ public class WsRegisterDto implements Serializable {
 
   private String generatedNumber;
 
-  protected Instant createdDate;
+  private Instant createdDate;
 
-  protected Instant lastModifiedDate;
+  private Instant lastModifiedDate;
 
   public String getId() {
     return id;
   }
 
-  public WsRegisterDto setId(String id) {
+  public RegisterDto setId(String id) {
     this.id = id;
     return this;
   }
@@ -61,7 +64,7 @@ public class WsRegisterDto implements Serializable {
     return sourceId;
   }
 
-  public WsRegisterDto setSourceId(String sourceId) {
+  public RegisterDto setSourceId(String sourceId) {
     this.sourceId = sourceId;
     return this;
   }
@@ -70,7 +73,7 @@ public class WsRegisterDto implements Serializable {
     return webscolaireType;
   }
 
-  public WsRegisterDto setWebscolaireType(WebscolaireType webscolaireType) {
+  public RegisterDto setWebscolaireType(WebscolaireType webscolaireType) {
     this.webscolaireType = webscolaireType;
     return this;
   }
@@ -79,7 +82,7 @@ public class WsRegisterDto implements Serializable {
     return dateOfBirth;
   }
 
-  public WsRegisterDto setDateOfBirth(LocalDate dateOfBirth) {
+  public RegisterDto setDateOfBirth(LocalDate dateOfBirth) {
     this.dateOfBirth = dateOfBirth;
     return this;
   }
@@ -88,7 +91,7 @@ public class WsRegisterDto implements Serializable {
     return firstname;
   }
 
-  public WsRegisterDto setFirstname(String firstname) {
+  public RegisterDto setFirstname(String firstname) {
     this.firstname = firstname;
     return this;
   }
@@ -97,7 +100,7 @@ public class WsRegisterDto implements Serializable {
     return lastname;
   }
 
-  public WsRegisterDto setLastname(String lastname) {
+  public RegisterDto setLastname(String lastname) {
     this.lastname = lastname;
     return this;
   }
@@ -106,7 +109,7 @@ public class WsRegisterDto implements Serializable {
     return sex;
   }
 
-  public WsRegisterDto setSex(SexType sex) {
+  public RegisterDto setSex(SexType sex) {
     this.sex = sex;
     return this;
   }
@@ -115,7 +118,7 @@ public class WsRegisterDto implements Serializable {
     return generatedNumber;
   }
 
-  public WsRegisterDto setGeneratedNumber(String generatedNumber) {
+  public RegisterDto setGeneratedNumber(String generatedNumber) {
     this.generatedNumber = generatedNumber;
     return this;
   }
@@ -124,7 +127,7 @@ public class WsRegisterDto implements Serializable {
     return createdDate;
   }
 
-  public WsRegisterDto setCreatedDate(Instant createdDate) {
+  public RegisterDto setCreatedDate(Instant createdDate) {
     this.createdDate = createdDate;
     return this;
   }
@@ -133,7 +136,7 @@ public class WsRegisterDto implements Serializable {
     return lastModifiedDate;
   }
 
-  public WsRegisterDto setLastModifiedDate(Instant lastModifiedDate) {
+  public RegisterDto setLastModifiedDate(Instant lastModifiedDate) {
     this.lastModifiedDate = lastModifiedDate;
     return this;
   }
@@ -142,7 +145,7 @@ public class WsRegisterDto implements Serializable {
   public boolean equals(Object o) {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
-    WsRegisterDto that = (WsRegisterDto) o;
+    RegisterDto that = (RegisterDto) o;
     return Objects.equals(id, that.id);
   }
 

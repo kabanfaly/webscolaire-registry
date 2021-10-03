@@ -1,8 +1,8 @@
 package com.webscolaire.registry.config;
 
 import com.webscolaire.registry.exception.ValidationException;
-import com.webscolaire.registry.exception.WsRegisterError;
-import com.webscolaire.registry.exception.WsRegisterException;
+import com.webscolaire.registry.exception.RegisterError;
+import com.webscolaire.registry.exception.RegisterException;
 import com.webscolaire.registry.handler.error.BadRequestAlertException;
 import com.webscolaire.registry.validator.ValidationErrorDescriptor;
 import org.slf4j.Logger;
@@ -30,7 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.webscolaire.registry.exception.WsRegisterError.WS_002;
+import static com.webscolaire.registry.exception.RegisterError.WS_002;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 
@@ -62,16 +62,16 @@ public class ErrorHandler extends AbstractErrorWebExceptionHandler {
         log.error("error", throwable);
         if (throwable instanceof ValidationException) {
             return handleValidationException((ValidationException) throwable);
-        } else if (throwable instanceof WsRegisterException) {
-            return handleWsRegisterException((WsRegisterException) throwable);
+        } else if (throwable instanceof RegisterException) {
+            return handleWsRegisterException((RegisterException) throwable);
         }  else if ((throwable instanceof ServerWebInputException && ((ServerWebInputException) throwable).getRootCause() instanceof DateTimeParseException) ) {
             return handleDateTimeParseException();
         }
         return new BadRequestAlertException(throwable.getMessage(), "unknownBadRequest");
     }
 
-    private BadRequestAlertException handleWsRegisterException(WsRegisterException exception) {
-        WsRegisterError error = exception.error;
+    private BadRequestAlertException handleWsRegisterException(RegisterException exception) {
+        RegisterError error = exception.error;
         log.error("{}", error);
         return new BadRequestAlertException(error.getCode(), error.getCode());
     }

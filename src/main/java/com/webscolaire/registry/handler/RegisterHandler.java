@@ -1,17 +1,18 @@
 package com.webscolaire.registry.handler;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.DEFAULT_PAGE;
-import static com.webscolaire.registry.config.WsRegisterConstants.DEFAULT_SIZE;
-import static com.webscolaire.registry.config.WsRegisterConstants.PAGE;
-import static com.webscolaire.registry.config.WsRegisterConstants.PATH_NUMBER;
-import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
-import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
-import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
-import static com.webscolaire.registry.config.WsRegisterConstants.SIZE;
-import com.webscolaire.registry.domain.WsRegister;
-import com.webscolaire.registry.domain.dto.WsSourceIdUpdateDto;
-import com.webscolaire.registry.domain.dto.WsRegisterDto;
-import com.webscolaire.registry.service.WsRegisterService;
+import static com.webscolaire.registry.config.Constants.DEFAULT_PAGE;
+import static com.webscolaire.registry.config.Constants.DEFAULT_SIZE;
+import static com.webscolaire.registry.config.Constants.PAGE;
+import static com.webscolaire.registry.config.Constants.PATH_NUMBER;
+import static com.webscolaire.registry.config.Constants.PATH_SOURCE_ID;
+import static com.webscolaire.registry.config.Constants.PATH_DOB;
+import static com.webscolaire.registry.config.Constants.PATH_TYPE;
+import static com.webscolaire.registry.config.Constants.SIZE;
+
+import com.webscolaire.registry.domain.Register;
+import com.webscolaire.registry.domain.dto.RegisterDto;
+import com.webscolaire.registry.domain.dto.SourceIdUpdateDto;
+import com.webscolaire.registry.service.RegisterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -34,13 +35,13 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 @Component
-public class WsRegisterHandler {
+public class RegisterHandler {
 
-    private final Logger log = LoggerFactory.getLogger(WsRegisterHandler.class);
+    private final Logger log = LoggerFactory.getLogger(RegisterHandler.class);
 
-    private final WsRegisterService registerService;
+    private final RegisterService registerService;
 
-    public WsRegisterHandler(WsRegisterService registerService) {
+    public RegisterHandler(RegisterService registerService) {
         this.registerService = registerService;
     }
 
@@ -51,16 +52,16 @@ public class WsRegisterHandler {
     public Mono<ServerResponse> registerOne(ServerRequest request) {
         log.info("POST call registerOne");
         return ok().contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
-                        .flatMap(registerService::saveRegister), WsRegisterDto.class));
+                .body(fromPublisher(request.bodyToMono(RegisterDto.class)
+                        .flatMap(registerService::saveRegister), RegisterDto.class));
 
     }
 
     public Mono<ServerResponse> updateRegister(ServerRequest request) {
         log.info("POST call registerOne");
         return ok().contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToMono(WsRegisterDto.class)
-                        .flatMap(registerService::updateRegister), WsRegisterDto.class));
+                .body(fromPublisher(request.bodyToMono(RegisterDto.class)
+                        .flatMap(registerService::updateRegister), RegisterDto.class));
     }
 
     public Mono<ServerResponse> findAllRegisters(ServerRequest request) {
@@ -68,38 +69,38 @@ public class WsRegisterHandler {
         int page = parseInt(request.queryParam(PAGE).orElse(DEFAULT_PAGE));
         int size = parseInt(request.queryParam(SIZE).orElse(DEFAULT_SIZE));
         return ok().contentType(APPLICATION_JSON)
-                .body(registerService.findAllRegisters(PageRequest.of(page, size)), WsRegister.class);
+                .body(registerService.findAllRegisters(PageRequest.of(page, size)), Register.class);
     }
 
     public Mono<ServerResponse> updateSourceIdByNumber(ServerRequest request) {
         return ok().contentType(APPLICATION_JSON)
-            .body(fromPublisher(request.bodyToMono(WsSourceIdUpdateDto.class)
-                .flatMap(registerService::updateRegisterSourceIdByNumber), WsRegisterDto.class));
+            .body(fromPublisher(request.bodyToMono(SourceIdUpdateDto.class)
+                .flatMap(registerService::updateRegisterSourceIdByNumber), RegisterDto.class));
     }
 
     public Mono<ServerResponse> registerMany(ServerRequest request) {
         log.info("POST call registerMany");
         return ok().contentType(APPLICATION_JSON)
-                .body(fromPublisher(request.bodyToFlux(WsRegisterDto.class)
-                        .buffer().flatMap(registerService::saveRegisters), WsRegisterDto.class));
+                .body(fromPublisher(request.bodyToFlux(RegisterDto.class)
+                        .buffer().flatMap(registerService::saveRegisters), RegisterDto.class));
     }
 
     public Mono<ServerResponse> findRegisterByNumber(ServerRequest request) {
         return registerService.findRegisterByNumber(request.pathVariable(PATH_NUMBER))
                 .flatMap(wsRegister -> ok()
                         .contentType(APPLICATION_JSON)
-                        .body(Mono.just(wsRegister), WsRegister.class))
+                        .body(Mono.just(wsRegister), Register.class))
                 .switchIfEmpty(notFound().build());
     }
 
     public Mono<ServerResponse> findRegisterBySourceId(ServerRequest request) {
 
-        Flux<WsRegisterDto> wsRegisterFlux = registerService
+        Flux<RegisterDto> wsRegisterFlux = registerService
                 .findRegisterBySourceId(request.pathVariable(PATH_SOURCE_ID));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, Register.class);
             }
             log.info("No data found for sourceId '{}'", request.pathVariable(PATH_SOURCE_ID));
             return notFound().build();
@@ -108,11 +109,11 @@ public class WsRegisterHandler {
     }
 
     public Mono<ServerResponse> findRegisterByDateOfBirth(ServerRequest request) {
-        Flux<WsRegisterDto> wsRegisterFlux = registerService.findByDateOfBirth(request.pathVariable(PATH_DOB));
+        Flux<RegisterDto> wsRegisterFlux = registerService.findByDateOfBirth(request.pathVariable(PATH_DOB));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, Register.class);
             }
             log.info("No data found for dateOfBirth '{}'", request.pathVariable(PATH_DOB));
             return notFound().build();
@@ -121,12 +122,12 @@ public class WsRegisterHandler {
     }
 
     public Mono<ServerResponse> findBySourceIdAndWebscolaireType(ServerRequest request) {
-        Flux<WsRegisterDto> wsRegisterFlux = registerService
+        Flux<RegisterDto> wsRegisterFlux = registerService
                 .findBySourceIdAndWebscolaireType(request.pathVariable(PATH_SOURCE_ID), getTypeFromString(request.pathVariable(PATH_TYPE)));
 
         return wsRegisterFlux.hasElements().flatMap(it -> {
             if (it) {
-                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, WsRegister.class);
+                return ok().contentType(APPLICATION_JSON).body(wsRegisterFlux, Register.class);
             }
             log.info("No data found for sourceId '{}' and type '{}'", request.pathVariable(PATH_SOURCE_ID), request.pathVariable(PATH_TYPE));
             return notFound().build();

@@ -4,12 +4,12 @@ import com.webscolaire.registry.validator.ValidationErrorDescriptor;
 
 import java.util.List;
 
-public class ValidationException extends WsRegisterException {
+public class ValidationException extends RegisterException {
 
     public final List<ValidationErrorDescriptor> errors;
 
     public ValidationException(List<ValidationErrorDescriptor> errors) {
-        super(WsRegisterError.WS_008, null);
+        super(RegisterError.WS_008, null);
         this.errors = errors;
     }
 

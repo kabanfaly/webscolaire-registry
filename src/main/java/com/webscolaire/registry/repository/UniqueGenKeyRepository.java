@@ -1,7 +1,10 @@
 package com.webscolaire.registry.repository;
 
 import com.webscolaire.registry.domain.UniqueGenKey;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 /**
@@ -10,5 +13,7 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface UniqueGenKeyRepository extends ReactiveMongoRepository<UniqueGenKey, String> {
-  Mono<UniqueGenKey> findOneByUniqueKey(String uniqueKey);
+
+  @Query("{ id: { $exists: true }}")
+  Flux<UniqueGenKey> findAll(Pageable pageable);
 }

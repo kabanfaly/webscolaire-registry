@@ -5,17 +5,17 @@ package com.webscolaire.registry.exception;
  * @since 12 avr. 2019
  * @author KABA N'faly
  */
-public class WsRegisterException extends RuntimeException {
+public class RegisterException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
-  public final WsRegisterError error;
+  public final RegisterError error;
 
-  public WsRegisterException(WsRegisterError error) {
+  public RegisterException(RegisterError error) {
     this(error, null);
   }
 
-  public WsRegisterException(WsRegisterError error, Throwable t) {
+  public RegisterException(RegisterError error, Throwable t) {
     super(error.getDescription(), t);
     this.error = error;
   }

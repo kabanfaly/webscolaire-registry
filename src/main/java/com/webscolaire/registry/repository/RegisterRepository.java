@@ -1,7 +1,7 @@
 package com.webscolaire.registry.repository;
 
 import com.webscolaire.registry.domain.WebscolaireType;
-import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.Register;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
@@ -15,16 +15,16 @@ import java.time.LocalDate;
  * @since 11 avr. 2019
  * @author KABA N'faly
  */
-public interface WsRegisterRepository extends ReactiveMongoRepository<WsRegister, String> {
+public interface RegisterRepository extends ReactiveMongoRepository<Register, String> {
 
-  Flux<WsRegister> findByDateOfBirth(LocalDate dateOfBirth);
+  Flux<Register> findByDateOfBirth(LocalDate dateOfBirth);
 
-  Mono<WsRegister> findOneByGeneratedNumber(String generatedNumber);
+  Mono<Register> findOneByGeneratedNumber(String generatedNumber);
 
-  Flux<WsRegister> findBySourceId(String sourceId);
+  Flux<Register> findBySourceId(String sourceId);
 
-  Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
+  Flux<Register> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
 
   @Query("{ id: { $exists: true }}")
-  Flux<WsRegister> findAll(Pageable pageable);
+  Flux<Register> findAll(Pageable pageable);
 }

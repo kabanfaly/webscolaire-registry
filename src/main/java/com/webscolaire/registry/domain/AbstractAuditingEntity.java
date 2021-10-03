@@ -10,8 +10,8 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.CREATION_DATE;
-import static com.webscolaire.registry.config.WsRegisterConstants.MODIFICATION_DATE;
+import static com.webscolaire.registry.config.Constants.CREATION_DATE;
+import static com.webscolaire.registry.config.Constants.MODIFICATION_DATE;
 
 /**
  *

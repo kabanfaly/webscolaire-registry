@@ -1,12 +1,21 @@
 package com.webscolaire.registry.handler;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
+import static com.webscolaire.registry.config.Constants.DEFAULT_PAGE;
+import static com.webscolaire.registry.config.Constants.DEFAULT_SIZE;
+import static com.webscolaire.registry.config.Constants.PAGE;
+import static com.webscolaire.registry.config.Constants.SIZE;
+import static com.webscolaire.registry.config.Constants.SOURCE_ID;
 import com.webscolaire.registry.domain.UniqueGenKey;
+import com.webscolaire.registry.domain.Register;
+import com.webscolaire.registry.domain.dto.UniqueGenKeyDto;
 import com.webscolaire.registry.service.UniqueGenKeyService;
+
+import static java.lang.Integer.parseInt;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -34,21 +43,29 @@ public class UniqueGenKeyHandler {
         log.info("POST call generateUniqueKey");
         return ok()
             .contentType(APPLICATION_JSON)
-            .body(genKeyService.generateUniqueKey(), UniqueGenKey.class);
+            .body(genKeyService.generateUniqueKey(), UniqueGenKeyDto.class);
     }
 
     public Mono<ServerResponse> findByUniqueKey(ServerRequest request) {
-        Mono<UniqueGenKey> uniqueGenKeyMono = genKeyService
+        Mono<UniqueGenKeyDto> uniqueGenKeyMono = genKeyService
             .findByUniqueKey(request.pathVariable(SOURCE_ID));
 
         return uniqueGenKeyMono.hasElement().flatMap(it -> {
             if (it) {
                 return ok()
                     .contentType(APPLICATION_JSON)
-                    .body(uniqueGenKeyMono, UniqueGenKey.class);
+                    .body(uniqueGenKeyMono, UniqueGenKeyDto.class);
             }
             log.info("No data found for uniqueKey '{}'", request.pathVariable(SOURCE_ID));
             return notFound().build();
         });
+    }
+
+    public Mono<ServerResponse> findAllUniqueKeys(ServerRequest request) {
+        log.info("GET call findAllUniqueGenKey");
+        int page = parseInt(request.queryParam(PAGE).orElse(DEFAULT_PAGE));
+        int size = parseInt(request.queryParam(SIZE).orElse(DEFAULT_SIZE));
+        return ok().contentType(APPLICATION_JSON)
+            .body(genKeyService.findAllUniqueGenKey(PageRequest.of(page, size)), UniqueGenKeyDto.class);
     }
 }

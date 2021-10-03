@@ -5,7 +5,7 @@ package com.webscolaire.registry.exception;
  * @since 12 avr. 2019
  * @author KABA N'faly
  */
-public enum WsRegisterError {
+public enum RegisterError {
 
   WS_001("WS_001", "Invalid 'webscolaireType'"),
   WS_002("WS_002", "Invalid 'dateOfBirth'"),
@@ -20,7 +20,7 @@ public enum WsRegisterError {
   
   private final String description;
 
-  WsRegisterError(String code, String description) {
+  RegisterError(String code, String description) {
     this.code = code;
     this.description = description;
   }
