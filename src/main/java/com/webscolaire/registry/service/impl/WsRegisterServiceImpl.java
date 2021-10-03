@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -35,6 +36,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.SEX;
 import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
 import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
 import static com.webscolaire.registry.config.WsRegisterConstants.WEBSCOLAIRE_TYPE;
+import static com.webscolaire.registry.domain.WebscolaireType.ETABLISSEMENT;
 import static com.webscolaire.registry.exception.WsRegisterError.WS_007;
 import static java.util.Objects.nonNull;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -92,7 +94,7 @@ public class WsRegisterServiceImpl implements WsRegisterService {
 
     private WsRegisterDto validate(WsRegisterDto wsRegisterDto) {
         if (nonNull(wsRegisterDto.getWebscolaireType())
-            && wsRegisterDto.getWebscolaireType() != WebscolaireType.ETABLISSEMENT
+            && wsRegisterDto.getWebscolaireType() != ETABLISSEMENT
             && !hasLength(wsRegisterDto.getLastname())) {
             throw new WsRegisterException(WsRegisterError.WS_004);
         }
@@ -179,15 +181,16 @@ public class WsRegisterServiceImpl implements WsRegisterService {
      */
     private Mono<WsRegister> findRegister(WsRegisterDto wsRegisterDto) {
         var query = new Query();
-        query.addCriteria(
-            where(WEBSCOLAIRE_TYPE)
-                .is(wsRegisterDto.getWebscolaireType())
-                .and(SOURCE_ID).is(wsRegisterDto.getSourceId())
-                .and(LASTNAME).regex(wsRegisterDto.getLastname(), "i")
-                .and(FIRSTNAME).regex(wsRegisterDto.getFirstname(), "i")
-                .and(DATE_OF_BIRTH).is(wsRegisterDto.getDateOfBirth())
-                .and(SEX).is(wsRegisterDto.getSex())
-        );
+        Criteria criteria = where(WEBSCOLAIRE_TYPE)
+            .is(wsRegisterDto.getWebscolaireType())
+            .and(SOURCE_ID).is(wsRegisterDto.getSourceId())
+            .and(FIRSTNAME).regex(wsRegisterDto.getFirstname(), "i")
+            .and(DATE_OF_BIRTH).is(wsRegisterDto.getDateOfBirth())
+            .and(SEX).is(wsRegisterDto.getSex());
+        if (ETABLISSEMENT != wsRegisterDto.getWebscolaireType()) {
+            criteria = criteria.and(LASTNAME).regex(wsRegisterDto.getLastname(), "i");
+        }
+        query.addCriteria(criteria);
         return reactiveMongoTemplate.findOne(query, WsRegister.class);
     }
 

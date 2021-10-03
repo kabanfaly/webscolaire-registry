@@ -1,5 +1,6 @@
 package com.webscolaire.registry.domain.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.webscolaire.registry.domain.SexType;
 import com.webscolaire.registry.domain.WebscolaireType;
 
@@ -10,6 +11,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import static com.fasterxml.jackson.annotation.JsonInclude.Include.NON_NULL;
+
 
 /**
  * A DTO for the {@link com.webscolaire.registry.domain.WsRegister} entity.
@@ -17,6 +20,7 @@ import java.util.Objects;
  * @since 14 avr. 2019
  * @author KABA N'faly
  */
+@JsonInclude(NON_NULL)
 public class WsRegisterDto implements Serializable {
 
   private String id;
