@@ -1,22 +1,20 @@
 package com.webscolaire.registry.domain;
 
-import lombok.Getter;
-
 /**
  *
  * @since 11 avr. 2019
  * @author KABA N'faly
  */
 public enum WebscolaireType {
+
     ELEVE_ETUDIANT("EE"),
     ENSEIGNANT_PROF("EP"),
     ETABLISSEMENT("ET"),
     PARENT_ELEVE("PE");
 
-    @Getter
     private final String code;
 
-    private WebscolaireType(String code) {
+    WebscolaireType(String code) {
         this.code = code;
     }
 
@@ -27,5 +25,9 @@ public enum WebscolaireType {
             }
         }
         return null;
+    }
+
+    public String getCode() {
+        return code;
     }
 }

@@ -3,9 +3,10 @@ package com.webscolaire.registry.handler;
 import static com.webscolaire.registry.config.WsRegisterConstants.SOURCE_ID;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.service.UniqueGenKeyService;
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j2;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -19,11 +20,15 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 @Component
-@Log4j2
-@AllArgsConstructor
 public class UniqueGenKeyHandler {
 
+    private final Logger log = LoggerFactory.getLogger(UniqueGenKeyHandler.class);
+
     private final UniqueGenKeyService genKeyService;
+
+    public UniqueGenKeyHandler(UniqueGenKeyService genKeyService) {
+        this.genKeyService = genKeyService;
+    }
 
     public Mono<ServerResponse> generateUniqueKey(ServerRequest request) {
         log.info("POST call generateUniqueKey");
@@ -45,6 +50,5 @@ public class UniqueGenKeyHandler {
             log.info("No data found for uniqueKey '{}'", request.pathVariable(SOURCE_ID));
             return notFound().build();
         });
-
     }
 }

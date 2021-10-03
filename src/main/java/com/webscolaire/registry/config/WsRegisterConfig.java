@@ -5,7 +5,7 @@ import static com.webscolaire.registry.config.WsRegisterConstants.PATH_DOB;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_SOURCE_ID;
 import static com.webscolaire.registry.config.WsRegisterConstants.PATH_TYPE;
 
-import com.webscolaire.registry.domain.dto.WsRegisterMapper;
+import com.webscolaire.registry.mapper.WsRegisterMapper;
 import com.webscolaire.registry.handler.UniqueGenKeyHandler;
 import com.webscolaire.registry.handler.WsRegisterHandler;
 import com.webscolaire.registry.repository.UniqueGenKeyRepository;
@@ -14,6 +14,7 @@ import com.webscolaire.registry.service.UniqueGenKeyService;
 import com.webscolaire.registry.service.WsRegisterService;
 import com.webscolaire.registry.service.impl.UniqueGenKeyServiceImpl;
 import com.webscolaire.registry.service.impl.WsRegisterServiceImpl;
+import com.webscolaire.registry.validator.GenericValidator;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -49,8 +50,8 @@ public class WsRegisterConfig {
 
     @Bean
     public WsRegisterService wsRegisterService(WsRegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
-                                               ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper) {
-        return new WsRegisterServiceImpl(registerRepository, uniqueGenKeyRepository, reactiveMongoTemplate, wsRegisterMapper);
+                                               ReactiveMongoTemplate reactiveMongoTemplate, WsRegisterMapper wsRegisterMapper, GenericValidator validator) {
+        return new WsRegisterServiceImpl(registerRepository, uniqueGenKeyRepository, reactiveMongoTemplate, wsRegisterMapper, validator);
     }
 
     @Bean
@@ -60,8 +61,8 @@ public class WsRegisterConfig {
 
     @Bean
     ReactiveUserDetailsService authentication(WsRegisterProperties generatorProperties, PasswordEncoder encoder) {
-        return new MapReactiveUserDetailsService(User.withUsername(generatorProperties.getUsername())
-            .password(encoder.encode(generatorProperties.getPassword()))
+        return new MapReactiveUserDetailsService(User.withUsername(generatorProperties.username)
+            .password(encoder.encode(generatorProperties.password))
             .roles("ADMIN")
             .build());
     }
@@ -79,7 +80,7 @@ public class WsRegisterConfig {
             .and()
             .authorizeExchange()
             .pathMatchers("/**").authenticated()
-            .pathMatchers("/actuator/**").authenticated()
+            .pathMatchers("/actuator/**").permitAll()
             .and()
             .build();
     }
@@ -100,7 +101,7 @@ public class WsRegisterConfig {
                     .PUT("/register", wsRegisterHandler::updateRegister)
                     .GET("/registers", wsRegisterHandler::findAllRegisters)
                     .POST("/registers", wsRegisterHandler::registerMany)
-                    .PUT("/update-source/number/{" + PATH_NUMBER + "}/sourceId/{" + PATH_SOURCE_ID + "}", wsRegisterHandler::updateSourceIdByNumber)
+                    .PUT("/update-sourceId", wsRegisterHandler::updateSourceIdByNumber)
                     .POST("/genKey", accept(APPLICATION_JSON), uniqueGenKeyHandler::generateUniqueKey)
                     .GET("/genKey/{" + PATH_SOURCE_ID + "}", uniqueGenKeyHandler::findByUniqueKey)
                     .GET("/number/{" + PATH_NUMBER + "}", wsRegisterHandler::findRegisterByNumber)

@@ -1,7 +1,7 @@
 package com.webscolaire.registry.service;
 
 import com.webscolaire.registry.domain.WebscolaireType;
-import com.webscolaire.registry.domain.WsRegister;
+import com.webscolaire.registry.domain.dto.WsSourceIdUpdateDto;
 import com.webscolaire.registry.domain.dto.WsRegisterDto;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
@@ -16,13 +16,23 @@ import reactor.core.publisher.Mono;
  * @author KABA N'faly
  */
 public interface WsRegisterService {
-  Mono<WsRegister> registerOne(WsRegisterDto registerParam);
-  Mono<WsRegister> updateRegister(WsRegisterDto registerParam);
-  Mono<WsRegister> updateSourceIdByNumber(String number, String sourceId);
-  Mono<WsRegister> findRegisterByNumber(String number);
-  Flux<WsRegister> findByDateOfBirth(String dateOfBirth);
-  Flux<WsRegister> findRegisterBySourceId(String sourceId);
-  Flux<WsRegister> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
-  Flux<WsRegister> registerMany(List<WsRegisterDto> registerParam);
-  Flux<WsRegister> findAllRegisters(Pageable page);
+
+  Mono<WsRegisterDto> saveRegister(WsRegisterDto registerParam);
+
+  Mono<WsRegisterDto> updateRegister(WsRegisterDto registerParam);
+
+  Mono<WsRegisterDto> updateRegisterSourceIdByNumber(WsSourceIdUpdateDto wsSourceIdUpdateDto);
+
+  Mono<WsRegisterDto> findRegisterByNumber(String number);
+
+  Flux<WsRegisterDto> findByDateOfBirth(String dateOfBirth);
+
+  Flux<WsRegisterDto> findRegisterBySourceId(String sourceId);
+
+  Flux<WsRegisterDto> findBySourceIdAndWebscolaireType(String sourceId, WebscolaireType webscolaireType);
+
+  Flux<WsRegisterDto> saveRegisters(List<WsRegisterDto> registerParam);
+
+  Flux<WsRegisterDto> findAllRegisters(Pageable page);
+
 }
