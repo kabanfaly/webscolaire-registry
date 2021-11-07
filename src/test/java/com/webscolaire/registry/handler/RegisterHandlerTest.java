@@ -2,7 +2,7 @@ package com.webscolaire.registry.handler;
 
 import com.webscolaire.registry.config.RegisterProperties;
 import com.webscolaire.registry.domain.Register;
-import com.webscolaire.registry.domain.SexType;
+import com.webscolaire.registry.domain.Sex;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.dto.RegisterDto;
 import com.webscolaire.registry.domain.dto.SourceIdUpdateDto;
@@ -28,7 +28,7 @@ import reactor.core.publisher.Mono;
 import java.time.LocalDate;
 
 import static com.webscolaire.registry.TestUtils.MONGO_IMAGE;
-import static com.webscolaire.registry.domain.WebscolaireType.ELEVE_ETUDIANT;
+import static com.webscolaire.registry.domain.WebscolaireType.STUDENT;
 import static com.webscolaire.registry.exception.RegisterError.WS_007;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -81,8 +81,8 @@ public class RegisterHandlerTest {
 
   public RegisterDto createWsRegisterDto() {
     return new RegisterDto().setSourceId(SOURCE_ID)
-        .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
-        .setFirstname("N'faly").setLastname("KABA").setSex(SexType.H);
+        .setWebscolaireType(STUDENT).setDateOfBirth(DOB)
+        .setFirstname("N'faly").setLastname("KABA").setSex(Sex.MALE);
   }
 
   @DisplayName("Should save a register with a 200 OK")
@@ -220,7 +220,7 @@ public class RegisterHandlerTest {
     String number = "AAAABBBB";
     registerRepository.save(new Register()
         .setSourceId(SOURCE_ID)
-        .setWebscolaireType(ELEVE_ETUDIANT)
+        .setWebscolaireType(STUDENT)
         .setGeneratedNumber(number)).block();
 
     webTestClient.get()

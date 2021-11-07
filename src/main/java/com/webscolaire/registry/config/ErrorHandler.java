@@ -60,11 +60,12 @@ public class ErrorHandler extends AbstractErrorWebExceptionHandler {
 
     public BadRequestAlertException handleError(Throwable throwable) {
         log.error("error", throwable);
-        if (throwable instanceof ValidationException) {
-            return handleValidationException((ValidationException) throwable);
-        } else if (throwable instanceof RegisterException) {
-            return handleWsRegisterException((RegisterException) throwable);
-        }  else if ((throwable instanceof ServerWebInputException && ((ServerWebInputException) throwable).getRootCause() instanceof DateTimeParseException) ) {
+        if (throwable instanceof ValidationException validationException) {
+            return handleValidationException(validationException);
+        } else if (throwable instanceof RegisterException registerException) {
+            return handleWsRegisterException(registerException);
+        }  else if ((throwable instanceof ServerWebInputException serverWebInputException
+            && serverWebInputException.getRootCause() instanceof DateTimeParseException) ) {
             return handleDateTimeParseException();
         }
         return new BadRequestAlertException(throwable.getMessage(), "unknownBadRequest");

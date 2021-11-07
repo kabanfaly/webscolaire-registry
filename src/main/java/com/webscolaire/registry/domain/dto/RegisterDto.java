@@ -2,7 +2,7 @@ package com.webscolaire.registry.domain.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.webscolaire.registry.domain.Register;
-import com.webscolaire.registry.domain.SexType;
+import com.webscolaire.registry.domain.Sex;
 import com.webscolaire.registry.domain.WebscolaireType;
 
 import javax.validation.constraints.NotBlank;
@@ -43,7 +43,7 @@ public class RegisterDto implements Serializable {
   private String lastname;
 
   @NotNull
-  private SexType sex;
+  private Sex sex;
 
   private String generatedNumber;
 
@@ -105,11 +105,11 @@ public class RegisterDto implements Serializable {
     return this;
   }
 
-  public SexType getSex() {
+  public Sex getSex() {
     return sex;
   }
 
-  public RegisterDto setSex(SexType sex) {
+  public RegisterDto setSex(Sex sex) {
     this.sex = sex;
     return this;
   }

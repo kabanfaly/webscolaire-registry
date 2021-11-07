@@ -45,7 +45,7 @@ public class Register extends AbstractAuditingEntity {
 
   @Field(SEX)
   @NotNull
-  private SexType sex;
+  private Sex sex;
 
   @Indexed
   @Field(SOURCE_ID)
@@ -93,11 +93,11 @@ public class Register extends AbstractAuditingEntity {
     return this;
   }
 
-  public SexType getSex() {
+  public Sex getSex() {
     return sex;
   }
 
-  public Register setSex(SexType sex) {
+  public Register setSex(Sex sex) {
     this.sex = sex;
     return this;
   }

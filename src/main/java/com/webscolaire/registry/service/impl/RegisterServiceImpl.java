@@ -36,7 +36,7 @@ import static com.webscolaire.registry.config.Constants.SEX;
 import static com.webscolaire.registry.config.Constants.SOURCE_ID;
 import static com.webscolaire.registry.config.Constants.TOKEN_LENGTH;
 import static com.webscolaire.registry.config.Constants.WEBSCOLAIRE_TYPE;
-import static com.webscolaire.registry.domain.WebscolaireType.ETABLISSEMENT;
+import static com.webscolaire.registry.domain.WebscolaireType.SCHOOL;
 import static com.webscolaire.registry.exception.RegisterError.WS_007;
 import static java.util.Objects.nonNull;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
@@ -93,7 +93,7 @@ public class RegisterServiceImpl implements RegisterService {
 
     private RegisterDto validate(RegisterDto registerDto) {
         if (nonNull(registerDto.getWebscolaireType())
-            && registerDto.getWebscolaireType() != ETABLISSEMENT
+            && registerDto.getWebscolaireType() != SCHOOL
             && !hasLength(registerDto.getLastname())) {
             throw new RegisterException(RegisterError.WS_004);
         }
@@ -186,7 +186,7 @@ public class RegisterServiceImpl implements RegisterService {
             .and(FIRSTNAME).regex(registerDto.getFirstname(), "i")
             .and(DATE_OF_BIRTH).is(registerDto.getDateOfBirth())
             .and(SEX).is(registerDto.getSex());
-        if (ETABLISSEMENT != registerDto.getWebscolaireType()) {
+        if (SCHOOL != registerDto.getWebscolaireType()) {
             criteria = criteria.and(LASTNAME).regex(registerDto.getLastname(), "i");
         }
         query.addCriteria(criteria);

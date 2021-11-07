@@ -7,10 +7,10 @@ package com.webscolaire.registry.domain;
  */
 public enum WebscolaireType {
 
-    ELEVE_ETUDIANT("EE"),
-    ENSEIGNANT_PROF("EP"),
-    ETABLISSEMENT("ET"),
-    PARENT_ELEVE("PE");
+    STUDENT("EE"), // ELEVE_ETUDIANT
+    TEACHER("EP"), // ENSEIGNANT_PROF
+    SCHOOL("ET"), // ETABLISSEMENT
+    PARENT("PE"); // PARENT_ELEVE
 
     private final String code;
 

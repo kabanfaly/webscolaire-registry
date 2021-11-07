@@ -1,7 +1,7 @@
 package com.webscolaire.registry.service.impl;
 
 import com.webscolaire.registry.domain.Register;
-import com.webscolaire.registry.domain.SexType;
+import com.webscolaire.registry.domain.Sex;
 import com.webscolaire.registry.domain.UniqueGenKey;
 import com.webscolaire.registry.domain.WebscolaireType;
 import com.webscolaire.registry.domain.dto.RegisterDto;
@@ -34,10 +34,10 @@ import java.time.LocalDate;
 import java.util.stream.Stream;
 
 import static com.webscolaire.registry.TestUtils.MONGO_IMAGE;
-import static com.webscolaire.registry.domain.SexType.H;
-import static com.webscolaire.registry.domain.WebscolaireType.ELEVE_ETUDIANT;
-import static com.webscolaire.registry.domain.WebscolaireType.ENSEIGNANT_PROF;
-import static com.webscolaire.registry.domain.WebscolaireType.ETABLISSEMENT;
+import static com.webscolaire.registry.domain.Sex.MALE;
+import static com.webscolaire.registry.domain.WebscolaireType.STUDENT;
+import static com.webscolaire.registry.domain.WebscolaireType.TEACHER;
+import static com.webscolaire.registry.domain.WebscolaireType.SCHOOL;
 import static com.webscolaire.registry.exception.RegisterError.WS_002;
 import static com.webscolaire.registry.exception.RegisterError.WS_004;
 import static com.webscolaire.registry.exception.RegisterError.WS_005;
@@ -88,7 +88,7 @@ public class RegisterServiceImplTest {
 
   @ParameterizedTest
   @MethodSource("saveRegisterInvalidInputProvider")
-  public void saveRegister_invalidInput(String sourceId, LocalDate dob, String firstName, SexType sex, WebscolaireType webscolaireType) {
+  public void saveRegister_invalidInput(String sourceId, LocalDate dob, String firstName, Sex sex, WebscolaireType webscolaireType) {
     if (sourceId != null) {
       sourceId = uniqueGenKeyRepository.save(new UniqueGenKey()).block().getId();
     }
@@ -99,7 +99,7 @@ public class RegisterServiceImplTest {
   @Test
   @DisplayName("Should not save Register when the lastName is not set for a type != ETABLISSEMENT")
   public void saveRegister_invalidLastName() {
-    var register = newWsRegister(SOURCE_ID, DOB, FIRST_NAME, H, ELEVE_ETUDIANT);
+    var register = newWsRegister(SOURCE_ID, DOB, FIRST_NAME, MALE, STUDENT);
 
     RegisterException exception = assertThrows(RegisterException.class, () -> registerService.saveRegister(register));
     assertEquals(WS_004.getDescription(), exception.getMessage());
@@ -109,8 +109,8 @@ public class RegisterServiceImplTest {
   public void registerOne_shouldThrowException_withWS_005_when_invalidSourceId() {
     uniqueGenKeyRepository.deleteAll().block();
     StepVerifier.create(registerService.saveRegister(new RegisterDto().setSourceId(SOURCE_ID)
-            .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
-            .setFirstname("N'faly").setLastname("KABA").setSex(H)))
+            .setWebscolaireType(STUDENT).setDateOfBirth(DOB)
+            .setFirstname("N'faly").setLastname("KABA").setSex(MALE)))
         .expectErrorMessage(WS_005.getDescription()).verify();
   }
 
@@ -119,8 +119,8 @@ public class RegisterServiceImplTest {
   public void saveRegister_new_data() {
     Mono<RegisterDto> registerMono = registerService
         .saveRegister(new RegisterDto().setSourceId(SOURCE_ID)
-            .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
-            .setFirstname("N'faly").setLastname("KABA").setSex(H));
+            .setWebscolaireType(STUDENT).setDateOfBirth(DOB)
+            .setFirstname("N'faly").setLastname("KABA").setSex(MALE));
 
     StepVerifier.create(registerMono)
         .assertNext(register -> {
@@ -141,8 +141,8 @@ public class RegisterServiceImplTest {
 
     // When
     registerService.saveRegister(new RegisterDto().setSourceId(SOURCE_ID)
-        .setWebscolaireType(ELEVE_ETUDIANT).setDateOfBirth(DOB)
-        .setFirstname("N'faly").setLastname("KABA").setSex(H));
+        .setWebscolaireType(STUDENT).setDateOfBirth(DOB)
+        .setFirstname("N'faly").setLastname("KABA").setSex(MALE));
 
     // Then
     assertEquals(1, registerRepository.findAll().collectList().block().size());
@@ -271,10 +271,10 @@ public class RegisterServiceImplTest {
     // Given
     registerRepository.save(newWsRegister()).block();
 
-    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType(SOURCE_ID, ELEVE_ETUDIANT))
+    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType(SOURCE_ID, STUDENT))
         .assertNext(register -> {
           assertEquals(SOURCE_ID, register.getSourceId());
-          assertEquals(ELEVE_ETUDIANT, register.getWebscolaireType());
+          assertEquals(STUDENT, register.getWebscolaireType());
         })
         .expectComplete()
         .verify();
@@ -286,7 +286,7 @@ public class RegisterServiceImplTest {
     // Given
     registerRepository.save(newWsRegister()).block();
 
-    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType("SOURCE_ID_", ELEVE_ETUDIANT))
+    StepVerifier.create(registerService.findBySourceIdAndWebscolaireType("SOURCE_ID_", STUDENT))
         .expectNextCount(0)
         .verifyComplete();
   }
@@ -299,7 +299,7 @@ public class RegisterServiceImplTest {
     StepVerifier.create(registerService.findAllRegisters(PageRequest.of(0, 10)))
         .assertNext(register -> {
           assertEquals(SOURCE_ID, register.getSourceId());
-          assertEquals(ELEVE_ETUDIANT, register.getWebscolaireType());
+          assertEquals(STUDENT, register.getWebscolaireType());
         })
         .expectComplete()
         .verify();
@@ -316,7 +316,7 @@ public class RegisterServiceImplTest {
             .setGeneratedNumber(null)
             .setFirstname("ALY").setLastname("Kaba")
             .setDateOfBirth(DOB)
-            .setSex(H)))
+            .setSex(MALE)))
         .expectErrorMessage(WS_007.getDescription())
         .verify();
   }
@@ -332,7 +332,7 @@ public class RegisterServiceImplTest {
             .setGeneratedNumber(register.getGeneratedNumber())
             .setFirstname("ALY").setLastname("Kaba")
             .setDateOfBirth(DOB)
-            .setSex(H)))
+            .setSex(MALE)))
         .expectErrorMessage(RegisterError.WS_005.getDescription())
         .verify();
   }
@@ -344,11 +344,11 @@ public class RegisterServiceImplTest {
     Register register = registerRepository.save(newWsRegister()).block();
     StepVerifier.create(registerService.updateRegister(new RegisterDto()
             .setSourceId(register.getSourceId())
-            .setWebscolaireType(ENSEIGNANT_PROF)
+            .setWebscolaireType(TEACHER)
             .setGeneratedNumber(register.getGeneratedNumber())
             .setFirstname("ALY").setLastname("Kaba")
             .setDateOfBirth(DOB)
-            .setSex(H)))
+            .setSex(MALE)))
         .expectErrorMessage(RegisterError.WS_001.getDescription()).verify();
   }
 
@@ -361,15 +361,15 @@ public class RegisterServiceImplTest {
 
     StepVerifier.create(registerService.updateRegister(new RegisterDto()
             .setSourceId(wsRegister.getSourceId())
-            .setWebscolaireType(ELEVE_ETUDIANT)
+            .setWebscolaireType(STUDENT)
             .setGeneratedNumber(wsRegister.getGeneratedNumber())
             .setFirstname("ALY").setLastname("Kaba")
             .setDateOfBirth(DOB)
-            .setSex(H)))
+            .setSex(MALE)))
         .assertNext(register  -> {
           assertEquals("ALY", register.getFirstname());
           assertEquals("Kaba", register.getLastname());
-          assertEquals(H, register.getSex());
+          assertEquals(MALE, register.getSex());
           assertEquals(wsRegister.getSourceId(), register.getSourceId());
           assertEquals(wsRegister.getGeneratedNumber(), register.getGeneratedNumber());
         })
@@ -383,11 +383,11 @@ public class RegisterServiceImplTest {
         .setDateOfBirth(DOB)
         .setLastname("kaba")
         .setFirstname("N'faly".toUpperCase())
-        .setSex(H)
-        .setWebscolaireType(ELEVE_ETUDIANT);
+        .setSex(MALE)
+        .setWebscolaireType(STUDENT);
   }
 
-  public static RegisterDto newWsRegister(String sourceId, LocalDate dob, String firstName, SexType sex, WebscolaireType webscolaireType) {
+  public static RegisterDto newWsRegister(String sourceId, LocalDate dob, String firstName, Sex sex, WebscolaireType webscolaireType) {
     return new RegisterDto()
         .setSourceId(sourceId)
         .setDateOfBirth(dob)
@@ -398,11 +398,11 @@ public class RegisterServiceImplTest {
 
   static Stream<Arguments> saveRegisterInvalidInputProvider() {
     return Stream.of(
-        arguments(null, DOB, FIRST_NAME, H, ETABLISSEMENT),
-        arguments(SOURCE_ID, null, FIRST_NAME, H, ETABLISSEMENT),
-        arguments(SOURCE_ID, DOB, null, H, ETABLISSEMENT),
-        arguments(SOURCE_ID, DOB, FIRST_NAME, null, ETABLISSEMENT),
-        arguments(SOURCE_ID, DOB, FIRST_NAME, H, null)
+        arguments(null, DOB, FIRST_NAME, MALE, SCHOOL),
+        arguments(SOURCE_ID, null, FIRST_NAME, MALE, SCHOOL),
+        arguments(SOURCE_ID, DOB, null, MALE, SCHOOL),
+        arguments(SOURCE_ID, DOB, FIRST_NAME, null, SCHOOL),
+        arguments(SOURCE_ID, DOB, FIRST_NAME, MALE, null)
     );
   }
 }
