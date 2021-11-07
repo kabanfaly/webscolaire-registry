@@ -102,6 +102,7 @@ public class RegisterConfig {
                     .PUT("/register", registerHandler::updateRegister)
                     .GET("/registers", registerHandler::findAllRegisters)
                     .POST("/registers", registerHandler::registerMany)
+                    .DELETE("/resetData", registerHandler::deleteAll)
                     .PUT("/updateSourceId", registerHandler::updateSourceIdByNumber)
                     .POST("/genKey", accept(APPLICATION_JSON), uniqueGenKeyHandler::generateUniqueKey)
                     .GET("/genKey", accept(APPLICATION_JSON), uniqueGenKeyHandler::findAllUniqueKeys)

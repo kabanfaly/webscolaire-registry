@@ -21,9 +21,12 @@ import static com.webscolaire.registry.domain.WebscolaireType.*;
 import static java.lang.Integer.parseInt;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import org.springframework.stereotype.Component;
+
 import static org.springframework.web.reactive.function.BodyInserters.fromPublisher;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.ServerResponse.noContent;
 import static org.springframework.web.reactive.function.server.ServerResponse.notFound;
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 import reactor.core.publisher.Flux;
@@ -133,6 +136,11 @@ public class RegisterHandler {
             return notFound().build();
         });
 
+    }
+
+    public Mono<ServerResponse> deleteAll(ServerRequest request) {
+        return registerService.deleteAll()
+            .then(noContent().build());
     }
 
 }

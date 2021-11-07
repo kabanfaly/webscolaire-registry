@@ -383,4 +383,21 @@ public class RegisterHandlerTest {
         .jsonPath("$.dateOfBirth").isEqualTo(register.getDateOfBirth().toString());
   }
 
+  @DisplayName("Should delete all registers")
+  @Test
+  public void deleteAll() {
+    registerRepository.save(
+        registerMapper.toEntity(createWsRegisterDto().setGeneratedNumber("number"))
+    ).block();
+    assertEquals(1l, registerRepository.count().block());
+
+    webTestClient.delete()
+        .uri("/resetData")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent();
+
+    assertEquals(0l, registerRepository.count().block());
+  }
+
 }

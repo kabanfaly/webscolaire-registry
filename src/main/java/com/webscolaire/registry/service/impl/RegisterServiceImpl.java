@@ -262,4 +262,10 @@ public class RegisterServiceImpl implements RegisterService {
         return registerRepository.findAll(page)
             .map(registerMapper::toDto);
     }
+
+    @Override
+    public Mono<Void> deleteAll() {
+        log.info("Request to deleteAll register");
+        return registerRepository.deleteAll();
+    }
 }

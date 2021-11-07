@@ -36,4 +36,6 @@ public interface RegisterService {
 
   Flux<RegisterDto> findAllRegisters(Pageable page);
 
+  Mono<Void> deleteAll();
+
 }
