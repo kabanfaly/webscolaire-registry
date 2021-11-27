@@ -15,9 +15,6 @@ spring:
       database: webscolaire_registry
   application:
     name: webscolaire-registry
-  profiles:
-    active: '@spring.profiles.active@' # Value from pom.xml
-    
 server:
   port: 8181
 management:
@@ -31,8 +28,8 @@ management:
 # Authentication
 webscolaire:
   registry:
-    username: ${REGISTRY_USERNAME:admin}
-    password: ${REGISTRY_PASSWORD:kaba}
+    username: ${REGISTRY_USERNAME}
+    password: ${REGISTRY_PASSWORD}
     timeZone: ${REGITRY_TIMEZONE:UTC}
 
 ---
@@ -40,6 +37,9 @@ spring:
   config:
     activate:
       on-profile: dev
+REGISTRY_USERNAME: admin
+REGISTRY_PASSWORD: kaba
+
 logging:
   level:
     ROOT: INFO

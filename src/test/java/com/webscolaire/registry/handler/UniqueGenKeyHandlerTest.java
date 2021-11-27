@@ -45,7 +45,7 @@ public class UniqueGenKeyHandlerTest {
   public void setUp() {
     webTestClient = WebTestClient.bindToServer()
         .baseUrl("http://localhost:" + port)
-        .filter(basicAuthentication(properties.username, properties.password))
+        .filter(basicAuthentication(properties.username(), properties.password()))
         .defaultHeader("WS-TOKEN", "token")
         .build();
     uniqueGenKeyRepository.deleteAll().block();

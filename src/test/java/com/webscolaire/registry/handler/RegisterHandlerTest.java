@@ -30,6 +30,10 @@ import java.time.LocalDate;
 import static com.webscolaire.registry.TestUtils.MONGO_IMAGE;
 import static com.webscolaire.registry.domain.WebscolaireType.STUDENT;
 import static com.webscolaire.registry.exception.RegisterError.WS_007;
+import java.util.Comparator;
+import java.util.stream.Collectors;
+import static org.hamcrest.MatcherAssert.assertThat;
+import org.hamcrest.Matchers;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -66,7 +70,7 @@ public class RegisterHandlerTest {
   public void setUp() {
     webTestClient = WebTestClient.bindToServer()
         .baseUrl("http://localhost:" + port)
-        .filter(basicAuthentication(properties.username, properties.password))
+        .filter(basicAuthentication(properties.username(), properties.password()))
         .defaultHeader("WS-TOKEN", "token")
         .build();
     registerRepository.deleteAll().block();
@@ -131,22 +135,24 @@ public class RegisterHandlerTest {
         .body(Flux.just(register1, register2), RegisterDto.class)
         .exchange()
         .expectStatus().isOk()
-        .expectBody()
-        .jsonPath("$.length()").isEqualTo(2)
-        .jsonPath("$[0].id").isNotEmpty()
-        .jsonPath("$[0].generatedNumber").isNotEmpty()
-        .jsonPath("$[0].webscolaireType").isEqualTo(register1.getWebscolaireType().name())
-        .jsonPath("$[0].firstname").isEqualTo(register1.getFirstname())
-        .jsonPath("$[0].lastname").isEqualTo(register1.getLastname())
-        .jsonPath("$[0].sex").isEqualTo(register1.getSex().name())
-        .jsonPath("$[0].dateOfBirth").isEqualTo(register1.getDateOfBirth().toString())
-        .jsonPath("$[1].id").isNotEmpty()
-        .jsonPath("$[1].generatedNumber").isNotEmpty()
-        .jsonPath("$[1].webscolaireType").isEqualTo(register2.getWebscolaireType().name())
-        .jsonPath("$[1].firstname").isEqualTo(register2.getFirstname())
-        .jsonPath("$[1].lastname").isEqualTo(register2.getLastname())
-        .jsonPath("$[1].sex").isEqualTo(register2.getSex().name())
-        .jsonPath("$[1].dateOfBirth").isEqualTo(register2.getDateOfBirth().toString());
+        .expectBodyList(RegisterDto.class)
+            .value(registers -> {
+               registers = registers.stream().sorted(Comparator.comparing(RegisterDto::getFirstname)).collect(Collectors.toList());
+               assertThat(registers.get(0).getId(), Matchers.notNullValue());
+               assertThat(registers.get(0).getGeneratedNumber(), Matchers.notNullValue());
+               assertThat(registers.get(0).getWebscolaireType(), Matchers.is(register1.getWebscolaireType()));
+               assertThat(registers.get(0).getFirstname(), Matchers.is(register1.getFirstname()));
+               assertThat(registers.get(0).getLastname(), Matchers.is(register1.getLastname()));
+               assertThat(registers.get(0).getSex(), Matchers.is(register1.getSex()));
+               assertThat(registers.get(0).getDateOfBirth(), Matchers.is(register1.getDateOfBirth()));
+               assertThat(registers.get(1).getId(), Matchers.notNullValue());
+               assertThat(registers.get(1).getGeneratedNumber(), Matchers.notNullValue());
+               assertThat(registers.get(1).getWebscolaireType(), Matchers.is(register2.getWebscolaireType()));
+               assertThat(registers.get(1).getFirstname(), Matchers.is(register2.getFirstname()));
+               assertThat(registers.get(1).getLastname(), Matchers.is(register2.getLastname()));
+               assertThat(registers.get(1).getSex(), Matchers.is(register2.getSex()));
+               assertThat(registers.get(1).getDateOfBirth(), Matchers.is(register2.getDateOfBirth()));
+            });
   }
 
   @DisplayName("Should update a register with a 200 OK")

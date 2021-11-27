@@ -62,8 +62,8 @@ public class RegisterConfig {
 
     @Bean
     ReactiveUserDetailsService authentication(RegisterProperties generatorProperties, PasswordEncoder encoder) {
-        return new MapReactiveUserDetailsService(User.withUsername(generatorProperties.username)
-            .password(encoder.encode(generatorProperties.password))
+        return new MapReactiveUserDetailsService(User.withUsername(generatorProperties.username())
+            .password(encoder.encode(generatorProperties.password()))
             .roles("ADMIN")
             .build());
     }
