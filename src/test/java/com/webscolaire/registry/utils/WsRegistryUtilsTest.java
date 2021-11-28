@@ -1,7 +1,7 @@
 package com.webscolaire.registry.utils;
 
-import static com.webscolaire.registry.config.WsRegisterConstants.AUTHORIZED_NUMBERS;
-import static com.webscolaire.registry.config.WsRegisterConstants.TOKEN_LENGTH;
+import static com.webscolaire.registry.config.Constants.AUTHORIZED_NUMBERS;
+import static com.webscolaire.registry.config.Constants.TOKEN_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.DisplayName;

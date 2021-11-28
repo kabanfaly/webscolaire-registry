@@ -3,17 +3,18 @@ info:
     name: WebScolaire Registry
     description: A registry for WebScolaire application
     version: '@project.version@'
+logging:
+  level:
+    ROOT: INFO
+    com.webscolaire.registry: INFO
 spring:
   data:
     mongodb:
       auto-index-creation: false
-      uri: ${MONGO_URI}
+      uri: ${MONGO_URI:mongodb://localhost:27017/webscolaire_registry}
       database: webscolaire_registry
   application:
     name: webscolaire-registry
-  profiles:
-    active: '@spring.profiles.active@' # Value from pom.xml
-    
 server:
   port: 8181
 management:
@@ -27,6 +28,19 @@ management:
 # Authentication
 webscolaire:
   registry:
-    username: admin
-    password: kaba
-    timeZone: UTC
+    username: ${REGISTRY_USERNAME}
+    password: ${REGISTRY_PASSWORD}
+    timeZone: ${REGITRY_TIMEZONE:UTC}
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+REGISTRY_USERNAME: admin
+REGISTRY_PASSWORD: kaba
+
+logging:
+  level:
+    ROOT: INFO
+    com.webscolaire.registry: DEBUG

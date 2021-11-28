@@ -1,6 +1,5 @@
 package com.webscolaire.registry.utils;
 
-import com.google.common.base.Joiner;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
@@ -22,6 +21,6 @@ public final class WsRegistryUtils {
    */
   public static String genToken(List<String> characters, int len) {
     Collections.shuffle(characters, new Random(5));
-    return Joiner.on("").join(characters.subList(0, len));
+    return String.join("", characters.subList(0, len));
   }
 }

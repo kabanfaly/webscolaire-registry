@@ -8,15 +8,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MongoDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 import reactor.test.StepVerifier;
 
-import java.util.UUID;
-
+import static com.webscolaire.registry.TestUtils.MONGO_IMAGE;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
+@SpringBootTest
+@Testcontainers
 class UniqueGenKeyServiceImplTest {
+
+    @Container
+    private static final MongoDBContainer mongoDBContainer = new MongoDBContainer(DockerImageName.parse(MONGO_IMAGE));
 
     @Autowired
     private UniqueGenKeyService uniqueGenKeyService;
@@ -26,32 +35,45 @@ class UniqueGenKeyServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        uniqueKeyRepository.deleteAll().subscribe();
+        uniqueKeyRepository.deleteAll().block();
     }
 
-    @DisplayName("Should generate and save uniqueKey")
+    @DynamicPropertySource
+    static void configure(DynamicPropertyRegistry registry) {
+        registry.add("MONGO_URI", mongoDBContainer::getReplicaSetUrl);
+    }
+
+    @DisplayName("Should generate and save uniqueGenKey")
     @Test
     void generateUniqueKey() {
         StepVerifier.create(uniqueGenKeyService.generateUniqueKey())
-                .assertNext(uniqueGenKey -> assertNotNull(uniqueGenKey.getUniqueKey()))
+                .assertNext(uniqueGenKey -> assertNotNull(uniqueGenKey.getId()))
                 .verifyComplete();
     }
 
-    @DisplayName("Should find uniqueKey")
+    @DisplayName("Should find uniqueGenKey")
     @Test
     void findByUniqueKeyOK() {
-        var uniqueKey = UUID.randomUUID().toString().replace("-", "");
-        uniqueKeyRepository.save(new UniqueGenKey().setUniqueKey(uniqueKey)).subscribe();
-        StepVerifier.create(uniqueGenKeyService.findByUniqueKey(uniqueKey))
-                .assertNext(uniqueGenKey -> assertEquals(uniqueKey, uniqueGenKey.getUniqueKey()))
+        var uniqueGenKey = uniqueKeyRepository.save(new UniqueGenKey()).block();
+        StepVerifier.create(uniqueGenKeyService.findByUniqueKey(uniqueGenKey.getId()))
+                .assertNext(savedUniqueGenKey -> assertEquals(uniqueGenKey.getId(), savedUniqueGenKey.getId()))
                 .verifyComplete();
     }
 
-    @DisplayName("Should not find uniqueKey")
+    @DisplayName("Should not find uniqueGenKey")
     @Test
     void findByUniqueKeyKO() {
         StepVerifier.create(uniqueGenKeyService.findByUniqueKey("AAAAAA"))
                 .expectNextCount(0)
                 .verifyComplete();
+    }
+
+    @DisplayName("Should not find all uniqueGenKey")
+    @Test
+    void findAllUniqueGenKey() {
+        var uniqueGenKey = uniqueKeyRepository.save(new UniqueGenKey()).block();
+        StepVerifier.create(uniqueGenKeyService.findAllUniqueGenKey(PageRequest.of(0, 10)))
+            .assertNext(savedUniqueGenKey -> assertEquals(uniqueGenKey.getId(), savedUniqueGenKey.getId()))
+            .verifyComplete();
     }
 }
