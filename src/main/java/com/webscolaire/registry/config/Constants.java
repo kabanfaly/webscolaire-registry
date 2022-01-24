@@ -32,7 +32,6 @@ public class Constants {
   public static final String LASTNAME = "lastname";
   public static final String FIRSTNAME = "firstname";
   public static final String SEX = "sex";
-  public static final String UNIQUE_KEY = "uniqueKey";
   public static final String WEBSCOLAIRE_TYPE = "webscolaireType";
   public static final String GENERATED_NUMBER = "generatedNumber";
   public static final String CREATION_DATE = "creationDate";
