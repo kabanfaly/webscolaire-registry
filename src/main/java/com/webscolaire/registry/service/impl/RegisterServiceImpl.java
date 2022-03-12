@@ -145,16 +145,16 @@ public class RegisterServiceImpl implements RegisterService {
     @Override
     public Mono<RegisterDto> updateRegisterSourceIdByNumber(SourceIdUpdateDto sourceIdUpdateDto) {
         log.info("Request to update sourceId : {}", sourceIdUpdateDto);
-        return uniqueGenKeyRepository.findById(sourceIdUpdateDto.sourceId)
+        return uniqueGenKeyRepository.findById(sourceIdUpdateDto.sourceId())
             .hasElement().flatMap(it -> {
                 if (it) {
-                    return registerRepository.findOneByGeneratedNumber(sourceIdUpdateDto.number)
+                    return registerRepository.findOneByGeneratedNumber(sourceIdUpdateDto.number())
                         .flatMap(register -> {
-                            register.setSourceId(sourceIdUpdateDto.sourceId);
+                            register.setSourceId(sourceIdUpdateDto.sourceId());
                             return registerRepository.save(register);
                         }).switchIfEmpty(error(new RegisterException(WS_007)));
                 }
-                log.error("SourceId '{}' not found ", sourceIdUpdateDto.sourceId);
+                log.error("SourceId '{}' not found ", sourceIdUpdateDto.sourceId());
                 return error(new RegisterException(RegisterError.WS_005));
             })
             .map(registerMapper::toDto);

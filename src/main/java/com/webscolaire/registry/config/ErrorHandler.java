@@ -91,5 +91,4 @@ public class ErrorHandler extends AbstractErrorWebExceptionHandler {
         log.error("invalid field dateOfBirth");
         return new BadRequestAlertException(WS_002.getCode(), WS_002.getCode(), null);
     }
-
 }

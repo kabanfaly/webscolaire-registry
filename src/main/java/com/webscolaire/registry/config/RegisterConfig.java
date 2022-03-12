@@ -16,6 +16,7 @@ import com.webscolaire.registry.service.RegisterService;
 import com.webscolaire.registry.service.impl.UniqueGenKeyServiceImpl;
 import com.webscolaire.registry.service.impl.RegisterServiceImpl;
 import com.webscolaire.registry.validator.GenericValidator;
+import org.springframework.boot.autoconfigure.web.WebProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -48,6 +49,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 @EnableReactiveMongoAuditing
 @EnableReactiveMongoRepositories(basePackages ="com.webscolaire.registry.repository")
 public class RegisterConfig {
+
+    @Bean
+    public WebProperties.Resources resources() {
+        return new WebProperties.Resources();
+    }
 
     @Bean
     public RegisterService wsRegisterService(RegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
