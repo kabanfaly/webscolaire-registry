@@ -19,13 +19,11 @@
     <properties>
         <project.encoding>UTF-8</project.encoding>
         <java.version>17</java.version>
-        <spring-boot.version>2.6.4</spring-boot.version>
+        <spring-boot.version>2.6.8</spring-boot.version>
         <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
         <image-path>ws-registry:latest</image-path>
-        
         <mapstruct.version>1.4.2.Final</mapstruct.version>
-
-        <testcontainer.version>1.15.1</testcontainer.version>
+        <testcontainer.version>1.17.2</testcontainer.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
     </properties>
