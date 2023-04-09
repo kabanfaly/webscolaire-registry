@@ -1,12 +1,10 @@
 package com.webscolaire.registry.config;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.ConstructorBinding;
 import org.springframework.validation.annotation.Validated;
 
 @ConfigurationProperties("webscolaire.registry")
-@ConstructorBinding
 @Validated
 public record RegisterProperties(@NotNull String username, @NotNull String password, @NotNull String timeZone) {}
