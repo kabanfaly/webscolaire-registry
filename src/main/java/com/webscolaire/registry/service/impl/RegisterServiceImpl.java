@@ -12,6 +12,7 @@ import com.webscolaire.registry.repository.RegisterRepository;
 import com.webscolaire.registry.service.RegisterService;
 import com.webscolaire.registry.utils.WsRegistryUtils;
 import com.webscolaire.registry.validator.GenericValidator;
+import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,7 @@ import static reactor.core.publisher.Mono.error;
  * @since 12 avr. 2019
  * @author KABA N'faly
  */
+@RequiredArgsConstructor
 public class RegisterServiceImpl implements RegisterService {
 
     private final Logger log = LoggerFactory.getLogger(RegisterServiceImpl.class);
@@ -58,15 +60,6 @@ public class RegisterServiceImpl implements RegisterService {
     private final ReactiveMongoTemplate reactiveMongoTemplate;
     private final RegisterMapper registerMapper;
     private final GenericValidator validator;
-
-    public RegisterServiceImpl(RegisterRepository registerRepository, UniqueGenKeyRepository uniqueGenKeyRepository,
-                               ReactiveMongoTemplate reactiveMongoTemplate, RegisterMapper registerMapper, GenericValidator validator) {
-        this.registerRepository = registerRepository;
-        this.uniqueGenKeyRepository = uniqueGenKeyRepository;
-        this.reactiveMongoTemplate = reactiveMongoTemplate;
-        this.registerMapper = registerMapper;
-        this.validator = validator;
-    }
 
     /**
      * Save a {@link Register}.
