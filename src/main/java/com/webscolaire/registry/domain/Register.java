@@ -6,6 +6,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+
+import java.io.Serial;
 import java.time.LocalDate;
 
 import static com.webscolaire.registry.config.Constants.DATE_OF_BIRTH;
@@ -24,6 +26,7 @@ import static com.webscolaire.registry.config.Constants.WEBSCOLAIRE_TYPE;
 @Document(collection = "register")
 public class Register extends AbstractAuditingEntity {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Indexed

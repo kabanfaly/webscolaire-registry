@@ -6,6 +6,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
@@ -20,6 +21,7 @@ import static com.webscolaire.registry.config.Constants.MODIFICATION_DATE;
  */
 public abstract class AbstractAuditingEntity implements Serializable {
 
+  @Serial
   private static final long serialVersionUID = 1L;
 
   @Id
